@@ -1,0 +1,9 @@
+half_life_days = 180
+
+[weights]
+change_ownership = 0.25
+recency = 0.20
+change_frequency = 0.20
+code_area_breadth = 0.15
+unique_contribution = 0.10
+historical_persistence = 0.10
