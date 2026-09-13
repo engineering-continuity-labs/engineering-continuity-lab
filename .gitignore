@@ -5,3 +5,7 @@ __pycache__/
 build/
 dist/
 .mypy_cache/
+
+# Authored static application, not generated build output
+!ui/dist/
+!ui/dist/**
