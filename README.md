@@ -50,7 +50,7 @@ Filtered commits retain metadata, so commit count and reference date describe th
 
 ## Scope and limitations
 
-v0.1 uses local Git HEAD ancestry only. There is no Azure DevOps integration, graph database, LLM, or web UI. By default all tracked historical paths count, including deleted files, generated code, vendored files, tests, and docs. Renames count as deletion plus addition; this version does not track semantic file identity. Bots count as contributors unless explicitly filtered. Git mailmap canonicalization is honored; otherwise identities group by case-insensitive email. Reviews, pairing, operational experience, uncommitted work, and knowledge transfer are invisible.
+v0.1 uses local Git HEAD ancestry only. There is no Azure DevOps integration, graph database, or LLM. An optional browser report explorer is available in `ui/`. By default all tracked historical paths count, including deleted files, generated code, vendored files, tests, and docs. Renames count as deletion plus addition; this version does not track semantic file identity. Bots count as contributors unless explicitly filtered. Git mailmap canonicalization is honored; otherwise identities group by case-insensitive email. Reviews, pairing, operational experience, uncommitted work, and knowledge transfer are invisible.
 
 Shallow clones produce incomplete evidence and are flagged. Prefer a full clone. Concentration can be low even when every contributor is inactive; consult recency alongside risk. Sparse components can be critical after a single commit. Validate findings with the team before making continuity plans.
 
@@ -63,3 +63,15 @@ python -m mypy --strict src
 ```
 
 See [architecture](docs/architecture.md), [scoring model](docs/scoring-model.md), and [eShop validation](docs/validation.md).
+
+## Browser report explorer
+
+```sh
+python -m http.server 8765 --bind 127.0.0.1 --directory ui/dist
+```
+
+Open `http://127.0.0.1:8765` and select an `analyze` JSON report. The UI opens with clearly labeled synthetic data, never a private report. It shows concentration/risk, contributor signals, historical files, and departure scenarios. Reports stay in browser memory and are never uploaded or persisted. A reload resets the report. Maximum file size is 30 MB. Person/departure JSON exports are not accepted as complete analysis reports.
+
+Bot/generated filters must be applied in the CLI before export; the UI displays their scope and offers risk/search view filters. It does not pretend to recompute scores without original Git evidence. `ui/dist` contains authored static HTML/CSS/JavaScript with no build or runtime dependencies. Run `node --test ui/tests/*.test.js` for the UI domain checks.
+
+The optional WebMCP departure action is feature-detected. A supported browser tool context was unavailable during implementation, so its live registration has not been verified. Browser visual/interaction QA was not performed; model tests and static checks were performed.
