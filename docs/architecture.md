@@ -1,6 +1,6 @@
 # Architecture
 
-The flow is CLI → history provider → domain evidence → component strategy → scoring and analysis → JSON. Python's standard library handles Git subprocesses, TOML, argument parsing, serialization, and tests. Packaging uses setuptools.
+The flow is CLI → history provider → domain evidence → explicit evidence filters → component strategy → scoring and analysis → JSON. Python's standard library handles Git subprocesses, TOML, argument parsing, serialization, and tests. Packaging uses setuptools.
 
 - `domain/models.py`: immutable Author, Change, Commit, and History values; structural HistoryProvider and ComponentStrategy protocols. These contain no Git subprocess or CLI behavior.
 - `git/history.py`: GitHistory implements the provider contract. It resolves HEAD once and reads that revision's ancestry, recording hashes, canonical author names/emails, timezone-aware author dates, paths, and numstat additions/deletions. Binary counts remain unknown. NUL framing supports tabs and newlines in paths. Merge commits retain metadata without diffs; ordinary branch commits supply their changes.
@@ -13,3 +13,9 @@ To replace directory grouping, supply another ComponentStrategy to `analyze`. To
 Git extraction and aggregation are in-memory. Very large histories may require a streaming provider and indexed aggregates later. Historical file ownership is intentionally different from current line blame. Scores retain all historical contributors, including inactive ones. The Git checkout's mailmap is an additional identity input: reproducibility requires the same mailmap, revision, configuration, and reference date. The tool never changes the analyzed checkout.
 
 Tests create disposable real Git repositories and exercise parsing, binary paths, renames/deletions, merges, mailmaps, CLI views, scoring boundaries, configurable weights, recency, persistence, and departure coverage.
+
+## Reporting and filtering extension
+
+`analysis/filtering.py` applies explicit filters to immutable history evidence before aggregation. Commit metadata, revision, and shallow status survive filtering. This preserves the original time reference. A separate FilterEvidence value records input/retained/excluded file-change counts, reason counts, and excluded paths/author identities. No heuristic runs unless enabled.
+
+`reporting/text.py` renders plain tables from typed reports without recalculating scores. Repository-controlled control characters are escaped in text. JSON continues to expose full signals and evidence, with additive filter metadata. No new runtime dependency is required.

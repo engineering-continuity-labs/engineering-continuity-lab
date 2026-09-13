@@ -102,3 +102,23 @@ class GitHistoryTests(unittest.TestCase):
             with redirect_stderr(io.StringIO()) as errors:
                 self.assertEqual(main(["analyze", "--config", str(config)]), 2)
             self.assertTrue(errors.getvalue().startswith("continuity:"))
+
+    def test_text_views_and_filter_audit(self):
+        (self.path / "a.py").write_text("code")
+        (self.path / "client.g.cs").write_text("generated")
+        self.save()
+        for command in (["analyze"], ["person", "Alice"], ["simulate-departure", "Alice"]):
+            with redirect_stdout(io.StringIO()) as output:
+                self.assertEqual(main([*command, "--repo", str(self.path), "--format", "text", "--exclude-generated"]), 0)
+            text = output.getvalue()
+            self.assertIn("1 retained / 2 total; 1 excluded", text)
+            self.assertIn("CRITICAL" if command[0] != "simulate-departure" else "100.0%", text)
+        with redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(main(["analyze", "--repo", str(self.path), "--exclude-generated"]), 0)
+        data = json.loads(output.getvalue())
+        self.assertEqual(data['filter_evidence']['excluded_paths'], ['client.g.cs'])
+        self.assertTrue(data['filters']['exclude_generated'])
+        self.assertEqual(data['components'][0]['contributors'][0]['files'], ['a.py'])
+        with redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(main(["analyze", "--repo", str(self.path), "--exclude-path", "*", "--format", "text"]), 0)
+        self.assertIn("no risk classification", output.getvalue())
