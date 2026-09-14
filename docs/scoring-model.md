@@ -1,5 +1,7 @@
 # Experimental scoring model v0.1
 
+The normative contract for current v0.1 behavior is [the scoring specification](../specs/v0.1/scoring-spec.md). This document explains rationale, interpretation, and limitations.
+
 **Git activity is only a proxy for knowledge.** The model is an explainable hypothesis, not a validated measurement of knowledge or probability of failure. Thresholds and default weights are heuristic. They require empirical calibration and human review.
 
 For each component and contributor, calculate six signals in [0, 1]:

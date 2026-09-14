@@ -1,0 +1,28 @@
+# v0.1 acceptance criteria
+
+**Status:** Verified unless traceability marks an item PARTIAL or MANUAL. These criteria describe current behavior.
+
+| ID | Given / When / Then |
+| --- | --- |
+| ECL-AC-001 | **Given** a non-empty local Git repository, **when** it is analyzed, **then** a report includes its HEAD revision and commit count. |
+| ECL-AC-002 | **Given** commits with normal, binary, renamed, deleted, and unusual path changes, **when** history is read, **then** author/date/path evidence and available numstat values are retained without duplicate merge diffs. |
+| ECL-AC-003 | **Given** a shallow clone, **when** it is analyzed, **then** the report flags it as shallow. |
+| ECL-AC-004 | **Given** a path and component depth, **when** components are assigned, **then** the directory prefix at that depth is used and root files use `(root)`. |
+| ECL-AC-005 | **Given** valid custom weights, **when** scores are calculated, **then** the normalized weighted score uses them; invalid weights fail. |
+| ECL-AC-006 | **Given** identical history, filters, configuration, and explicit reference time, **when** analysis repeats, **then** scores and classifications match. |
+| ECL-AC-007 | **Given** invalid signals, invalid configuration, or a reference before evidence, **when** scoring runs, **then** it fails rather than emit an invalid score. |
+| ECL-AC-008 | **Given** boundary HHI values, **when** risk is classified, **then** LOW, MEDIUM, HIGH, and CRITICAL boundaries follow ECL-SC-015. |
+| ECL-AC-009 | **Given** a unique contributor query, **when** a person view is requested, **then** their component evidence is returned. |
+| ECL-AC-010 | **Given** an empty, absent, or ambiguous contributor query, **when** a person view is requested, **then** it fails with a clear error. |
+| ECL-AC-011 | **Given** a contributor in a component, **when** departure is simulated, **then** modeled loss equals that contributor’s pre-departure share. |
+| ECL-AC-012 | **Given** files touched only by a departing contributor, **when** departure is simulated, **then** those files are reported as uncovered. |
+| ECL-AC-013 | **Given** remaining contributors with overlapping files, **when** departure is simulated, **then** the candidate with the highest overlap is selected using documented tie breaks. |
+| ECL-AC-014 | **Given** no remaining historical file overlap, **when** departure is simulated, **then** no successor candidate is returned. |
+| ECL-AC-015 | **Given** authors carrying `[bot]`, **when** bot exclusion is enabled, **then** their changed-file records are excluded and evidence records the reason. |
+| ECL-AC-016 | **Given** a matching generated filename, **when** generated-file exclusion is enabled, **then** its changed-file record is excluded and evidence records the reason. |
+| ECL-AC-017 | **Given** matching custom path or author globs, **when** exclusions are enabled, **then** matching changed-file records are excluded with deterministic reason precedence. |
+| ECL-AC-018 | **Given** every changed-file record is excluded, **when** analysis runs, **then** it returns an empty component report without inventing risk labels. |
+| ECL-AC-019 | **Given** each CLI command, **when** JSON or text output is selected, **then** it contains the applicable evidence and view. |
+| ECL-AC-020 | **Given** a structurally valid analysis JSON report, **when** the browser explorer loads it, **then** it shows component, contributor, and departure views consistent with the report. |
+| ECL-AC-021 | **Given** an incompatible or malformed report, **when** the browser explorer loads it, **then** it rejects it without accepting corrupted state. |
+| ECL-AC-022 | **Given** a local report file, **when** it is loaded in the browser explorer, **then** the application keeps it in browser memory; no network upload behavior exists in its static code. |

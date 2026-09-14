@@ -110,6 +110,12 @@ node --check ui/dist/model.js
 - **v0.4** Requirements, test, and architecture evidence
 - **v0.5** Technical handover verification
 
+## Spec-driven development
+
+Specifications are the source of truth for observable behavior. Documentation explains architecture, rationale, usage, and validation evidence; source implements the specifications; tests provide verification evidence.
+
+Read the [governance process](specs/README.md), [v0.1 product specification](specs/v0.1/product-spec.md), [normative scoring contract](specs/v0.1/scoring-spec.md), [acceptance criteria](specs/v0.1/acceptance-criteria.md), and [traceability matrix](specs/v0.1/traceability.md). Future roadmap work begins with specifications before implementation: v0.2 PR/review evidence, v0.3 Azure DevOps traceability, v0.4 requirements/test/architecture evidence, and v0.5 technical handover verification.
+
 ## License
 
 Licensed under the [Apache License 2.0](LICENSE).
