@@ -15,6 +15,22 @@ from continuity.git.history import GitHistory
 from continuity.scoring.model import ScoringConfig
 
 
+def resolve_repository_path(explicit_path: Path | None) -> Path:
+    """Return an explicit path or request one only from an interactive terminal."""
+    if explicit_path is not None:
+        return explicit_path
+    if not sys.stdin.isatty():
+        raise ValueError("repository path is required in non-interactive mode; provide --repo PATH")
+    print("Engineering Continuity Lab\n")
+    try:
+        path = input("Repository path:\n\n> ").strip()
+    except EOFError as exc:
+        raise ValueError("repository path is required; provide --repo PATH") from exc
+    if not path:
+        raise ValueError("repository path cannot be empty")
+    return Path(path)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Experimental Git activity proxy for continuity risk")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -27,7 +43,7 @@ def main(argv: list[str] | None = None) -> int:
         cmd.add_argument("--exclude-generated", action="store_true", help="exclude common generated filename patterns")
         cmd.add_argument("--exclude-path", action="append", default=[], metavar="GLOB", help="exclude repository-relative path glob; repeatable")
         cmd.add_argument("--exclude-author", action="append", default=[], metavar="GLOB", help="exclude name/email glob, case-insensitive; repeatable")
-        cmd.add_argument("--repo", type=Path, default=Path("."))
+        cmd.add_argument("--repo", type=Path, help="local Git repository path")
         cmd.add_argument("--component-depth", type=int, default=1)
         cmd.add_argument("--config", type=Path, help="TOML scoring configuration")
         cmd.add_argument("--as-of", help="ISO timestamp with timezone; defaults to newest author date")
@@ -45,7 +61,7 @@ def main(argv: list[str] | None = None) -> int:
         strategy = DirectoryComponents(args.component_depth)
         filters = FilterConfig(args.exclude_bots, args.exclude_generated,
                                tuple(args.exclude_path), tuple(args.exclude_author))
-        history, evidence = filter_history(GitHistory(args.repo).read(), filters)
+        history, evidence = filter_history(GitHistory(resolve_repository_path(args.repo)).read(), filters)
         report = analyze(history, strategy, config,
                          datetime.fromisoformat(args.as_of) if args.as_of else None)
         output = {"model": "experimental-v0.1", "warning": "Git activity is only a proxy for knowledge.",

@@ -43,6 +43,7 @@ v0.1 excludes Azure DevOps integration, pull-request review intelligence, archit
 | ECL-FR-019 | Support externally configurable scoring weights and half-life. |
 | ECL-FR-020 | The browser explorer shall load a local `analyze` JSON report and display concentration, contributor evidence, and departure scenarios without uploading or persisting the report. |
 | ECL-FR-021 | The browser explorer shall reject incompatible or structurally invalid reports. |
+| ECL-FR-022 | When an analysis-related CLI command runs interactively without an explicit repository path, prompt for a local repository path. In non-interactive execution, fail clearly and instruct the caller to provide `--repo`. |
 
 ## Non-functional requirements
 

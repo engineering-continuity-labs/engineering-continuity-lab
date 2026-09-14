@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 from tempfile import TemporaryDirectory
 import unittest
+from unittest.mock import patch
 
 from continuity.cli import main
 from continuity.git.history import GitHistory
@@ -102,6 +103,54 @@ class GitHistoryTests(unittest.TestCase):
             with redirect_stderr(io.StringIO()) as errors:
                 self.assertEqual(main(["analyze", "--config", str(config)]), 2)
             self.assertTrue(errors.getvalue().startswith("continuity:"))
+
+    def test_interactive_repository_prompt_applies_to_each_command(self):
+        (self.path / "a").write_text("a")
+        self.save()
+        class InteractiveInput(io.StringIO):
+            def isatty(self):
+                return True
+        for command in (["analyze"], ["person", "Alice"], ["simulate-departure", "alice@example.com"]):
+            with patch("sys.stdin", InteractiveInput()), patch("builtins.input", return_value=f"  {self.path}  ") as prompt, redirect_stdout(io.StringIO()) as output:
+                self.assertEqual(main(command), 0)
+            self.assertEqual(prompt.call_count, 1)
+            self.assertIn("Engineering Continuity Lab", output.getvalue())
+            self.assertIn("Repository path", prompt.call_args.args[0])
+
+    def test_explicit_repository_skips_prompt_for_each_command(self):
+        (self.path / "a").write_text("a")
+        self.save()
+        for command in (["analyze"], ["person", "Alice"], ["simulate-departure", "alice@example.com"]):
+            with patch("builtins.input") as prompt, redirect_stdout(io.StringIO()):
+                self.assertEqual(main([*command, "--repo", str(self.path)]), 0)
+            prompt.assert_not_called()
+
+    def test_interactive_empty_repository_path_is_rejected(self):
+        class InteractiveInput(io.StringIO):
+            def isatty(self):
+                return True
+        with patch("sys.stdin", InteractiveInput()), patch("builtins.input", return_value="   "), redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()) as errors:
+            self.assertEqual(main(["analyze"]), 2)
+        self.assertIn("repository path cannot be empty", errors.getvalue())
+
+    def test_invalid_explicit_or_entered_repository_uses_git_validation_error(self):
+        missing = self.path / "missing"
+        with redirect_stderr(io.StringIO()) as errors:
+            self.assertEqual(main(["analyze", "--repo", str(missing)]), 2)
+        self.assertIn("continuity:", errors.getvalue())
+
+        class InteractiveInput(io.StringIO):
+            def isatty(self):
+                return True
+        with patch("sys.stdin", InteractiveInput()), patch("builtins.input", return_value=str(missing)), redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()) as errors:
+            self.assertEqual(main(["analyze"]), 2)
+        self.assertIn("continuity:", errors.getvalue())
+
+    def test_non_interactive_missing_repository_fails_without_prompt(self):
+        with patch("builtins.input") as prompt, redirect_stderr(io.StringIO()) as errors:
+            self.assertEqual(main(["analyze"]), 2)
+        prompt.assert_not_called()
+        self.assertIn("provide --repo PATH", errors.getvalue())
 
     def test_text_views_and_filter_audit(self):
         (self.path / "a.py").write_text("code")

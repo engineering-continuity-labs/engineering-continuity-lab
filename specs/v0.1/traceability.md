@@ -5,6 +5,7 @@
 | Spec ID | Acceptance criteria | Implementation | Verification | Status |
 | --- | --- | --- | --- | --- |
 | ECL-FR-001, 002, 017 | ECL-AC-001, 002, 003 | `src/continuity/git/history.py` | `tests/test_git_history.py` | VERIFIED |
+| ECL-FR-022 | ECL-AC-023–026 | `src/continuity/cli.py` | `tests/test_git_history.py` | VERIFIED |
 | ECL-FR-003 | ECL-AC-004 | `src/continuity/domain/models.py` | `tests/test_scoring.py` | VERIFIED |
 | ECL-FR-004–006, 018–019; ECL-SC-001–017 | ECL-AC-005–008, 011 | `src/continuity/analysis/service.py`, `src/continuity/scoring/model.py` | `tests/test_scoring.py` | VERIFIED |
 | ECL-FR-007 | ECL-AC-009–010 | `src/continuity/analysis/service.py`, `src/continuity/cli.py` | `tests/test_git_history.py`, `tests/test_scoring.py` | VERIFIED |

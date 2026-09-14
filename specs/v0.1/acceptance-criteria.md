@@ -26,3 +26,7 @@
 | ECL-AC-020 | **Given** a structurally valid analysis JSON report, **when** the browser explorer loads it, **then** it shows component, contributor, and departure views consistent with the report. |
 | ECL-AC-021 | **Given** an incompatible or malformed report, **when** the browser explorer loads it, **then** it rejects it without accepting corrupted state. |
 | ECL-AC-022 | **Given** a local report file, **when** it is loaded in the browser explorer, **then** the application keeps it in browser memory; no network upload behavior exists in its static code. |
+| ECL-AC-023 | **Given** `--repo` is supplied to `analyze`, `person`, or `simulate-departure`, **when** the command runs, **then** no repository prompt appears and the supplied path is analyzed. |
+| ECL-AC-024 | **Given** an interactive terminal and no `--repo`, **when** an analysis-related command runs, **then** it prompts for a local repository path, trims surrounding whitespace, rejects an empty response, and analyzes the entered path. |
+| ECL-AC-025 | **Given** an invalid supplied or entered repository path, **when** analysis starts, **then** the existing clear Git repository validation error is shown. |
+| ECL-AC-026 | **Given** non-interactive execution and no `--repo`, **when** an analysis-related command runs, **then** it fails without waiting for input and instructs the caller to provide `--repo`. |
