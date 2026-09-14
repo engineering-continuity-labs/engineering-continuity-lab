@@ -1,6 +1,8 @@
 # v0.1 product specification
 
-**Status:** Verified
+**Status:** Implemented
+
+Verification status is tracked per requirement in [traceability.md](traceability.md). Some v0.1 requirements currently remain PARTIAL or MANUAL.
 
 ## Purpose and users
 
