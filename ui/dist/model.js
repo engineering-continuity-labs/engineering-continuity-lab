@@ -1,8 +1,8 @@
-export const signalNames={change_ownership:'Değişiklik sahipliği',recency:'Güncellik',change_frequency:'Değişiklik sıklığı',code_area_breadth:'Dosya kapsamı',unique_contribution:'Benzersiz katkı',historical_persistence:'Zamansal süreklilik'};
+export const signalNames={change_ownership:'Change ownership',recency:'Recency',change_frequency:'Change frequency',code_area_breadth:'Code-area breadth',unique_contribution:'Unique contribution',historical_persistence:'Historical persistence'};
 export const riskOf=x=>x>=.8?'CRITICAL':x>=.6?'HIGH':x>=.4?'MEDIUM':'LOW';
 const finite=(v,min=0,max=1)=>typeof v==='number'&&Number.isFinite(v)&&v>=min&&v<=max;
 export function validateReport(r){
- const fail=()=>{throw Error('Geçerli bir continuity analyze JSON raporu seçin. Kişi ve simülasyon raporları desteklenmiyor.');};
+ const fail=()=>{throw Error('Select a valid continuity analyze JSON report. Person and departure exports are not supported here.');};
  if(!r||r.model!=='experimental-v0.1'||!Array.isArray(r.components)||typeof r.revision!=='string'||typeof r.as_of!=='string'||!Number.isFinite(Date.parse(r.as_of))||!Number.isInteger(r.commit_count)||r.commit_count<0)fail();
  if(r.filters!==undefined&&(!r.filters||typeof r.filters!=='object'||['paths','authors'].some(k=>r.filters[k]!==undefined&&(!Array.isArray(r.filters[k])||r.filters[k].some(v=>typeof v!=='string')))))fail();
  if(r.filter_evidence!==undefined&&(!r.filter_evidence||!Number.isInteger(r.filter_evidence.excluded_file_changes)||!Number.isInteger(r.filter_evidence.input_file_changes)))fail();
@@ -28,7 +28,7 @@ export function departure(report,who){
  }).sort((a,b)=>b.loss-a.loss||(a.component<b.component?-1:1));
 }
 export function demoReport(){
- const people=[['Deniz Kaya','deniz@example.test'],['Ece Yılmaz','ece@example.test'],['Can Aras','can@example.test'],['Ada Demir','ada@example.test']];
+ const people=[['Alex Morgan','alex@example.test'],['Jordan Lee','jordan@example.test'],['Casey Patel','casey@example.test'],['Sam Rivera','sam@example.test']];
  const components=[['src/payments',[.92,.08]],['src/identity',[.78,.22]],['src/catalog',[.53,.32,.15]],['src/checkout',[.40,.30,.20,.10]],['src/notifications',[.34,.33,.33]],['tests/integration',[.25,.25,.25,.25]]].map(([component,shares],i)=>{
   const contributors=shares.map((share,j)=>({contributor:people[(i+j)%4][1],name:people[(i+j)%4][0],share,score:share,commits:Math.round(share*100),files:[`${component}/shared.cs`,`${component}/area-${j}.cs`],signals:{change_ownership:share,recency:.86-j*.12,change_frequency:share,code_area_breadth:.5,unique_contribution:.25,historical_persistence:.8-j*.1}}));
   const concentration=shares.reduce((s,x)=>s+x*x,0);return{component,concentration,risk:riskOf(concentration),contributors};
