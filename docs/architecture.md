@@ -1,6 +1,6 @@
 # Architecture
 
-The flow is CLI → history provider → domain evidence → explicit evidence filters → component strategy → scoring and analysis → JSON. Python's standard library handles Git subprocesses, TOML, argument parsing, serialization, and tests. Packaging uses setuptools.
+The flow is CLI → history provider → domain evidence → explicit evidence filters → component strategy → scoring and analysis → JSON. The optional `continuity explorer` command serves the existing browser explorer and a narrow analysis endpoint on `127.0.0.1`; the browser sends only a local repository path to that loopback service. Python's standard library handles Git subprocesses, TOML, argument parsing, serialization, HTTP serving, and tests. Packaging uses setuptools.
 
 - `domain/models.py`: immutable Author, Change, Commit, and History values; structural HistoryProvider and ComponentStrategy protocols. These contain no Git subprocess or CLI behavior.
 - `git/history.py`: GitHistory implements the provider contract. It resolves HEAD once and reads that revision's ancestry, recording hashes, canonical author names/emails, timezone-aware author dates, paths, and numstat additions/deletions. Binary counts remain unknown. NUL framing supports tabs and newlines in paths. Merge commits retain metadata without diffs; ordinary branch commits supply their changes.

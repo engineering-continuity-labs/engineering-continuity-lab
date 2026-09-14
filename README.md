@@ -16,7 +16,7 @@ flowchart LR
 
 For directory-based components, the tool calculates contributor score shares, concentration, and a LOW, MEDIUM, HIGH, or CRITICAL risk classification. It then models the impact of removing a contributor, including historical file coverage and an overlap-based successor candidate.
 
-The browser report explorer opens an `analyze` JSON report locally in the browser. It displays component concentration, the score evidence for each contributor, and departure scenarios. It does not upload or persist the selected report.
+The browser report explorer displays component concentration, the score evidence for each contributor, and departure scenarios. Run it through the local loopback service to analyze a repository path directly, or open an existing `analyze` JSON report. It does not upload or persist reports.
 
 ## Install and run
 
@@ -39,10 +39,10 @@ Use `--format text` for readable terminal tables. JSON is the default and is the
 ```sh
 continuity analyze --repo /path/to/repository --component-depth 2 --format text
 continuity analyze --repo /path/to/repository --exclude-bots --exclude-generated > report.json
-python -m http.server 8765 --bind 127.0.0.1 --directory ui/dist
+continuity explorer
 ```
 
-Open `http://127.0.0.1:8765` and select `report.json`. The interface starts with clearly labelled synthetic data, never a private report. Reports remain in browser memory and are cleared on reload. The maximum report file size is 30 MB.
+Open `http://127.0.0.1:8765`, enter a local Git repository path, and select **Analyze repository**. The service binds only to `127.0.0.1`; it does not clone repositories or contact GitHub. The interface starts with clearly labelled synthetic data, never a private report. Reports remain in browser memory and are cleared on reload. The maximum report file size is 30 MB.
 
 ## Evidence, inference, and unknowns
 

@@ -44,6 +44,7 @@ v0.1 excludes Azure DevOps integration, pull-request review intelligence, archit
 | ECL-FR-020 | The browser explorer shall load a local `analyze` JSON report and display concentration, contributor evidence, and departure scenarios without uploading or persisting the report. |
 | ECL-FR-021 | The browser explorer shall reject incompatible or structurally invalid reports. |
 | ECL-FR-022 | When an analysis-related CLI command runs interactively without an explicit repository path, prompt for a local repository path. In non-interactive execution, fail clearly and instruct the caller to provide `--repo`. |
+| ECL-FR-023 | The local browser explorer shall accept a local repository path and run the existing analysis through a loopback-only local service, then display the resulting report without remote repository access. |
 
 ## Non-functional requirements
 
@@ -58,5 +59,6 @@ v0.1 excludes Azure DevOps integration, pull-request review intelligence, archit
 | ECL-NFR-007 | Do not mutate an analyzed repository. |
 | ECL-NFR-008 | State limitations and uncertainty explicitly. |
 | ECL-NFR-009 | Retain evidence provenance where Git supplies it. |
+| ECL-NFR-010 | Bind the local browser analysis service to loopback only and reject unsupported API paths and invalid request payloads. |
 
 The normative score contract is [scoring-spec.md](scoring-spec.md). Acceptance criteria and verification status are [acceptance-criteria.md](acceptance-criteria.md) and [traceability.md](traceability.md).

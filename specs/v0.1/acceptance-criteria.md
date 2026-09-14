@@ -30,3 +30,6 @@
 | ECL-AC-024 | **Given** an interactive terminal and no `--repo`, **when** an analysis-related command runs, **then** it prompts for a local repository path, trims surrounding whitespace, rejects an empty response, and analyzes the entered path. |
 | ECL-AC-025 | **Given** an invalid supplied or entered repository path, **when** analysis starts, **then** the existing clear Git repository validation error is shown. |
 | ECL-AC-026 | **Given** non-interactive execution and no `--repo`, **when** an analysis-related command runs, **then** it fails without waiting for input and instructs the caller to provide `--repo`. |
+| ECL-AC-027 | **Given** the local explorer service and a valid local repository path, **when** the browser requests analysis, **then** the existing analysis report is returned and rendered without changing scoring semantics. |
+| ECL-AC-028 | **Given** an invalid local repository path or invalid browser request, **when** the local explorer service receives it, **then** it returns a clear error and does not run remote access or cloning. |
+| ECL-AC-029 | **Given** the explorer command, **when** it starts, **then** it serves the browser interface and API on loopback only. |
