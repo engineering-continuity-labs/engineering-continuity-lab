@@ -1,27 +1,71 @@
-## Specification
+## Product Owner
 
-Affected Spec IDs:
+Affected requirements:
 
-- ECL-...
+- ECL-FR-...
+- ECL-NFR-...
 
-New or changed acceptance criteria:
+Acceptance criteria:
 
 - ECL-AC-...
 
-## Implementation
+Product scope reviewed:
+
+- [ ]
+
+## Solution Architect
+
+Architecture impact:
+
+Design / contract changes:
+
+Architecture reviewed:
+
+- [ ]
+
+## QA
+
+Verification strategy:
+
+Automated verification:
+
+PARTIAL / MANUAL verification explicitly recorded:
+
+- [ ]
+
+## Developer
 
 Implementation paths:
 
-## Verification
+Observable behavioral changes:
 
-Tests / validation evidence:
+Scoring semantic changes:
 
-## Behavioral change
+## Code Reviewer
 
-- Does this PR change observable behavior?
-- Does this PR change scoring semantics?
-- If yes, confirm the specification was updated first.
+Specification compliance:
 
-## Traceability
+- [ ]
 
-Confirm `specs/.../traceability.md` has been updated.
+Architecture compliance:
+
+- [ ]
+
+Test adequacy:
+
+- [ ]
+
+Traceability accuracy:
+
+- [ ]
+
+No unresolved BLOCKER / MAJOR findings:
+
+- [ ]
+
+## CI
+
+- [ ] Python tests
+- [ ] strict mypy
+- [ ] JavaScript model tests
+- [ ] JavaScript static checks
