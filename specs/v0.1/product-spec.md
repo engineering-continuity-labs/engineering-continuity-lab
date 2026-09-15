@@ -45,6 +45,10 @@ v0.1 excludes Azure DevOps integration, pull-request review intelligence, archit
 | ECL-FR-021 | The browser explorer shall reject incompatible or structurally invalid reports. |
 | ECL-FR-022 | When an analysis-related CLI command runs interactively without an explicit repository path, prompt for a local repository path. In non-interactive execution, fail clearly and instruct the caller to provide `--repo`. |
 | ECL-FR-023 | The local browser explorer shall accept a local repository path and run the existing analysis through a loopback-only local service, then display the resulting report without remote repository access. |
+| ECL-FR-024 | Analysis-related CLI commands shall accept either a local repository path or a public HTTPS Git clone URL. |
+| ECL-FR-025 | For a public HTTPS Git clone URL, the system shall clone complete history into a temporary workspace, analyze it through the existing Git pipeline, and remove the workspace when the command completes or fails. |
+| ECL-FR-026 | The system shall reject unsupported repository URL schemes and embedded URL credentials with clear errors because authenticated repository access is not supported. |
+| ECL-FR-027 | Analysis-related CLI commands shall emit remote-clone progress to stderr so JSON stdout remains machine-readable. |
 
 ## Non-functional requirements
 
@@ -60,5 +64,6 @@ v0.1 excludes Azure DevOps integration, pull-request review intelligence, archit
 | ECL-NFR-008 | State limitations and uncertainty explicitly. |
 | ECL-NFR-009 | Retain evidence provenance where Git supplies it. |
 | ECL-NFR-010 | Bind the local browser analysis service to loopback only and reject unsupported API paths and invalid request payloads. |
+| ECL-NFR-011 | Remote acquisition shall use argument-array Git subprocess calls without shell execution, shall not use shallow cloning, and shall not expose temporary workspace paths or credentials in reports or errors. |
 
 The normative score contract is [scoring-spec.md](scoring-spec.md). Acceptance criteria and verification status are [acceptance-criteria.md](acceptance-criteria.md) and [traceability.md](traceability.md).

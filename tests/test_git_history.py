@@ -131,7 +131,7 @@ class GitHistoryTests(unittest.TestCase):
                 return True
         with patch("sys.stdin", InteractiveInput()), patch("builtins.input", return_value="   "), redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()) as errors:
             self.assertEqual(main(["analyze"]), 2)
-        self.assertIn("repository path cannot be empty", errors.getvalue())
+        self.assertIn("repository path or clone URL cannot be empty", errors.getvalue())
 
     def test_invalid_explicit_or_entered_repository_uses_git_validation_error(self):
         missing = self.path / "missing"

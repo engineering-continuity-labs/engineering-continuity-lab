@@ -30,9 +30,22 @@ python -m pip install -e .
 continuity analyze --repo /path/to/repository
 continuity person "contributor@example.com" --repo /path/to/repository
 continuity simulate-departure "contributor@example.com" --repo /path/to/repository
+continuity analyze --repo https://github.com/psf/requests.git
 ```
 
 `analyze` emits the complete report. `person` returns the selected contributor’s evidence by component. `simulate-departure` returns the components most affected by that contributor’s modeled departure.
+
+Public HTTPS Git clone URLs are also supported. The tool performs a full temporary clone, analyzes its complete history, and removes the clone after the command completes. Private repository authentication, URL credentials, SSH URLs, and persistent repository caching are not supported yet.
+
+```text
+continuity analyze
+
+Engineering Continuity Lab
+
+Repository path or clone URL:
+
+> https://github.com/psf/requests.git
+```
 
 Use `--format text` for readable terminal tables. JSON is the default and is the input for the report explorer.
 

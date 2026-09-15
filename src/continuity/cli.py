@@ -12,23 +12,24 @@ from continuity.reporting.text import render
 from continuity.analysis.service import analyze, resolve_person, simulate_departure
 from continuity.domain.models import DirectoryComponents
 from continuity.git.history import GitHistory
+from continuity.git.source import resolve_repository
 from continuity.scoring.model import ScoringConfig
 
 
-def resolve_repository_path(explicit_path: Path | None) -> Path:
-    """Return an explicit path or request one only from an interactive terminal."""
-    if explicit_path is not None:
-        return explicit_path
+def resolve_repository_input(explicit_source: str | None) -> str:
+    """Return an explicit source or request a path/URL only from an interactive terminal."""
+    if explicit_source is not None:
+        return explicit_source
     if not sys.stdin.isatty():
-        raise ValueError("repository path is required in non-interactive mode; provide --repo PATH")
+        raise ValueError("repository path or clone URL is required in non-interactive mode; provide --repo PATH_OR_URL")
     print("Engineering Continuity Lab\n")
     try:
-        path = input("Repository path:\n\n> ").strip()
+        path = input("Repository path or clone URL:\n\n> ").strip()
     except EOFError as exc:
-        raise ValueError("repository path is required; provide --repo PATH") from exc
+        raise ValueError("repository path or clone URL is required; provide --repo PATH_OR_URL") from exc
     if not path:
-        raise ValueError("repository path cannot be empty")
-    return Path(path)
+        raise ValueError("repository path or clone URL cannot be empty")
+    return path
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -43,7 +44,7 @@ def main(argv: list[str] | None = None) -> int:
         cmd.add_argument("--exclude-generated", action="store_true", help="exclude common generated filename patterns")
         cmd.add_argument("--exclude-path", action="append", default=[], metavar="GLOB", help="exclude repository-relative path glob; repeatable")
         cmd.add_argument("--exclude-author", action="append", default=[], metavar="GLOB", help="exclude name/email glob, case-insensitive; repeatable")
-        cmd.add_argument("--repo", type=Path, help="local Git repository path")
+        cmd.add_argument("--repo", help="local Git repository path or public HTTPS clone URL")
         cmd.add_argument("--component-depth", type=int, default=1)
         cmd.add_argument("--config", type=Path, help="TOML scoring configuration")
         cmd.add_argument("--as-of", help="ISO timestamp with timezone; defaults to newest author date")
@@ -67,30 +68,36 @@ def main(argv: list[str] | None = None) -> int:
         strategy = DirectoryComponents(args.component_depth)
         filters = FilterConfig(args.exclude_bots, args.exclude_generated,
                                tuple(args.exclude_path), tuple(args.exclude_author))
-        history, evidence = filter_history(GitHistory(resolve_repository_path(args.repo)).read(), filters)
-        report = analyze(history, strategy, config,
-                         datetime.fromisoformat(args.as_of) if args.as_of else None)
-        output = {"model": "experimental-v0.1", "warning": "Git activity is only a proxy for knowledge.",
-                  "configuration": {"weights": dict(config.weights), "half_life_days": config.half_life_days,
-                                    "component_depth": strategy.depth},
-                  "filters": asdict(filters), "filter_evidence": asdict(evidence),
-                  "revision": report.revision, "as_of": report.as_of.isoformat(),
-                  "shallow": report.shallow, "commit_count": report.commit_count}
-        person: str | None = None
-        if args.command == "analyze":
-            output["components"] = [asdict(c) for c in report.components]
-        else:
-            person = resolve_person(report, args.contributor)
-            output["contributor"] = person
-            if args.command == "person":
-                output["components"] = [{"component": c.component, **asdict(p)}
-                    for c in report.components for p in c.contributors if p.contributor == person]
+        source = resolve_repository_input(args.repo)
+        with resolve_repository(source, lambda message: print(message, file=sys.stderr)) as workspace:
+            print("Reading Git history...", file=sys.stderr)
+            history, evidence = filter_history(GitHistory(workspace.path).read(), filters)
+            print("Analyzing evidence...", file=sys.stderr)
+            report = analyze(history, strategy, config,
+                             datetime.fromisoformat(args.as_of) if args.as_of else None)
+            output = {"model": "experimental-v0.1", "warning": "Git activity is only a proxy for knowledge.",
+                      "configuration": {"weights": dict(config.weights), "half_life_days": config.half_life_days,
+                                        "component_depth": strategy.depth},
+                      "filters": asdict(filters), "filter_evidence": asdict(evidence),
+                      "revision": report.revision, "as_of": report.as_of.isoformat(),
+                      "shallow": report.shallow, "commit_count": report.commit_count}
+            if workspace.source is not None:
+                output["source"] = workspace.source
+            person: str | None = None
+            if args.command == "analyze":
+                output["components"] = [asdict(c) for c in report.components]
             else:
-                output["impacts"] = [asdict(i) for i in simulate_departure(report, person)]
-        if args.format == "text":
-            print(render(report, evidence, args.command, person, filters))
-        else:
-            print(json.dumps(output, indent=2, ensure_ascii=True))
+                person = resolve_person(report, args.contributor)
+                output["contributor"] = person
+                if args.command == "person":
+                    output["components"] = [{"component": c.component, **asdict(p)}
+                        for c in report.components for p in c.contributors if p.contributor == person]
+                else:
+                    output["impacts"] = [asdict(i) for i in simulate_departure(report, person)]
+            if args.format == "text":
+                print(render(report, evidence, args.command, person, filters))
+            else:
+                print(json.dumps(output, indent=2, ensure_ascii=True))
         return 0
     except (ValueError, OSError, TypeError, OverflowError) as exc:
         print(f"continuity: {exc}", file=sys.stderr)
