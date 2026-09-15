@@ -12,19 +12,21 @@ from continuity.analysis.filtering import FilterConfig, filter_history
 from continuity.analysis.service import analyze
 from continuity.domain.models import DirectoryComponents
 from continuity.git.history import GitHistory
+from continuity.git.source import resolve_repository
 from continuity.scoring.model import ScoringConfig
 
 STATIC_DIRECTORY = Path(__file__).resolve().parents[2] / "ui" / "dist"
 MAX_REQUEST_BYTES = 64 * 1024
 
 
-def analysis_output(repository: Path) -> dict[str, Any]:
+def analysis_output(repository: str) -> dict[str, Any]:
     """Produce the unchanged `analyze` JSON schema for one local repository."""
     config = ScoringConfig()
     filters = FilterConfig()
-    history, evidence = filter_history(GitHistory(repository).read(), filters)
-    report = analyze(history, DirectoryComponents(), config)
-    return {
+    with resolve_repository(repository) as workspace:
+        history, evidence = filter_history(GitHistory(workspace.path).read(), filters)
+        report = analyze(history, DirectoryComponents(), config)
+        output = {
         "model": "experimental-v0.1",
         "warning": "Git activity is only a proxy for knowledge.",
         "configuration": {"weights": dict(config.weights), "half_life_days": config.half_life_days, "component_depth": 1},
@@ -34,8 +36,11 @@ def analysis_output(repository: Path) -> dict[str, Any]:
         "as_of": report.as_of.isoformat(),
         "shallow": report.shallow,
         "commit_count": report.commit_count,
-        "components": [asdict(component) for component in report.components],
-    }
+            "components": [asdict(component) for component in report.components],
+        }
+        if workspace.source is not None:
+            output["source"] = workspace.source
+        return output
 
 
 class ExplorerHandler(SimpleHTTPRequestHandler):
@@ -80,8 +85,7 @@ class ExplorerHandler(SimpleHTTPRequestHandler):
             repository_path = payload["repository"].strip()
             if not repository_path:
                 raise ValueError("repository path cannot be empty")
-            repository = Path(repository_path)
-            self.send_json(HTTPStatus.OK, analysis_output(repository))
+            self.send_json(HTTPStatus.OK, analysis_output(repository_path))
         except (ValueError, OSError, TypeError, OverflowError, json.JSONDecodeError) as error:
             self.send_json(HTTPStatus.BAD_REQUEST, {"error": str(error)})
 

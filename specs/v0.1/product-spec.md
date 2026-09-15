@@ -49,6 +49,7 @@ v0.1 excludes Azure DevOps integration, pull-request review intelligence, archit
 | ECL-FR-025 | For a public HTTPS Git clone URL, the system shall clone complete history into a temporary workspace, analyze it through the existing Git pipeline, and remove the workspace when the command completes or fails. |
 | ECL-FR-026 | The system shall reject unsupported repository URL schemes and embedded URL credentials with clear errors because authenticated repository access is not supported. |
 | ECL-FR-027 | Analysis-related CLI commands shall emit remote-clone progress to stderr so JSON stdout remains machine-readable. |
+| ECL-FR-028 | The local browser explorer shall present distinct local-path and public-HTTPS-clone-URL inputs and resolve each through the applicable repository acquisition flow. |
 
 ## Non-functional requirements
 
