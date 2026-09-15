@@ -50,6 +50,7 @@ v0.1 excludes Azure DevOps integration, pull-request review intelligence, archit
 | ECL-FR-026 | The system shall reject unsupported repository URL schemes and embedded URL credentials with clear errors because authenticated repository access is not supported. |
 | ECL-FR-027 | Analysis-related CLI commands shall emit remote-clone progress to stderr so JSON stdout remains machine-readable. |
 | ECL-FR-028 | The local browser explorer shall present distinct local-path and public-HTTPS-clone-URL inputs and resolve each through the applicable repository acquisition flow. |
+| ECL-FR-029 | The browser explorer shall present contributor scenarios as system-continuity evidence, using neutral continuity, coverage, and historical-overlap terminology without changing the report schema or calculation semantics. |
 
 ## Non-functional requirements
 

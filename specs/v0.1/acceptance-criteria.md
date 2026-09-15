@@ -39,3 +39,4 @@
 | ECL-AC-033 | **Given** JSON output and a remote URL, **when** cloning, history reading, and analysis run, **then** progress is written only to stderr, JSON stdout remains valid, and remote provenance identifies the supplied URL without exposing a temporary path. |
 | ECL-AC-034 | **Given** a local repository path, **when** it is analyzed, **then** existing behavior remains compatible and the local repository is never deleted or modified. |
 | ECL-AC-035 | **Given** the local browser explorer, **when** a user chooses local-path or public-HTTPS clone analysis, **then** each source is visibly distinct and uses the shared resolver without exposing a temporary workspace. |
+| ECL-AC-036 | **Given** a valid report, **when** the browser displays a contributor scenario, **then** it labels evidence impact, coverage gaps, and historical evidence overlap without presenting a contributor as a replacement recommendation. |
