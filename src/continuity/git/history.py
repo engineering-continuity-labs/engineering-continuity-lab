@@ -1,6 +1,7 @@
 """Read HEAD ancestry using NUL-delimited Git records, without checkout changes."""
 from datetime import datetime
 from pathlib import Path
+import re
 import subprocess
 
 from continuity.domain.models import Author, Change, Commit, History
@@ -46,5 +47,13 @@ class GitHistory:
                         None if deleted == b"-" else int(deleted),
                     ))
                 i += 1
-            commits.append(Commit(sha, Author(name, email), datetime.fromisoformat(date), tuple(changes)))
+            commits.append(Commit(sha, Author(name, email), datetime.fromisoformat(normalize_git_date(date)), tuple(changes)))
         return History(revision, tuple(commits), shallow)
+
+
+def normalize_git_date(value: str) -> str:
+    """Repair legacy three-digit Git timezone offsets before ISO parsing."""
+    match = re.search(r"([+-])(\d)(\d{2}):(\d{2})$", value)
+    if match is None:
+        return value
+    return f"{value[:match.start()]}{match.group(1)}0{match.group(2)}:{match.group(3)}"

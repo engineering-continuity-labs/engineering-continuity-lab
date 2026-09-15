@@ -7,6 +7,7 @@
 | ECL-FR-001, 002, 017 | ECL-AC-001, 002, 003 | `src/continuity/git/history.py` | `tests/test_git_history.py` | VERIFIED |
 | ECL-FR-022 | ECL-AC-023–026 | `src/continuity/cli.py` | `tests/test_git_history.py` | VERIFIED |
 | ECL-FR-023, ECL-NFR-010 | ECL-AC-027–029 | `src/continuity/explorer.py`, `src/continuity/cli.py`, `ui/dist/app.js`, `ui/dist/index.html` | `tests/test_explorer.py`, static JavaScript checks | PARTIAL — local API and CLI dispatch are automated; rendered browser interaction remains manual. |
+| ECL-FR-024–027, ECL-NFR-011 | ECL-AC-030–034 | `src/continuity/git/source.py`, `src/continuity/cli.py`, `docs/architecture.md` | `tests/test_repository_source.py`, `tests/test_git_history.py` | VERIFIED — real disposable repositories exercise full clone integration through a mocked transport; CI does not require external network access. |
 | ECL-FR-003 | ECL-AC-004 | `src/continuity/domain/models.py` | `tests/test_scoring.py` | VERIFIED |
 | ECL-FR-004–006, 018–019; ECL-SC-001–017 | ECL-AC-005–008, 011 | `src/continuity/analysis/service.py`, `src/continuity/scoring/model.py` | `tests/test_scoring.py` | VERIFIED |
 | ECL-FR-007 | ECL-AC-009–010 | `src/continuity/analysis/service.py`, `src/continuity/cli.py` | `tests/test_git_history.py`, `tests/test_scoring.py` | VERIFIED |
