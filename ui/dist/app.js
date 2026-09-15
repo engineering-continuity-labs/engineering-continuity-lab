@@ -7,7 +7,7 @@ const badge=r=>`<span class="badge ${r}">${r}</span>`;
 function render(){
  const people=new Set(report.components.flatMap(c=>c.contributors.map(p=>p.contributor)));
  $('revision').textContent='REV '+report.revision.slice(0,12);$('reference').textContent=new Date(report.as_of).toLocaleDateString('en-US')+' · reference date';
- const metrics=[['Components',report.components.length,'Directory-based scope'],['Contributors',people.size,'With changed-file evidence'],['Critical components',report.components.filter(c=>c.risk==='CRITICAL').length,'Concentration ≥ 0.80'],['Commits',report.commit_count,'Original Git history']];
+ const metrics=[['Components',report.components.length,'Directory-based scope'],['Contributors',people.size,'With historical evidence'],['Critical continuity risk',report.components.filter(c=>c.risk==='CRITICAL').length,'Evidence concentration ≥ 0.80'],['Commits',report.commit_count,'Original Git history']];
  $('metrics').innerHTML=metrics.map(([label,value,note],i)=>`<article class="metric ${i===2?'critical':''}"><div class="label">${label}</div><div class="value">${num(value)}</div><div class="note">${note}</div></article>`).join('');
  const authors=[...new Map(report.components.flatMap(c=>c.contributors.map(p=>[p.contributor,p.name]))).entries()].sort((a,b)=>a[1].localeCompare(b[1],'en'));
  const previous=$('person').value;$('person').innerHTML=authors.map(([id,name])=>`<option value="${esc(id)}">${esc(name)} · ${esc(id)}</option>`).join('');if(people.has(previous))$('person').value=previous;
@@ -30,8 +30,8 @@ function renderDetail(){
 }
 function renderDeparture(){
  const impacts=departure(report,$('person').value);
- $('impact-summary').textContent=impacts.length?`${impacts.length} affected components · ${impacts.filter(i=>!i.successor).length} components have no successor with evidenced file overlap`:'No contributor is available for simulation.';
- $('impact-rows').innerHTML=impacts.map(i=>`<tr><td>${esc(i.component)}</td><td><strong>${pct(i.loss)}</strong><div class="bar"><span style="width:${i.loss*100}%"></span></div></td><td>${i.successor?esc(i.successor.name):'No evidenced candidate'}</td><td>${i.successor?pct(i.successor.overlap):'—'}</td><td><details><summary>${i.remaining.length} people · ${i.uncovered.length} files</summary><p>${i.remaining.map(p=>esc(p.name)+' ('+esc(p.contributor)+')').join('<br>')||'No remaining contributors.'}</p><p>${i.uncovered.map(esc).join('<br>')||'No uncovered historical files.'}</p></details></td></tr>`).join('');
+ $('impact-summary').textContent=impacts.length?`${impacts.length} affected components · ${impacts.filter(i=>!i.successor).length} components have no strong evidence overlap`:'No contributor scenario is available.';
+ $('impact-rows').innerHTML=impacts.map(i=>`<tr><td>${esc(i.component)}</td><td><strong>${pct(i.loss)}</strong><div class="bar"><span style="width:${i.loss*100}%"></span></div></td><td>${i.successor?esc(i.successor.name):'No strong evidence overlap found'}</td><td>${i.successor?pct(i.successor.overlap)+' historical file overlap':'—'}</td><td><details><summary>${i.uncovered.length} coverage gaps · ${i.remaining.length} remaining contributors</summary><p>${i.remaining.map(p=>esc(p.name)+' ('+esc(p.contributor)+')').join('<br>')||'No remaining contributor evidence.'}</p><p>${i.uncovered.map(esc).join('<br>')||'No coverage gaps.'}</p><p>These files have no remaining contributor evidence after applying this continuity scenario.</p></details></td></tr>`).join('');
 }
 function setView(next){view=next;for(const name of ['overview','departure']){$(name).hidden=name!==next;$(name+'-tab').classList.toggle('active',name===next);$(name+'-tab').setAttribute('aria-pressed',String(name===next));}}
 $('overview-tab').onclick=()=>setView('overview');$('departure-tab').onclick=()=>setView('departure');
