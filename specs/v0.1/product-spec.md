@@ -51,6 +51,9 @@ v0.1 excludes Azure DevOps integration, pull-request review intelligence, archit
 | ECL-FR-027 | Analysis-related CLI commands shall emit remote-clone progress to stderr so JSON stdout remains machine-readable. |
 | ECL-FR-028 | The local browser explorer shall present distinct local-path and public-HTTPS-clone-URL inputs and resolve each through the applicable repository acquisition flow. |
 | ECL-FR-029 | The browser explorer shall present contributor scenarios as system-continuity evidence, using neutral continuity, coverage, and historical-overlap terminology without changing the report schema or calculation semantics. |
+| ECL-FR-030 | The browser explorer shall be publishable as a static public demo that loads a bundled safe demo report by default and supports exploration of overview, components, contributors, evidence, and continuity stress-test views. |
+| ECL-FR-031 | The public browser demo shall let a visitor load a compatible local analysis JSON report, replace the displayed demo state with it, and reset to the bundled demo without uploading or persisting the report. |
+| ECL-FR-032 | The public browser demo shall link visibly to the project repository and shall state that its continuity results are historical activity evidence rather than employee evaluation, expertise, value, or replaceability. |
 
 ## Non-functional requirements
 
@@ -67,5 +70,7 @@ v0.1 excludes Azure DevOps integration, pull-request review intelligence, archit
 | ECL-NFR-009 | Retain evidence provenance where Git supplies it. |
 | ECL-NFR-010 | Bind the local browser analysis service to loopback only and reject unsupported API paths and invalid request payloads. |
 | ECL-NFR-011 | Remote acquisition shall use argument-array Git subprocess calls without shell execution, shall not use shallow cloning, and shall not expose temporary workspace paths or credentials in reports or errors. |
+| ECL-NFR-012 | The hosted demo shall require no authentication, backend, analytics, telemetry, tracking, cookies, or third-party data service; selected report data shall remain in browser memory. |
+| ECL-NFR-013 | Static browser assets and internal navigation shall work when hosted below the repository GitHub Pages subpath. |
 
 The normative score contract is [scoring-spec.md](scoring-spec.md). Acceptance criteria and verification status are [acceptance-criteria.md](acceptance-criteria.md) and [traceability.md](traceability.md).

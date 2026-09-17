@@ -15,6 +15,8 @@
 | ECL-FR-010–011 | ECL-AC-019 | `src/continuity/cli.py`, `src/continuity/reporting/text.py` | `tests/test_git_history.py`, `tests/test_reporting.py` | VERIFIED |
 | ECL-FR-012–016 | ECL-AC-015–018 | `src/continuity/analysis/filtering.py`, `src/continuity/cli.py` | `tests/test_filtering.py`, `tests/test_git_history.py` | VERIFIED |
 | ECL-FR-020; ECL-SC-016–019 | ECL-AC-020 | `ui/dist/model.js`, `ui/dist/app.js`, `ui/dist/index.html` | `ui/tests/model.test.js` | PARTIAL — model and departure calculations are tested; rendered UI behavior is not automated. |
+| ECL-FR-029 | ECL-AC-036 | `ui/dist/app.js`, `ui/dist/index.html` | static JavaScript checks, manual browser review | PARTIAL — terminology is statically checked; rendered language remains a manual review. |
+| ECL-FR-030–032; ECL-NFR-012–013 | ECL-AC-037–042 | `ui/dist/`, `.github/workflows/pages.yml`, `docs/github-pages.md` | `ui/tests/pages-static.test.js`, `ui/tests/model.test.js`, static JavaScript checks | PARTIAL — static contracts and demo data are automated; hosted deployment, browser privacy behavior, and responsive rendering require manual verification. |
 | ECL-FR-021 | ECL-AC-021 | `ui/dist/model.js`, `ui/dist/app.js` | `ui/tests/model.test.js` | VERIFIED |
 | ECL-NFR-001 | — | `pyproject.toml` | CI Python 3.12 configuration | VERIFIED |
 | ECL-NFR-002 | ECL-AC-006 | `src/continuity/analysis/service.py`, `src/continuity/scoring/model.py` | `tests/test_scoring.py` | PARTIAL — fixed-reference guard is tested; full repeated CLI output is not. |

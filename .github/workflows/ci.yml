@@ -34,3 +34,6 @@ jobs:
           node --check ui/dist/model.js
           test -f ui/dist/index.html
           test -f ui/dist/styles.css
+          test -f ui/dist/pages.css
+      - name: Validate GitHub Pages static entrypoint
+        run: node --test ui/tests/pages-static.test.js
