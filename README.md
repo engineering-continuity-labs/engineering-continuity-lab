@@ -4,6 +4,12 @@ An evidence-driven experiment for understanding where engineering knowledge is c
 
 Engineering Continuity Lab analyzes local Git history. It makes evidence, assumptions, and limitations visible so teams can begin a continuity conversation from something concrete—not from a claim that Git can measure human knowledge.
 
+## Live Demo
+
+<https://engineering-continuity-labs.github.io/engineering-continuity-lab/>
+
+The public demo opens with synthetic data. You can load a compatible local JSON report; it remains only in browser memory and is never uploaded or persisted. The source and methodology are available in this repository. Maintainers can find deployment details in [GitHub Pages demo](docs/github-pages.md).
+
 ```mermaid
 flowchart LR
     A[Problem] --> B[Git Evidence]
@@ -16,7 +22,7 @@ flowchart LR
 
 For directory-based components, the tool calculates contributor score shares, concentration, and a LOW, MEDIUM, HIGH, or CRITICAL risk classification. It then models the impact of removing a contributor, including historical file coverage and an overlap-based successor candidate.
 
-The browser report explorer displays component concentration, the score evidence for each contributor, and departure scenarios. Run it through the local loopback service to analyze a repository path directly, or open an existing `analyze` JSON report. It does not upload or persist reports.
+The browser report explorer displays component concentration, contributor evidence, and Continuity Stress Test scenarios. Run it through the local loopback service to analyze a repository path directly, or open an existing `analyze` JSON report. It does not upload or persist reports.
 
 ## Install and run
 

@@ -24,3 +24,9 @@ Tests create disposable real Git repositories and exercise parsing, binary paths
 `analysis/filtering.py` applies explicit filters to immutable history evidence before aggregation. Commit metadata, revision, and shallow status survive filtering. This preserves the original time reference. A separate FilterEvidence value records input/retained/excluded file-change counts, reason counts, and excluded paths/author identities. No heuristic runs unless enabled.
 
 `reporting/text.py` renders plain tables from typed reports without recalculating scores. Repository-controlled control characters are escaped in text. JSON continues to expose full signals and evidence, with additive filter metadata. No new runtime dependency is required.
+
+## Static public demo
+
+`ui/dist` is also a self-contained GitHub Pages artifact. Its relative asset references work both at the local explorer root and under `/engineering-continuity-lab/`. The packaged `demoReport()` is synthetic and is rendered on first load, so the hosted page has no service dependency. A selected JSON report is read with the browser File API, validated by the existing model contract, and retained only in JavaScript memory until reset or page unload.
+
+The page detects the loopback explorer before exposing repository-analysis controls. On GitHub Pages it makes no explorer API request, so a hosted visit does not attempt analysis, upload a report, or send report data to another service. The Pages workflow uploads only `ui/dist`, with the standard GitHub Actions Pages deployment environment and minimum deployment permissions. The static demo adds no analytics, cookies, telemetry, or third-party scripts.
