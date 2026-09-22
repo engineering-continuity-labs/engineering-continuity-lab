@@ -1,6 +1,6 @@
 # Engineering Continuity Lab
 
-An evidence-driven experiment for understanding where engineering knowledge is concentrated and what may happen when a key contributor leaves.
+An evidence-driven experiment for understanding where engineering evidence is concentrated and how resilient software components are to that concentration.
 
 Engineering Continuity Lab analyzes local Git history. It makes evidence, assumptions, and limitations visible so teams can begin a continuity conversation from something concrete—not from a claim that Git can measure human knowledge.
 
@@ -15,12 +15,12 @@ flowchart LR
     A[Problem] --> B[Git Evidence]
     B --> C[Knowledge Signals]
     C --> D[Component Concentration]
-    D --> E[Departure Simulation]
+    D --> E[Continuity Stress Test]
 ```
 
 ## What it does
 
-For directory-based components, the tool calculates contributor score shares, concentration, and a LOW, MEDIUM, HIGH, or CRITICAL risk classification. It then models the impact of removing a contributor, including historical file coverage and an overlap-based successor candidate.
+For directory-based components, the tool calculates contributor score shares, component concentration, and a LOW, MEDIUM, HIGH, or CRITICAL continuity-risk classification. It applies contributor scenarios to explore evidence impact, coverage gaps, and historical evidence overlap. Historical evidence overlap is not a recommendation that one contributor can replace another.
 
 The browser report explorer displays component concentration, contributor evidence, and Continuity Stress Test scenarios. Run it through the local loopback service to analyze a repository path directly, or open an existing `analyze` JSON report. It does not upload or persist reports.
 
@@ -35,11 +35,11 @@ python -m pip install -e .
 
 continuity analyze --repo /path/to/repository
 continuity person "contributor@example.com" --repo /path/to/repository
-continuity simulate-departure "contributor@example.com" --repo /path/to/repository
+continuity simulate-departure "contributor@example.com" --repo /path/to/repository # compatibility CLI command
 continuity analyze --repo https://github.com/psf/requests.git
 ```
 
-`analyze` emits the complete report. `person` returns the selected contributor’s evidence by component. `simulate-departure` returns the components most affected by that contributor’s modeled departure.
+`analyze` emits the complete report. `person` returns contributor evidence by component. The backward-compatible `simulate-departure` command returns Continuity Stress Test evidence for a contributor scenario.
 
 Public HTTPS Git clone URLs are also supported. The tool performs a full temporary clone, analyzes its complete history, and removes the clone after the command completes. Private repository authentication, URL credentials, SSH URLs, and persistent repository caching are not supported yet.
 
@@ -80,11 +80,11 @@ The service binds only to `127.0.0.1`. Reports remain in browser memory and are 
 
 | Measured Git evidence | Inferred knowledge proxy | What the model cannot know |
 | --- | --- | --- |
-| commits, canonical authors, author dates, changed paths, additions/deletions where Git provides them | relative contribution share, recency, breadth, persistence, component concentration, and modeled loss | actual understanding, quality, availability, role, pairing, review depth, undocumented knowledge, operational experience, or replacement readiness |
+| commits, canonical authors, author dates, changed paths, additions/deletions where Git provides them | relative contribution share, recency, breadth, persistence, component concentration, and scenario evidence impact | actual understanding, quality, availability, role, pairing, review depth, undocumented knowledge, operational experience, or technical handover readiness |
 
 The six transparent signals are change ownership, recency, change frequency, code-area breadth, unique contribution, and historical persistence. Configurable weights combine them into a relative contributor score per component. Concentration uses the Herfindahl index of those shares.
 
-Git activity is only a proxy for knowledge. Scores are experimental, are not measures of ability or productivity, and must not be used to assess people. A departure “loss” is a pre-departure score share, not an estimate of irreplaceable knowledge. Review evidence with the team before making continuity decisions.
+Git activity is only a proxy for knowledge. Scores are experimental, are not measures of ability or productivity, and must not be used to assess people. Scenario evidence impact is derived from historical contribution evidence; it is not an estimate of irreplaceable knowledge, expertise, or staffing readiness. Review evidence with the team before making continuity decisions.
 
 ## Filters and scope
 
@@ -111,7 +111,7 @@ flowchart LR
     Domain --> Filters[Explicit evidence filters]
     Filters --> Components[Replaceable component strategy]
     Components --> Scoring[Pure scoring model]
-    Scoring --> Analysis[Concentration and departure analysis]
+    Scoring --> Analysis[Concentration and continuity analysis]
     Analysis --> JSON[JSON / text report]
     JSON --> Explorer[Local browser explorer]
 ```
@@ -136,7 +136,7 @@ node --check ui/dist/model.js
 
 ## Roadmap
 
-- **v0.1** Git knowledge-risk baseline
+- **v0.1** Git engineering-continuity baseline
 - **v0.2** PR/review evidence
 - **v0.3** Azure DevOps traceability
 - **v0.4** Requirements, test, and architecture evidence
