@@ -1,0 +1,440 @@
+{
+  "model": "experimental-v0.1",
+  "warning": "Git activity is only a proxy for knowledge.",
+  "configuration": {
+    "weights": {
+      "change_ownership": 0.25,
+      "recency": 0.2,
+      "change_frequency": 0.2,
+      "code_area_breadth": 0.15,
+      "unique_contribution": 0.1,
+      "historical_persistence": 0.1
+    },
+    "half_life_days": 180,
+    "component_depth": 1
+  },
+  "revision": "46edbf31191fa315eef26e4cffb7207f83295396",
+  "as_of": "2026-09-13T15:41:04+03:00",
+  "shallow": false,
+  "commit_count": 2,
+  "components": [
+    {
+      "component": "(root)",
+      "concentration": 1.0,
+      "risk": "CRITICAL",
+      "contributors": [
+        {
+          "contributor": "serkanerdogan@users.noreply.github.com",
+          "name": "Serkan Erdogan",
+          "score": 1.0,
+          "share": 1.0,
+          "signals": {
+            "change_ownership": 1.0,
+            "recency": 1.0,
+            "change_frequency": 1.0,
+            "code_area_breadth": 1.0,
+            "unique_contribution": 1.0,
+            "historical_persistence": 1.0
+          },
+          "commits": 1,
+          "files": [
+            ".gitignore",
+            "README.md",
+            "pyproject.toml"
+          ],
+          "additions": 61,
+          "deletions": 0,
+          "unknown_line_changes": 0,
+          "file_activity": {
+            ".gitignore": {
+              "commits": [
+                "46edbf31191fa315eef26e4cffb7207f83295396"
+              ],
+              "additions": 7,
+              "deletions": 0,
+              "unknown_line_changes": 0,
+              "first_activity": "2026-09-13T15:41:04+03:00",
+              "last_activity": "2026-09-13T15:41:04+03:00"
+            },
+            "README.md": {
+              "commits": [
+                "46edbf31191fa315eef26e4cffb7207f83295396"
+              ],
+              "additions": 38,
+              "deletions": 0,
+              "unknown_line_changes": 0,
+              "first_activity": "2026-09-13T15:41:04+03:00",
+              "last_activity": "2026-09-13T15:41:04+03:00"
+            },
+            "pyproject.toml": {
+              "commits": [
+                "46edbf31191fa315eef26e4cffb7207f83295396"
+              ],
+              "additions": 16,
+              "deletions": 0,
+              "unknown_line_changes": 0,
+              "first_activity": "2026-09-13T15:41:04+03:00",
+              "last_activity": "2026-09-13T15:41:04+03:00"
+            }
+          }
+        }
+      ],
+      "file_contributors": {
+        ".gitignore": [
+          "serkanerdogan@users.noreply.github.com"
+        ],
+        "README.md": [
+          "serkanerdogan@users.noreply.github.com"
+        ],
+        "pyproject.toml": [
+          "serkanerdogan@users.noreply.github.com"
+        ]
+      }
+    },
+    {
+      "component": "docs",
+      "concentration": 1.0,
+      "risk": "CRITICAL",
+      "contributors": [
+        {
+          "contributor": "serkanerdogan@users.noreply.github.com",
+          "name": "Serkan Erdogan",
+          "score": 1.0,
+          "share": 1.0,
+          "signals": {
+            "change_ownership": 1.0,
+            "recency": 1.0,
+            "change_frequency": 1.0,
+            "code_area_breadth": 1.0,
+            "unique_contribution": 1.0,
+            "historical_persistence": 1.0
+          },
+          "commits": 1,
+          "files": [
+            "docs/architecture.md",
+            "docs/pull-request.md",
+            "docs/scoring-model.md",
+            "docs/scoring.example.toml",
+            "docs/validation.md"
+          ],
+          "additions": 87,
+          "deletions": 0,
+          "unknown_line_changes": 0,
+          "file_activity": {
+            "docs/architecture.md": {
+              "commits": [
+                "46edbf31191fa315eef26e4cffb7207f83295396"
+              ],
+              "additions": 15,
+              "deletions": 0,
+              "unknown_line_changes": 0,
+              "first_activity": "2026-09-13T15:41:04+03:00",
+              "last_activity": "2026-09-13T15:41:04+03:00"
+            },
+            "docs/pull-request.md": {
+              "commits": [
+                "46edbf31191fa315eef26e4cffb7207f83295396"
+              ],
+              "additions": 9,
+              "deletions": 0,
+              "unknown_line_changes": 0,
+              "first_activity": "2026-09-13T15:41:04+03:00",
+              "last_activity": "2026-09-13T15:41:04+03:00"
+            },
+            "docs/scoring-model.md": {
+              "commits": [
+                "46edbf31191fa315eef26e4cffb7207f83295396"
+              ],
+              "additions": 31,
+              "deletions": 0,
+              "unknown_line_changes": 0,
+              "first_activity": "2026-09-13T15:41:04+03:00",
+              "last_activity": "2026-09-13T15:41:04+03:00"
+            },
+            "docs/scoring.example.toml": {
+              "commits": [
+                "46edbf31191fa315eef26e4cffb7207f83295396"
+              ],
+              "additions": 9,
+              "deletions": 0,
+              "unknown_line_changes": 0,
+              "first_activity": "2026-09-13T15:41:04+03:00",
+              "last_activity": "2026-09-13T15:41:04+03:00"
+            },
+            "docs/validation.md": {
+              "commits": [
+                "46edbf31191fa315eef26e4cffb7207f83295396"
+              ],
+              "additions": 23,
+              "deletions": 0,
+              "unknown_line_changes": 0,
+              "first_activity": "2026-09-13T15:41:04+03:00",
+              "last_activity": "2026-09-13T15:41:04+03:00"
+            }
+          }
+        }
+      ],
+      "file_contributors": {
+        "docs/architecture.md": [
+          "serkanerdogan@users.noreply.github.com"
+        ],
+        "docs/pull-request.md": [
+          "serkanerdogan@users.noreply.github.com"
+        ],
+        "docs/scoring-model.md": [
+          "serkanerdogan@users.noreply.github.com"
+        ],
+        "docs/scoring.example.toml": [
+          "serkanerdogan@users.noreply.github.com"
+        ],
+        "docs/validation.md": [
+          "serkanerdogan@users.noreply.github.com"
+        ]
+      }
+    },
+    {
+      "component": "src",
+      "concentration": 1.0,
+      "risk": "CRITICAL",
+      "contributors": [
+        {
+          "contributor": "serkanerdogan@users.noreply.github.com",
+          "name": "Serkan Erdogan",
+          "score": 1.0,
+          "share": 1.0,
+          "signals": {
+            "change_ownership": 1.0,
+            "recency": 1.0,
+            "change_frequency": 1.0,
+            "code_area_breadth": 1.0,
+            "unique_contribution": 1.0,
+            "historical_persistence": 1.0
+          },
+          "commits": 1,
+          "files": [
+            "src/continuity/__init__.py",
+            "src/continuity/__main__.py",
+            "src/continuity/analysis/__init__.py",
+            "src/continuity/analysis/service.py",
+            "src/continuity/cli.py",
+            "src/continuity/domain/__init__.py",
+            "src/continuity/domain/models.py",
+            "src/continuity/git/__init__.py",
+            "src/continuity/git/history.py",
+            "src/continuity/scoring/__init__.py",
+            "src/continuity/scoring/model.py"
+          ],
+          "additions": 387,
+          "deletions": 0,
+          "unknown_line_changes": 0,
+          "file_activity": {
+            "src/continuity/__init__.py": {
+              "commits": [
+                "46edbf31191fa315eef26e4cffb7207f83295396"
+              ],
+              "additions": 0,
+              "deletions": 0,
+              "unknown_line_changes": 0,
+              "first_activity": "2026-09-13T15:41:04+03:00",
+              "last_activity": "2026-09-13T15:41:04+03:00"
+            },
+            "src/continuity/__main__.py": {
+              "commits": [
+                "46edbf31191fa315eef26e4cffb7207f83295396"
+              ],
+              "additions": 3,
+              "deletions": 0,
+              "unknown_line_changes": 0,
+              "first_activity": "2026-09-13T15:41:04+03:00",
+              "last_activity": "2026-09-13T15:41:04+03:00"
+            },
+            "src/continuity/analysis/__init__.py": {
+              "commits": [
+                "46edbf31191fa315eef26e4cffb7207f83295396"
+              ],
+              "additions": 0,
+              "deletions": 0,
+              "unknown_line_changes": 0,
+              "first_activity": "2026-09-13T15:41:04+03:00",
+              "last_activity": "2026-09-13T15:41:04+03:00"
+            },
+            "src/continuity/analysis/service.py": {
+              "commits": [
+                "46edbf31191fa315eef26e4cffb7207f83295396"
+              ],
+              "additions": 163,
+              "deletions": 0,
+              "unknown_line_changes": 0,
+              "first_activity": "2026-09-13T15:41:04+03:00",
+              "last_activity": "2026-09-13T15:41:04+03:00"
+            },
+            "src/continuity/cli.py": {
+              "commits": [
+                "46edbf31191fa315eef26e4cffb7207f83295396"
+              ],
+              "additions": 64,
+              "deletions": 0,
+              "unknown_line_changes": 0,
+              "first_activity": "2026-09-13T15:41:04+03:00",
+              "last_activity": "2026-09-13T15:41:04+03:00"
+            },
+            "src/continuity/domain/__init__.py": {
+              "commits": [
+                "46edbf31191fa315eef26e4cffb7207f83295396"
+              ],
+              "additions": 0,
+              "deletions": 0,
+              "unknown_line_changes": 0,
+              "first_activity": "2026-09-13T15:41:04+03:00",
+              "last_activity": "2026-09-13T15:41:04+03:00"
+            },
+            "src/continuity/domain/models.py": {
+              "commits": [
+                "46edbf31191fa315eef26e4cffb7207f83295396"
+              ],
+              "additions": 57,
+              "deletions": 0,
+              "unknown_line_changes": 0,
+              "first_activity": "2026-09-13T15:41:04+03:00",
+              "last_activity": "2026-09-13T15:41:04+03:00"
+            },
+            "src/continuity/git/__init__.py": {
+              "commits": [
+                "46edbf31191fa315eef26e4cffb7207f83295396"
+              ],
+              "additions": 0,
+              "deletions": 0,
+              "unknown_line_changes": 0,
+              "first_activity": "2026-09-13T15:41:04+03:00",
+              "last_activity": "2026-09-13T15:41:04+03:00"
+            },
+            "src/continuity/git/history.py": {
+              "commits": [
+                "46edbf31191fa315eef26e4cffb7207f83295396"
+              ],
+              "additions": 50,
+              "deletions": 0,
+              "unknown_line_changes": 0,
+              "first_activity": "2026-09-13T15:41:04+03:00",
+              "last_activity": "2026-09-13T15:41:04+03:00"
+            },
+            "src/continuity/scoring/__init__.py": {
+              "commits": [
+                "46edbf31191fa315eef26e4cffb7207f83295396"
+              ],
+              "additions": 0,
+              "deletions": 0,
+              "unknown_line_changes": 0,
+              "first_activity": "2026-09-13T15:41:04+03:00",
+              "last_activity": "2026-09-13T15:41:04+03:00"
+            },
+            "src/continuity/scoring/model.py": {
+              "commits": [
+                "46edbf31191fa315eef26e4cffb7207f83295396"
+              ],
+              "additions": 50,
+              "deletions": 0,
+              "unknown_line_changes": 0,
+              "first_activity": "2026-09-13T15:41:04+03:00",
+              "last_activity": "2026-09-13T15:41:04+03:00"
+            }
+          }
+        }
+      ],
+      "file_contributors": {
+        "src/continuity/__init__.py": [
+          "serkanerdogan@users.noreply.github.com"
+        ],
+        "src/continuity/__main__.py": [
+          "serkanerdogan@users.noreply.github.com"
+        ],
+        "src/continuity/analysis/__init__.py": [
+          "serkanerdogan@users.noreply.github.com"
+        ],
+        "src/continuity/analysis/service.py": [
+          "serkanerdogan@users.noreply.github.com"
+        ],
+        "src/continuity/cli.py": [
+          "serkanerdogan@users.noreply.github.com"
+        ],
+        "src/continuity/domain/__init__.py": [
+          "serkanerdogan@users.noreply.github.com"
+        ],
+        "src/continuity/domain/models.py": [
+          "serkanerdogan@users.noreply.github.com"
+        ],
+        "src/continuity/git/__init__.py": [
+          "serkanerdogan@users.noreply.github.com"
+        ],
+        "src/continuity/git/history.py": [
+          "serkanerdogan@users.noreply.github.com"
+        ],
+        "src/continuity/scoring/__init__.py": [
+          "serkanerdogan@users.noreply.github.com"
+        ],
+        "src/continuity/scoring/model.py": [
+          "serkanerdogan@users.noreply.github.com"
+        ]
+      }
+    },
+    {
+      "component": "tests",
+      "concentration": 1.0,
+      "risk": "CRITICAL",
+      "contributors": [
+        {
+          "contributor": "serkanerdogan@users.noreply.github.com",
+          "name": "Serkan Erdogan",
+          "score": 1.0,
+          "share": 1.0,
+          "signals": {
+            "change_ownership": 1.0,
+            "recency": 1.0,
+            "change_frequency": 1.0,
+            "code_area_breadth": 1.0,
+            "unique_contribution": 1.0,
+            "historical_persistence": 1.0
+          },
+          "commits": 1,
+          "files": [
+            "tests/test_git_history.py",
+            "tests/test_scoring.py"
+          ],
+          "additions": 196,
+          "deletions": 0,
+          "unknown_line_changes": 0,
+          "file_activity": {
+            "tests/test_git_history.py": {
+              "commits": [
+                "46edbf31191fa315eef26e4cffb7207f83295396"
+              ],
+              "additions": 104,
+              "deletions": 0,
+              "unknown_line_changes": 0,
+              "first_activity": "2026-09-13T15:41:04+03:00",
+              "last_activity": "2026-09-13T15:41:04+03:00"
+            },
+            "tests/test_scoring.py": {
+              "commits": [
+                "46edbf31191fa315eef26e4cffb7207f83295396"
+              ],
+              "additions": 92,
+              "deletions": 0,
+              "unknown_line_changes": 0,
+              "first_activity": "2026-09-13T15:41:04+03:00",
+              "last_activity": "2026-09-13T15:41:04+03:00"
+            }
+          }
+        }
+      ],
+      "file_contributors": {
+        "tests/test_git_history.py": [
+          "serkanerdogan@users.noreply.github.com"
+        ],
+        "tests/test_scoring.py": [
+          "serkanerdogan@users.noreply.github.com"
+        ]
+      }
+    }
+  ]
+}
