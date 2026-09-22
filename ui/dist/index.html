@@ -14,8 +14,9 @@
     <span class="version">EXPERIMENTAL · v0.1</span>
     <div class="header-actions">
       <button id="demo" class="quiet" type="button">Reset to Demo</button>
-      <label class="button" for="upload">Load Your Report <span aria-hidden="true">↗</span></label>
+      <label class="button" for="upload">Open Analysis Report <span aria-hidden="true">↗</span></label>
       <input id="upload" type="file" accept=".json,application/json" class="file-input">
+      <button id="export" class="quiet" type="button">Export Analysis Report</button>
       <a class="github-link" href="https://github.com/engineering-continuity-labs/engineering-continuity-lab" target="_blank" rel="noopener noreferrer">View on GitHub <span aria-hidden="true">↗</span></a>
     </div>
   </header>
@@ -25,7 +26,7 @@
       <h1 id="hero-title">Engineering Continuity Lab</h1>
       <p class="hero-lead">Evidence-driven exploration of engineering continuity and knowledge concentration in software systems.</p>
       <p class="muted hero-copy">Analyze historical engineering evidence to identify concentration, coverage gaps, and continuity risks across software components.</p>
-      <div class="hero-actions"><a class="button" href="#analysis">Explore Demo <span aria-hidden="true">↓</span></a><label class="quiet button-like" for="upload">Load Your Report</label></div>
+      <div class="hero-actions"><a class="button" href="#analysis">Explore Demo <span aria-hidden="true">↓</span></a><label class="quiet button-like" for="upload">Open Analysis Report</label></div>
       <p class="privacy prominent">Your report stays in your browser. This static demo does not upload or persist your analysis data.</p>
     </section>
     <div id="message" role="status" aria-live="polite"></div>
@@ -41,7 +42,14 @@
       <section id="evidence" hidden><div class="panel table-scroll"><div class="panel-title"><div><h2>Evidence</h2><p class="muted">Component concentration and recorded historical coverage</p></div></div><table><thead><tr><th>Component</th><th>Continuity risk</th><th>Contributors</th><th>Historical files</th><th>Concentration</th></tr></thead><tbody id="evidence-rows"></tbody></table></div></section>
       <section id="stress" hidden><div class="panel simulation"><div><p class="eyebrow">CONTINUITY STRESS TEST</p><h2>Assess component evidence resilience</h2><p class="muted">Apply a contributor scenario to explore evidence impact, historical overlap, and coverage gaps.</p></div><label>Contributor scenario<select id="person"></select></label></div><div id="impact-summary" class="impact-summary"></div><div class="panel table-scroll"><table><thead><tr><th>Component</th><th>Evidence impact</th><th>Evidence overlap candidate</th><th>Historical overlap</th><th>Coverage gaps</th></tr></thead><tbody id="impact-rows"></tbody></table></div></section>
     </section>
-    <details id="local-explorer" class="method" hidden><summary>Analyze a repository on this computer</summary><p>This option is available only from the loopback <code>continuity explorer</code> service. Repository analysis stays on this computer.</p><div class="local-controls"><label for="repository-path">Local repository path</label><div><input id="repository-path" type="text" autocomplete="off" placeholder="/path/to/repository"><button id="run-local-analysis" class="button" type="button">Analyze path</button></div><label for="clone-url">Public HTTPS clone URL</label><div><input id="clone-url" type="url" autocomplete="off" placeholder="https://github.com/owner/repository.git"><button id="run-clone-analysis" class="button" type="button">Clone and analyze</button></div></div></details>
+    <section id="local-explorer" class="repository-analysis" aria-labelledby="repository-analysis-title" hidden>
+      <div><p class="eyebrow">LOCAL EXPLORER</p><h2 id="repository-analysis-title">Analyze a repository on this computer</h2><p class="muted">Choose an existing local Git repository or a public HTTPS clone URL. Analysis stays on this computer.</p></div>
+      <div class="repository-inputs">
+        <div class="repository-input"><label for="repository-path">Local repository path</label><div><input id="repository-path" type="text" autocomplete="off" placeholder="/path/to/repository"><button id="run-local-analysis" class="button" type="button">Analyze local path</button></div></div>
+        <div class="repository-input"><label for="clone-url">Public HTTPS Git clone URL</label><div><input id="clone-url" type="url" autocomplete="off" placeholder="https://github.com/owner/repository.git"><button id="run-clone-analysis" class="button" type="button">Clone and analyze</button></div></div>
+      </div>
+    </section>
+    <section id="hosted-instructions" class="method"><h2>Analyze Your Repository</h2><p>Install Engineering Continuity Lab and run the local explorer to analyze a repository directly.</p><code>continuity explorer</code></section>
     <p class="privacy disclaimer">Engineering Continuity Lab analyzes historical engineering activity as evidence of system continuity risk. These results do not measure employee performance, expertise, organizational value, or replaceability.</p>
     <details class="method"><summary>Report scope and filters</summary><div id="scope"></div><p>Git activity is only a proxy for knowledge. Scores and risk thresholds are experimental; review findings alongside team context.</p></details>
   </main>

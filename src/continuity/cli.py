@@ -50,11 +50,13 @@ def main(argv: list[str] | None = None) -> int:
         cmd.add_argument("--as-of", help="ISO timestamp with timezone; defaults to newest author date")
     explorer = commands.add_parser("explorer", help="serve the local browser explorer with local Git analysis")
     explorer.add_argument("--port", type=int, default=8765, help="loopback port (default: 8765)")
+    explorer.add_argument("--repo", help="local Git repository path or public HTTPS clone URL to analyze at startup")
+    explorer.add_argument("--no-browser", action="store_true", help="do not open the default browser")
     args = parser.parse_args(argv)
     try:
         if args.command == "explorer":
             from continuity.explorer import serve
-            serve(args.port)
+            serve(args.port, args.repo, not args.no_browser)
             return 0
         raw = tomllib.loads(args.config.read_text()) if args.config else {}
         if set(raw) - {"weights", "half_life_days"}:
