@@ -54,6 +54,8 @@ v0.1 excludes Azure DevOps integration, pull-request review intelligence, archit
 | ECL-FR-030 | The browser explorer shall be publishable as a static public demo that loads a bundled safe demo report by default and supports exploration of overview, components, contributors, evidence, and continuity stress-test views. |
 | ECL-FR-031 | The public browser demo shall let a visitor load a compatible local analysis JSON report, replace the displayed demo state with it, and reset to the bundled demo without uploading or persisting the report. |
 | ECL-FR-032 | The public browser demo shall link visibly to the project repository and shall state that its continuity results are historical activity evidence rather than employee evaluation, expertise, value, or replaceability. |
+| ECL-FR-033 | The local browser explorer shall make direct repository analysis the primary workflow, with separate local-path and public-HTTPS source controls, immediate report rendering, and optional JSON export/import. |
+| ECL-FR-034 | The explorer command shall accept an optional local path or public HTTPS clone URL, analyze it through the existing acquisition flow, and make the resulting report available to the local browser on startup. |
 
 ## Non-functional requirements
 
@@ -72,5 +74,6 @@ v0.1 excludes Azure DevOps integration, pull-request review intelligence, archit
 | ECL-NFR-011 | Remote acquisition shall use argument-array Git subprocess calls without shell execution, shall not use shallow cloning, and shall not expose temporary workspace paths or credentials in reports or errors. |
 | ECL-NFR-012 | The hosted demo shall require no authentication, backend, analytics, telemetry, tracking, cookies, or third-party data service; selected report data shall remain in browser memory. |
 | ECL-NFR-013 | Static browser assets and internal navigation shall work when hosted below the repository GitHub Pages subpath. |
+| ECL-NFR-014 | Explorer browser-launch attempts shall use the standard library, must not prevent service startup on failure, and must retain a printed loopback URL fallback. |
 
 The normative score contract is [scoring-spec.md](scoring-spec.md). Acceptance criteria and verification status are [acceptance-criteria.md](acceptance-criteria.md) and [traceability.md](traceability.md).

@@ -61,7 +61,20 @@ continuity analyze --repo /path/to/repository --exclude-bots --exclude-generated
 continuity explorer
 ```
 
-Open `http://127.0.0.1:8765`, enter a local Git repository path, and select **Analyze repository**. The service binds only to `127.0.0.1`; it does not clone repositories or contact GitHub. The interface starts with clearly labelled synthetic data, never a private report. Reports remain in browser memory and are cleared on reload. The maximum report file size is 30 MB.
+Start with the local explorer for the normal workflow:
+
+```sh
+continuity explorer
+```
+
+It opens a loopback-only browser interface where you can analyze either a local Git repository path or a public HTTPS clone URL. The report appears immediately in the browser; exporting JSON is optional for sharing or reopening later. A public URL is cloned temporarily with full history and removed when analysis completes. You can also start with a source already selected:
+
+```sh
+continuity explorer --repo /path/to/repository
+continuity explorer --repo https://github.com/psf/requests.git
+```
+
+The service binds only to `127.0.0.1`. Reports remain in browser memory and are cleared on reload. The maximum imported report file size is 30 MB.
 
 ## Evidence, inference, and unknowns
 

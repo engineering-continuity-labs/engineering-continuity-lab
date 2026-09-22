@@ -5,6 +5,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import json
 from pathlib import Path
 import socket
+import webbrowser
 from socketserver import BaseServer
 from typing import Any, cast
 
@@ -66,6 +67,13 @@ class ExplorerHandler(SimpleHTTPRequestHandler):
         if self.path == "/api/health":
             self.send_json(HTTPStatus.OK, {"local": True})
             return
+        if self.path == "/api/report":
+            report = cast(dict[str, Any] | None, getattr(self.server, "initial_report", None))
+            if report is None:
+                self.send_json(HTTPStatus.NOT_FOUND, {"error": "no initial analysis report"})
+            else:
+                self.send_json(HTTPStatus.OK, report)
+            return
         if self.path.startswith("/api/"):
             self.send_json(HTTPStatus.NOT_FOUND, {"error": "unknown local API path"})
             return
@@ -93,16 +101,24 @@ class ExplorerHandler(SimpleHTTPRequestHandler):
         return
 
 
-def make_server(port: int = 8765) -> ThreadingHTTPServer:
+def make_server(port: int = 8765, initial_report: dict[str, Any] | None = None) -> ThreadingHTTPServer:
     if not 0 <= port <= 65535:
         raise ValueError("port must be between 0 and 65535")
-    return ThreadingHTTPServer(("127.0.0.1", port), ExplorerHandler)
+    server = ThreadingHTTPServer(("127.0.0.1", port), ExplorerHandler)
+    server.initial_report = initial_report  # type: ignore[attr-defined]
+    return server
 
 
-def serve(port: int = 8765) -> None:
-    server = make_server(port)
+def serve(port: int = 8765, repository: str | None = None, open_browser: bool = True) -> None:
+    initial_report = analysis_output(repository) if repository is not None else None
+    server = make_server(port, initial_report)
     host, actual_port = cast(tuple[str, int], server.server_address)
     print(f"Engineering Continuity Lab explorer: http://{host}:{actual_port}")
+    if open_browser:
+        try:
+            webbrowser.open(f"http://{host}:{actual_port}")
+        except OSError:
+            pass
     try:
         server.serve_forever()
     finally:

@@ -88,4 +88,9 @@ class ExplorerTests(unittest.TestCase):
     def test_cli_explorer_command_dispatches_to_local_server(self) -> None:
         with patch("continuity.explorer.serve") as serve:
             self.assertEqual(main(["explorer", "--port", "8766"]), 0)
-        serve.assert_called_once_with(8766)
+        serve.assert_called_once_with(8766, None, True)
+
+    def test_cli_explorer_passes_startup_repository_and_no_browser(self) -> None:
+        with patch("continuity.explorer.serve") as serve:
+            self.assertEqual(main(["explorer", "--repo", str(self.repository), "--no-browser"]), 0)
+        serve.assert_called_once_with(8765, str(self.repository), False)
