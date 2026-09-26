@@ -8,7 +8,7 @@ Engineering Continuity Lab analyzes local Git history. It makes evidence, assump
 
 <https://engineering-continuity-labs.github.io/engineering-continuity-lab/>
 
-The public demo opens with synthetic data. You can load a compatible local JSON report; it remains only in browser memory and is never uploaded or persisted. The source and methodology are available in this repository. Maintainers can find deployment details in [GitHub Pages demo](docs/github-pages.md).
+The public demo opens with a static analysis report for [dotnet/eShop](https://github.com/dotnet/eShop) at the documented validation revision. It is historical Git evidence only, packaged with this site; it does not clone or contact eShop. You can load a compatible local JSON report, which remains only in browser memory and is never uploaded or persisted. The source and methodology are available in this repository. Maintainers can find deployment details in [GitHub Pages demo](docs/github-pages.md).
 
 ```mermaid
 flowchart LR
@@ -120,7 +120,7 @@ The provider-independent domain model, component strategy protocol, and pure sco
 
 ## Real-world validation
 
-The baseline was validated against a full local clone of [dotnet/eShop](https://github.com/dotnet/eShop) at revision `b4a40872005d4bb29e5b1fa1ff7e244143d39215`. At directory depth 2, the run analyzed 347 commits, 59 contributors with changed-file evidence, and 48 components: 33 LOW, 10 MEDIUM, and 5 CRITICAL. The validation clone and generated reports are not committed to this repository.
+The baseline was validated against a full local clone of [dotnet/eShop](https://github.com/dotnet/eShop) at revision `b4a40872005d4bb29e5b1fa1ff7e244143d39215`. At directory depth 2, the run analyzed 347 commits, 59 contributors with changed-file evidence, and 48 components: 33 LOW, 10 MEDIUM, and 5 CRITICAL. The validation clone is not committed; the Pages site packages the resulting Git-evidence report as its static sample, without eShop source code.
 
 Those classifications describe historical Git activity concentration only. They do not establish who understands an area. Reproduce the result and read the limitations in [validation](docs/validation.md).
 

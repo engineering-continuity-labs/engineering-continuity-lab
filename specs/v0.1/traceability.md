@@ -19,6 +19,7 @@
 | ECL-FR-030–032; ECL-NFR-012–013 | ECL-AC-037–042 | `ui/dist/`, `.github/workflows/pages.yml`, `docs/github-pages.md` | `ui/tests/pages-static.test.js`, `ui/tests/model.test.js`, static JavaScript checks | PARTIAL — static contracts and demo data are automated; hosted deployment, browser privacy behavior, and responsive rendering require manual verification. |
 | ECL-FR-033–034; ECL-NFR-014 | ECL-AC-043–045 | `src/continuity/explorer.py`, `src/continuity/cli.py`, `ui/dist/app.js`, `ui/dist/index.html` | `tests/test_explorer.py`, static JavaScript checks | PARTIAL — API and CLI dispatch are automated; rendered export/import and browser-launch fallback remain manual. |
 | ECL-FR-037 | ECL-AC-050 | `ui/dist/index.html` | `ui/tests/pages-static.test.js` | VERIFIED |
+| ECL-FR-038 | ECL-AC-051 | `ui/dist/eshop-report.js`, `ui/dist/app.js`, `ui/dist/index.html` | `ui/tests/model.test.js`, `ui/tests/pages-static.test.js` | PARTIAL — report identity and static import are automated; browser boot and hosted deployment remain manual checks. |
 | ECL-FR-021 | ECL-AC-021 | `ui/dist/model.js`, `ui/dist/app.js` | `ui/tests/model.test.js` | VERIFIED |
 | ECL-NFR-001 | — | `pyproject.toml` | CI Python 3.12 configuration | VERIFIED |
 | ECL-NFR-002 | ECL-AC-006 | `src/continuity/analysis/service.py`, `src/continuity/scoring/model.py` | `tests/test_scoring.py` | PARTIAL — fixed-reference guard is tested; full repeated CLI output is not. |

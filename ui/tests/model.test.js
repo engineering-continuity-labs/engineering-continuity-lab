@@ -1,6 +1,8 @@
 import{test}from'node:test';
 import assert from'node:assert/strict';
 import{validateReport,demoReport,departure}from'../dist/model.js';
+import eShopReport from'../dist/eshop-report.js';
+test('bundled eShop validation sample has the documented revision and baseline counts',()=>{const report=validateReport(eShopReport);assert.equal(report.revision,'b4a40872005d4bb29e5b1fa1ff7e244143d39215');assert.equal(report.commit_count,347);assert.equal(report.components.length,48);assert.deepEqual(Object.fromEntries(['LOW','MEDIUM','HIGH','CRITICAL'].map(risk=>[risk,report.components.filter(component=>component.risk===risk).length])),{LOW:33,MEDIUM:10,HIGH:0,CRITICAL:5});});
 test('demo validates; concentration and shares agree',()=>assert.equal(validateReport(demoReport()).components.length,6));
 test('departure matches file overlap and pre-departure shares',()=>{const r=demoReport(),p=r.components[0].contributors[0];const impact=departure(r,p.contributor).find(i=>i.component==='src/payments');assert.equal(impact.loss,.92);assert.equal(impact.successor.overlap,.5);assert.equal(impact.uncovered.length,1);});
 test('rejects person output and corrupt report without changing input',()=>{for(const r of [{components:[{component:'a',share:1}]},null,{...demoReport(),as_of:'bad'}])assert.throws(()=>validateReport(r));const r=demoReport();r.components[0].contributors[0].share=2;assert.throws(()=>validateReport(r));});

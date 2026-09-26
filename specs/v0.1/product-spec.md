@@ -51,12 +51,13 @@ v0.1 excludes Azure DevOps integration, pull-request review intelligence, archit
 | ECL-FR-027 | Analysis-related CLI commands shall emit remote-clone progress to stderr so JSON stdout remains machine-readable. |
 | ECL-FR-028 | The local browser explorer shall present distinct local-path and public-HTTPS-clone-URL inputs and resolve each through the applicable repository acquisition flow. |
 | ECL-FR-029 | The browser explorer shall present contributor scenarios as system-continuity evidence, using neutral continuity, coverage, and historical-overlap terminology without changing the report schema or calculation semantics. |
-| ECL-FR-030 | The browser explorer shall be publishable as a static public demo that loads a bundled safe demo report by default and supports exploration of overview, components, contributors, evidence, and continuity stress-test views. |
+| ECL-FR-030 | The browser explorer shall be publishable as a static public demo that loads a bundled safe Git-evidence sample by default and supports exploration of overview, components, contributors, evidence, and continuity stress-test views. |
 | ECL-FR-031 | The public browser demo shall let a visitor load a compatible local analysis JSON report, replace the displayed demo state with it, and reset to the bundled demo without uploading or persisting the report. |
 | ECL-FR-032 | The public browser demo shall link visibly to the project repository and shall state that its continuity results are historical activity evidence rather than employee evaluation, expertise, value, or replaceability. |
 | ECL-FR-033 | The local browser explorer shall make direct repository analysis the primary workflow, with separate local-path and public-HTTPS source controls, immediate report rendering, and optional JSON export/import. |
 | ECL-FR-034 | The explorer command shall accept an optional local path or public HTTPS clone URL, analyze it through the existing acquisition flow, and make the resulting report available to the local browser on startup. |
 | ECL-FR-037 | The loopback explorer shall place repository-analysis controls before the report dashboard, so a local user can select a source without first navigating past report content. |
+| ECL-FR-038 | The hosted browser demo shall open with a bundled analysis report derived from the documented dotnet/eShop validation revision, clearly labeled as a static historical Git-evidence sample. |
 
 ## Non-functional requirements
 
