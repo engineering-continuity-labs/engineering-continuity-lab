@@ -8,7 +8,7 @@ Engineering Continuity Lab analyzes local Git history. It makes evidence, assump
 
 <https://engineering-continuity-labs.github.io/engineering-continuity-lab/>
 
-The public demo is a static synthetic report. It has no repository inputs, cloning, or local file access. Use the local explorer to analyze a repository; the source and methodology are available in this repository. Maintainers can find deployment details in [GitHub Pages demo](docs/github-pages.md).
+The public demo opens with synthetic data. You can load a compatible local JSON report; it remains only in browser memory and is never uploaded or persisted. The source and methodology are available in this repository. Maintainers can find deployment details in [GitHub Pages demo](docs/github-pages.md).
 
 ```mermaid
 flowchart LR
@@ -22,7 +22,7 @@ flowchart LR
 
 For directory-based components, the tool calculates contributor score shares, component concentration, and a LOW, MEDIUM, HIGH, or CRITICAL continuity-risk classification. It applies contributor scenarios to explore evidence impact, coverage gaps, and historical evidence overlap. Historical evidence overlap is not a recommendation that one contributor can replace another.
 
-The browser explorer displays component concentration, contributor evidence, and Continuity Stress Test scenarios. Its local workflow starts by asking for a repository: provide either a local Git path or a public HTTPS clone URL. It does not upload or persist analysis reports.
+The browser report explorer displays component concentration, contributor evidence, and Continuity Stress Test scenarios. Run it through the local loopback service to analyze a repository path directly, or open an existing `analyze` JSON report. It does not upload or persist reports.
 
 ## Install and run
 
@@ -53,7 +53,7 @@ Repository path or clone URL:
 > https://github.com/psf/requests.git
 ```
 
-Use `--format text` for readable terminal tables. JSON is the default format for automation and saved evidence.
+Use `--format text` for readable terminal tables. JSON is the default and is the input for the report explorer.
 
 ```sh
 continuity analyze --repo /path/to/repository --component-depth 2 --format text
@@ -67,14 +67,14 @@ Start with the local explorer for the normal workflow:
 continuity explorer
 ```
 
-It opens a loopback-only browser interface with a repository-selection screen. Enter a local Git repository path or a public HTTPS clone URL, then select **Analyze Repository** or **Clone & Analyze**. The completed report replaces the selection screen. Select **Analyze Another Repository** to return to the choice without restarting the command. A public URL is cloned temporarily with full history and removed when analysis completes. You can also start with a source already selected:
+It opens a loopback-only browser interface where you can analyze either a local Git repository path or a public HTTPS clone URL. The report appears immediately in the browser; exporting JSON is optional for sharing or reopening later. A public URL is cloned temporarily with full history and removed when analysis completes. You can also start with a source already selected:
 
 ```sh
 continuity explorer --repo /path/to/repository
 continuity explorer --repo https://github.com/psf/requests.git
 ```
 
-The service binds only to `127.0.0.1`. Reports remain in browser memory and are cleared on reload.
+The service binds only to `127.0.0.1`. Reports remain in browser memory and are cleared on reload. The maximum imported report file size is 30 MB.
 
 ## Evidence, inference, and unknowns
 

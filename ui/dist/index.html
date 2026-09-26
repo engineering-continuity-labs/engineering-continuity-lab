@@ -1,13 +1,59 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Explore engineering continuity evidence from Git history."><title>Engineering Continuity Lab</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="pages.css"></head><body>
-<header class="site-header"><a class="brand" href="#"><span class="mark">≋</span><span>CONTINUITY<span class="brand-sub">ENGINEERING LAB</span></span></a><span class="version">EXPERIMENTAL · v0.1</span><div class="header-actions"><a class="github-link" href="https://github.com/engineering-continuity-labs/engineering-continuity-lab" target="_blank" rel="noopener noreferrer">View on GitHub ↗</a><button id="another" class="quiet" hidden>Analyze Another Repository</button></div></header>
-<main><div id="message" role="status" aria-live="polite"></div>
-<section id="local-landing" class="landing" hidden><p class="eyebrow">ENGINEERING CONTINUITY</p><h1>What repository do you want to analyze?</h1><p class="muted">Choose a source to begin. Repository analysis runs locally on this computer.</p><div class="repository-inputs"><div class="repository-input"><p class="eyebrow">LOCAL REPOSITORY</p><label for="repository-path">Local repository path</label><input id="repository-path" type="text" placeholder="/Users/name/projects/my-app"><button id="run-local-analysis" class="button">Analyze Repository</button></div><div class="repository-input"><p class="eyebrow">PUBLIC GIT REPOSITORY</p><label for="clone-url">Public HTTPS clone URL</label><input id="clone-url" type="url" placeholder="https://github.com/owner/repository.git"><button id="run-clone-analysis" class="button">Clone & Analyze</button><p class="muted">Full history is cloned temporarily, analyzed, then removed.</p></div></div></section>
-<section id="hosted-landing" class="landing"><p class="eyebrow">ENGINEERING CONTINUITY</p><h1>Explore how engineering evidence concentration is analyzed.</h1><p class="muted">The public demo is static. Analyze repositories with the local explorer.</p><div class="hero-actions"><button id="explore-demo" class="button">Explore Demo</button><code>continuity explorer</code></div></section>
-<section id="dashboard" hidden><section class="source"><div><span class="source-icon">⌘</span><strong id="source-name"></strong><span id="source-type" class="tag"></span></div><div class="source-meta"><span id="revision"></span><span id="reference"></span></div></section><section id="metrics" class="metrics"></section>
-<nav class="tabs" aria-label="Analysis view"><button id="overview-tab" class="active">Overview</button><button id="components-tab">Components</button><button id="contributors-tab">Contributors</button><button id="evidence-tab">Evidence</button><button id="stress-tab">Continuity Stress Test</button></nav>
-<section id="overview"><div id="overview-content" class="overview-grid"></div></section>
-<section id="components" hidden><div class="workspace"><section class="panel"><div class="panel-title"><div><h2>Components</h2><p class="muted">Highest component concentration first</p></div><span id="visible-count" class="count"></span></div><div class="toolbar"><input id="search" type="search" placeholder="Search components…"><select id="risk"><option value="">All continuity risks</option><option>CRITICAL</option><option>HIGH</option><option>MEDIUM</option><option>LOW</option></select></div><div class="table-scroll"><table><thead><tr><th>Component</th><th>Risk</th><th>Concentration</th><th>Contributors</th></tr></thead><tbody id="component-rows"></tbody></table></div><p id="empty" hidden>No matching components.</p></section><aside id="detail" class="panel detail"></aside></div></section>
-<section id="contributors" hidden><div class="panel table-scroll"><table><thead><tr><th>Contributor</th><th>Components</th><th>Historical files</th><th>Evidence score</th></tr></thead><tbody id="contributor-rows"></tbody></table></div></section>
-<section id="evidence" hidden><div class="panel table-scroll"><table><thead><tr><th>Component</th><th>Risk</th><th>Contributors</th><th>Historical files</th><th>Concentration</th></tr></thead><tbody id="evidence-rows"></tbody></table></div></section>
-<section id="stress" hidden><div class="panel simulation"><div><p class="eyebrow">CONTINUITY STRESS TEST</p><h2>Assess component evidence resilience</h2></div><label>Contributor scenario<select id="person"></select></label></div><div id="impact-summary" class="impact-summary"></div><div class="panel table-scroll"><table><thead><tr><th>Component</th><th>Evidence impact</th><th>Evidence overlap</th><th>Historical overlap</th><th>Coverage gaps</th></tr></thead><tbody id="impact-rows"></tbody></table></div></section></section>
-</main><footer><p><strong>Git activity is only a proxy for knowledge.</strong> Scores are experimental.</p></footer><script type="module" src="app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Evidence-driven exploration of engineering continuity and knowledge concentration in software systems.">
+  <title>Engineering Continuity Lab</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="pages.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Engineering Continuity Lab home"><span class="mark" aria-hidden="true">≋</span><span>CONTINUITY<span class="brand-sub">ENGINEERING LAB</span></span></a>
+    <span class="version">EXPERIMENTAL · v0.1</span>
+    <div class="header-actions">
+      <button id="demo" class="quiet" type="button">Reset to Demo</button>
+      <label class="button" for="upload">Open Analysis Report <span aria-hidden="true">↗</span></label>
+      <input id="upload" type="file" accept=".json,application/json" class="file-input">
+      <button id="export" class="quiet" type="button">Export Analysis Report</button>
+      <a class="github-link" href="https://github.com/engineering-continuity-labs/engineering-continuity-lab" target="_blank" rel="noopener noreferrer">View on GitHub <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <p class="eyebrow">ENGINEERING EVIDENCE</p>
+      <h1 id="hero-title">Engineering Continuity Lab</h1>
+      <p class="hero-lead">Evidence-driven exploration of engineering continuity and knowledge concentration in software systems.</p>
+      <p class="muted hero-copy">Analyze historical engineering evidence to identify concentration, coverage gaps, and continuity risks across software components.</p>
+      <div class="hero-actions"><a class="button" href="#analysis">Explore Demo <span aria-hidden="true">↓</span></a><label class="quiet button-like" for="upload">Open Analysis Report</label></div>
+      <p class="privacy prominent">Your report stays in your browser. This static demo does not upload or persist your analysis data.</p>
+    </section>
+    <div id="message" role="status" aria-live="polite"></div>
+    <section class="source" aria-label="Report source"><div><span class="source-icon" aria-hidden="true">⌘</span><strong id="source-name">Synthetic continuity demo</strong><span id="source-type" class="tag">SYNTHETIC DATA</span></div><div class="source-meta"><span id="revision"></span><span id="reference"></span></div></section>
+    <section id="metrics" class="metrics" aria-label="Report summary"></section>
+    <nav class="tabs" aria-label="Analysis view">
+      <button id="overview-tab" class="active" aria-pressed="true">Overview</button><button id="components-tab" aria-pressed="false">Components</button><button id="contributors-tab" aria-pressed="false">Contributors</button><button id="evidence-tab" aria-pressed="false">Evidence</button><button id="stress-tab" aria-pressed="false">Continuity Stress Test</button>
+    </nav>
+    <section id="analysis">
+      <section id="overview"><div id="overview-content" class="overview-grid"></div></section>
+      <section id="components" hidden><div class="workspace"><section class="panel"><div class="panel-title"><div><h2>Components</h2><p class="muted">Highest component concentration first</p></div><span id="visible-count" class="count"></span></div><div class="toolbar"><input id="search" type="search" aria-label="Search components" placeholder="Search components…"><select id="risk" aria-label="Continuity risk"><option value="">All continuity risks</option><option>CRITICAL</option><option>HIGH</option><option>MEDIUM</option><option>LOW</option></select></div><div class="table-scroll"><table><thead><tr><th>Component</th><th>Continuity risk</th><th>Concentration</th><th>Contributors</th></tr></thead><tbody id="component-rows"></tbody></table></div><p id="empty" class="empty" hidden>No matching components.</p></section><aside id="detail" class="panel detail" aria-label="Component details"></aside></div></section>
+      <section id="contributors" hidden><div class="panel table-scroll"><div class="panel-title"><div><h2>Contributors</h2><p class="muted">Historical activity evidence across displayed components</p></div></div><table><thead><tr><th>Contributor</th><th>Components</th><th>Historical files</th><th>Score evidence</th></tr></thead><tbody id="contributor-rows"></tbody></table></div></section>
+      <section id="evidence" hidden><div class="panel table-scroll"><div class="panel-title"><div><h2>Evidence</h2><p class="muted">Component concentration and recorded historical coverage</p></div></div><table><thead><tr><th>Component</th><th>Continuity risk</th><th>Contributors</th><th>Historical files</th><th>Concentration</th></tr></thead><tbody id="evidence-rows"></tbody></table></div></section>
+      <section id="stress" hidden><div class="panel simulation"><div><p class="eyebrow">CONTINUITY STRESS TEST</p><h2>Assess component evidence resilience</h2><p class="muted">Apply a contributor scenario to explore evidence impact, historical overlap, and coverage gaps.</p></div><label>Contributor scenario<select id="person"></select></label></div><div id="impact-summary" class="impact-summary"></div><div class="panel table-scroll"><table><thead><tr><th>Component</th><th>Evidence impact</th><th>Evidence overlap candidate</th><th>Historical overlap</th><th>Coverage gaps</th></tr></thead><tbody id="impact-rows"></tbody></table></div></section>
+    </section>
+    <section id="local-explorer" class="repository-analysis" aria-labelledby="repository-analysis-title" hidden>
+      <div><p class="eyebrow">LOCAL EXPLORER</p><h2 id="repository-analysis-title">Analyze a repository on this computer</h2><p class="muted">Choose an existing local Git repository or a public HTTPS clone URL. Analysis stays on this computer.</p></div>
+      <div class="repository-inputs">
+        <div class="repository-input"><label for="repository-path">Local repository path</label><div><input id="repository-path" type="text" autocomplete="off" placeholder="/path/to/repository"><button id="run-local-analysis" class="button" type="button">Analyze local path</button></div></div>
+        <div class="repository-input"><label for="clone-url">Public HTTPS Git clone URL</label><div><input id="clone-url" type="url" autocomplete="off" placeholder="https://github.com/owner/repository.git"><button id="run-clone-analysis" class="button" type="button">Clone and analyze</button></div></div>
+      </div>
+    </section>
+    <section id="hosted-instructions" class="method"><h2>Analyze Your Repository</h2><p>Install Engineering Continuity Lab and run the local explorer to analyze a repository directly.</p><code>continuity explorer</code></section>
+    <p class="privacy disclaimer">Engineering Continuity Lab analyzes historical engineering activity as evidence of system continuity risk. These results do not measure employee performance, expertise, organizational value, or replaceability.</p>
+    <details class="method"><summary>Report scope and filters</summary><div id="scope"></div><p>Git activity is only a proxy for knowledge. Scores and risk thresholds are experimental; review findings alongside team context.</p></details>
+  </main>
+  <footer><span class="warning-icon">!</span><p><strong>Evidence before assumptions.</strong> Source and methodology are available on GitHub.</p></footer>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
