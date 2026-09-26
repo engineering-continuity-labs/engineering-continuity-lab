@@ -49,3 +49,4 @@
 | ECL-AC-043 | **Given** the loopback explorer, **when** a valid local path or public HTTPS clone URL is submitted, **then** it analyzes through the existing pipeline and immediately displays the compatible report without manual JSON generation. |
 | ECL-AC-044 | **Given** a currently loaded report, **when** Export Analysis Report is selected, **then** the browser downloads a compatible JSON artifact that can be reopened locally or in the public demo. |
 | ECL-AC-045 | **Given** explorer with a repository source option, **when** the service starts, **then** the source is analyzed through the existing local/remote resolver and its report is available to the browser; browser-launch failure does not stop the loopback service. |
+| ECL-AC-050 | **Given** the loopback explorer is available, **when** its repository controls are visible, **then** they precede the report source and dashboard sections in the page flow. |

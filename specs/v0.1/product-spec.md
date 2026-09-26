@@ -56,6 +56,7 @@ v0.1 excludes Azure DevOps integration, pull-request review intelligence, archit
 | ECL-FR-032 | The public browser demo shall link visibly to the project repository and shall state that its continuity results are historical activity evidence rather than employee evaluation, expertise, value, or replaceability. |
 | ECL-FR-033 | The local browser explorer shall make direct repository analysis the primary workflow, with separate local-path and public-HTTPS source controls, immediate report rendering, and optional JSON export/import. |
 | ECL-FR-034 | The explorer command shall accept an optional local path or public HTTPS clone URL, analyze it through the existing acquisition flow, and make the resulting report available to the local browser on startup. |
+| ECL-FR-037 | The loopback explorer shall place repository-analysis controls before the report dashboard, so a local user can select a source without first navigating past report content. |
 
 ## Non-functional requirements
 
