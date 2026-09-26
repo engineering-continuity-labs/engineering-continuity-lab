@@ -8,5 +8,6 @@ test('Pages entrypoint uses relative static assets and contains public-demo acti
  for(const asset of ['styles.css','pages.css','app.js'])assert.match(html,new RegExp(`(?:href|src)="${asset}"`));
  assert.match(html,/View on GitHub/);assert.match(html,/Open Analysis Report/);assert.match(html,/Export Analysis Report/);assert.match(html,/Analyze Your Repository/);assert.match(html,/Your report stays in your browser/);
  assert.match(html,/<section id="local-explorer"[^>]*hidden>/);
+ assert.ok(html.indexOf('id="local-explorer"')<html.indexOf('aria-label="Report source"'));
  assert.doesNotMatch(html,/https?:\/\/[^\"]+(?:analytics|telemetry)/i);
 });
