@@ -1,6 +1,6 @@
 import{test}from'node:test';
 import assert from'node:assert/strict';
-import{validateReport,demoReport,departure}from'../dist/model.js';
+import{validateReport,demoReport,departure,contributorEvidenceSlices}from'../dist/model.js';
 test('demo validates; concentration and shares agree',()=>assert.equal(validateReport(demoReport()).components.length,6));
 test('departure matches file overlap and pre-departure shares',()=>{const r=demoReport(),p=r.components[0].contributors[0];const impact=departure(r,p.contributor).find(i=>i.component==='src/payments');assert.equal(impact.loss,.92);assert.equal(impact.successor.overlap,.5);assert.equal(impact.uncovered.length,1);});
 test('rejects person output and corrupt report without changing input',()=>{for(const r of [{components:[{component:'a',share:1}]},null,{...demoReport(),as_of:'bad'}])assert.throws(()=>validateReport(r));const r=demoReport();r.components[0].contributors[0].share=2;assert.throws(()=>validateReport(r));});
@@ -8,3 +8,4 @@ test('empty report is valid and has no departure candidates',()=>{const r={...de
 test('no successor without overlapping file evidence',()=>{const r=demoReport();r.components[0].contributors[1].files=['different'];assert.equal(departure(r,r.components[0].contributors[0].contributor).find(i=>i.component==='src/payments').successor,null);});
 test('synthetic demo has mixed risk and continuity-stress evidence',()=>{const r=demoReport(),risks=new Set(r.components.map(c=>c.risk));assert.deepEqual(risks,new Set(['LOW','MEDIUM','HIGH','CRITICAL']));const impact=departure(r,r.components[0].contributors[0].contributor);assert.ok(impact.some(i=>i.successor&&i.uncovered.length));});
 test('export-compatible JSON can be reopened as an analysis report',()=>{const exported=JSON.parse(JSON.stringify(demoReport()));assert.deepEqual(validateReport(exported),exported);});
+test('contributor evidence slices show the five largest contributors and aggregate the remainder',()=>{const r=demoReport();for(let i=0;i<3;i++)r.components.push({component:`extra/${i}`,concentration:1,risk:'CRITICAL',contributors:[{contributor:`extra-${i}`,name:`Extra ${i}`,share:1,score:.01,commits:1,files:[`extra/${i}.txt`],signals:{change_ownership:1,recency:1,change_frequency:1,code_area_breadth:1,unique_contribution:1,historical_persistence:1}}]});const slices=contributorEvidenceSlices(r);assert.equal(slices.length,6);assert.equal(slices.at(-1).name,'Others');assert.ok(Math.abs(slices.reduce((sum,slice)=>sum+slice.share,0)-1)<1e-10);});

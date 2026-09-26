@@ -41,8 +41,8 @@ v0.1 excludes Azure DevOps integration, pull-request review intelligence, archit
 | ECL-FR-017 | Detect and flag shallow Git history. |
 | ECL-FR-018 | Support an explicit scoring reference timestamp. |
 | ECL-FR-019 | Support externally configurable scoring weights and half-life. |
-| ECL-FR-020 | The browser explorer shall load a local `analyze` JSON report and display concentration, contributor evidence, and departure scenarios without uploading or persisting the report. |
-| ECL-FR-021 | The browser explorer shall reject incompatible or structurally invalid reports. |
+| ECL-FR-020 | The browser explorer shall display a compatible analysis report supplied by its loopback service, including concentration, contributor evidence, and departure scenarios, without uploading or persisting the report. |
+| ECL-FR-021 | The browser explorer shall reject incompatible or structurally invalid reports from the local service. |
 | ECL-FR-022 | When an analysis-related CLI command runs interactively without an explicit repository path, prompt for a local repository path. In non-interactive execution, fail clearly and instruct the caller to provide `--repo`. |
 | ECL-FR-023 | The local browser explorer shall accept a local repository path and run the existing analysis through a loopback-only local service, then display the resulting report without remote repository access. |
 | ECL-FR-024 | Analysis-related CLI commands shall accept either a local repository path or a public HTTPS Git clone URL. |
@@ -51,11 +51,13 @@ v0.1 excludes Azure DevOps integration, pull-request review intelligence, archit
 | ECL-FR-027 | Analysis-related CLI commands shall emit remote-clone progress to stderr so JSON stdout remains machine-readable. |
 | ECL-FR-028 | The local browser explorer shall present distinct local-path and public-HTTPS-clone-URL inputs and resolve each through the applicable repository acquisition flow. |
 | ECL-FR-029 | The browser explorer shall present contributor scenarios as system-continuity evidence, using neutral continuity, coverage, and historical-overlap terminology without changing the report schema or calculation semantics. |
-| ECL-FR-030 | The browser explorer shall be publishable as a static public demo that loads a bundled safe demo report by default and supports exploration of overview, components, contributors, evidence, and continuity stress-test views. |
-| ECL-FR-031 | The public browser demo shall let a visitor load a compatible local analysis JSON report, replace the displayed demo state with it, and reset to the bundled demo without uploading or persisting the report. |
+| ECL-FR-030 | The browser explorer shall be publishable as a static public demo that offers a bundled safe demo report and supports exploration of overview, components, contributors, evidence, and continuity stress-test views. |
+| ECL-FR-031 | The public browser demo shall offer a static synthetic report through an explicit Explore Demo action, without repository access, report import, or persistence. |
 | ECL-FR-032 | The public browser demo shall link visibly to the project repository and shall state that its continuity results are historical activity evidence rather than employee evaluation, expertise, value, or replaceability. |
-| ECL-FR-033 | The local browser explorer shall make direct repository analysis the primary workflow, with separate local-path and public-HTTPS source controls, immediate report rendering, and optional JSON export/import. |
+| ECL-FR-033 | The local browser explorer shall make direct repository analysis the primary workflow, with separate local-path and public-HTTPS source controls and immediate report rendering. |
 | ECL-FR-034 | The explorer command shall accept an optional local path or public HTTPS clone URL, analyze it through the existing acquisition flow, and make the resulting report available to the local browser on startup. |
+| ECL-FR-035 | The loopback explorer shall present repository selection before a report exists, display the dashboard only after analysis succeeds, and allow the user to return to source selection to analyze another repository. |
+| ECL-FR-036 | The browser overview shall visualize existing component risk distribution, top concentrated components, and aggregated contributor evidence shares without changing scoring or presenting employee evaluation. |
 
 ## Non-functional requirements
 
@@ -75,5 +77,6 @@ v0.1 excludes Azure DevOps integration, pull-request review intelligence, archit
 | ECL-NFR-012 | The hosted demo shall require no authentication, backend, analytics, telemetry, tracking, cookies, or third-party data service; selected report data shall remain in browser memory. |
 | ECL-NFR-013 | Static browser assets and internal navigation shall work when hosted below the repository GitHub Pages subpath. |
 | ECL-NFR-014 | Explorer browser-launch attempts shall use the standard library, must not prevent service startup on failure, and must retain a printed loopback URL fallback. |
+| ECL-NFR-015 | The hosted Pages experience shall remain a static showcase with no repository-analysis inputs, cloning, or local filesystem access. |
 
 The normative score contract is [scoring-spec.md](scoring-spec.md). Acceptance criteria and verification status are [acceptance-criteria.md](acceptance-criteria.md) and [traceability.md](traceability.md).

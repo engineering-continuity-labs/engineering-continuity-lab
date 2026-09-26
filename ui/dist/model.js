@@ -27,6 +27,19 @@ export function departure(report,who){
   return[{component:c.component,loss:p.share,remaining:others,successor:others[0]?.overlap>0?others[0]:null,uncovered:p.files.filter(f=>!covered.has(f))}];
  }).sort((a,b)=>b.loss-a.loss||(a.component<b.component?-1:1));
 }
+export function contributorEvidenceSlices(report){
+ const totals=new Map();
+ for(const component of report.components)for(const person of component.contributors){
+  const current=totals.get(person.contributor)||{id:person.contributor,name:person.name,score:0};
+  current.score+=person.score;totals.set(person.contributor,current);
+ }
+ const ordered=[...totals.values()].sort((left,right)=>right.score-left.score||left.id.localeCompare(right.id));
+ const total=ordered.reduce((sum,person)=>sum+person.score,0)||1;
+ const slices=ordered.slice(0,5).map(person=>({id:person.id,name:person.name,share:person.score/total}));
+ const others=ordered.slice(5).reduce((sum,person)=>sum+person.score,0);
+ if(others)slices.push({id:'others',name:'Others',share:others/total});
+ return slices;
+}
 export function demoReport(){
  const people=[['Alex Morgan','alex@example.test'],['Jordan Lee','jordan@example.test'],['Casey Patel','casey@example.test'],['Sam Rivera','sam@example.test']];
  const components=[['src/payments',[.92,.08]],['src/identity',[.78,.22]],['src/catalog',[.53,.32,.15]],['src/checkout',[.40,.30,.20,.10]],['src/notifications',[.34,.33,.33]],['tests/integration',[.25,.25,.25,.25]]].map(([component,shares],i)=>{
