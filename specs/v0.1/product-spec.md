@@ -59,6 +59,7 @@ v0.1 excludes Azure DevOps integration, pull-request review intelligence, archit
 | ECL-FR-037 | The loopback explorer shall place repository-analysis controls before the report dashboard, so a local user can select a source without first navigating past report content. |
 | ECL-FR-038 | The hosted browser demo shall open with a bundled analysis report derived from the documented dotnet/eShop validation revision, clearly labeled as a static historical Git-evidence sample. |
 | ECL-FR-039 | Browser actions that open a local analysis report or navigate to the bundled sample shall state their result clearly: report actions select a saved JSON report and sample navigation identifies its scroll destination. Report actions shall also provide their explanation through visible hover/focus tooltips and an assistive-technology description. |
+| ECL-FR-040 | The browser explorer shall open on a compact full-width Components view after report loading, while preserving summary metrics and access to Overview and detailed component evidence. |
 
 ## Non-functional requirements
 

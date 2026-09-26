@@ -21,6 +21,7 @@
 | ECL-FR-037 | ECL-AC-050 | `ui/dist/index.html` | `ui/tests/pages-static.test.js` | VERIFIED |
 | ECL-FR-038 | ECL-AC-051 | `ui/dist/eshop-report.js`, `ui/dist/app.js`, `ui/dist/index.html` | `ui/tests/model.test.js`, `ui/tests/pages-static.test.js` | PARTIAL — report identity and static import are automated; browser boot and hosted deployment remain manual checks. |
 | ECL-FR-039 | ECL-AC-052 | `ui/dist/index.html`, `ui/dist/pages.css` | `ui/tests/pages-static.test.js` | PARTIAL — action labels are statically checked; hover and keyboard-visible tooltips require browser review. |
+| ECL-FR-040 | ECL-AC-053 | `ui/dist/index.html`, `ui/dist/pages.css` | `ui/tests/pages-static.test.js` | PARTIAL — initial view and compact layout are statically checked; rendered density remains manual. |
 | ECL-FR-021 | ECL-AC-021 | `ui/dist/model.js`, `ui/dist/app.js` | `ui/tests/model.test.js` | VERIFIED |
 | ECL-NFR-001 | — | `pyproject.toml` | CI Python 3.12 configuration | VERIFIED |
 | ECL-NFR-002 | ECL-AC-006 | `src/continuity/analysis/service.py`, `src/continuity/scoring/model.py` | `tests/test_scoring.py` | PARTIAL — fixed-reference guard is tested; full repeated CLI output is not. |
