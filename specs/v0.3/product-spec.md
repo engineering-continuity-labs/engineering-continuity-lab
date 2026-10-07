@@ -1,0 +1,114 @@
+# v0.3 product specification: traceability evidence
+
+**Status: ACCEPTED intended design for this specification PR; NOT IMPLEMENTED.** No v0.3 runtime requirement is VERIFIED. Product Owner handoff follows the user's accepted direction; design review and regression evidence are recorded separately in `traceability.md`.
+
+## Problem, value and change boundary
+
+Git authorship (v0.1) and PR review interaction (v0.2) describe historical activity. They do not explain why a change happened. v0.3 will expose observed paths between engineering intent and implementation so a reader can inspect connected, fragmented, missing or unavailable evidence. The primary dimension is the artifact/component, never an employee.
+
+The initial normative chain is **Work Item → Pull Request → Commit → Changed Path → Component**. Shorter observed paths are also useful: Work Item → PR → Component, Work Item → Commit → Component, PR → Commit → Component, Commit → Component. A short path does not satisfy the full-chain contract and must expose skipped/missing/unavailable hops; no relationship is fabricated to fill the gap.
+
+This change delivers specifications, architecture, evidence-model and verification design only. The Developer role materializes these documents and validates the unchanged baseline. It stops before product implementation: no domain classes, executable fixtures, provider client, runtime logic, schema changes, UI, CLI, authentication or Azure DevOps network access is added.
+
+## Accepted eventual scope and non-goals
+
+Azure DevOps Services and Azure DevOps Server/on-premises are the first planned concrete provider family. Work-item/PR/commit relationships must be provider-recorded; Git commit changes and deterministic component mapping complete the chain. Core concepts remain provider-independent. The first implementation will operate offline on explicitly SYNTHETIC project-owned evidence; live acquisition is a separate future change.
+
+Initial queries inspect work items affecting a component, PRs and commits associated with a work item, affected components, PRs/commits without observed intent, work items without observed implementation, and exactly where a chain stops. Merged PRs only contribute to PR coverage; open/abandoned PR references may be retained as unresolved contextual references but are excluded from that denominator.
+
+Non-goals: individual ranking/compliance/performance metrics; inferred ticket matches from messages, branches, author identity, timing or semantic similarity; LLMs, embeddings, vector/graph databases; Jira/GitHub Issues adapters; work-item parent/child/related hierarchies; comments, descriptions, attachments, profiles and arbitrary custom fields; authentication implementation; v0.4 requirements/ADR/ICD/test/verification-document ingestion; v0.5 handover assessment. No coverage percentage judges process quality or proves a requirement was implemented correctly.
+
+## Functional requirements
+
+| ID | Observable eventual requirement |
+| --- | --- |
+| ECL-FR-301 | Represent minimum work-item evidence independently of provider DTOs: scoped identifier, normalized type/state, optional approved title/timestamps, and provenance. |
+| ECL-FR-302 | Accept a planned Azure DevOps traceability adapter for Services and Server, with declared supported/unsupported relationship capabilities rather than assuming cloud equivalence. |
+| ECL-FR-303 | Retain acquisition/source provenance for every work item and relationship, including safe project/repository scope, boundary and completeness. |
+| ECL-FR-304 | Represent observed direct links with typed endpoints, observation basis and source evidence; reject unsupported claims as non-authoritative diagnostics. |
+| ECL-FR-305 | Derive trace paths only through existing valid observed links and documented path-to-component mapping; retain the ordered supporting references and derivation rule. |
+| ECL-FR-306 | Represent provider-observed Work Item → PR links, including one-to-many and many-to-one associations without multiplying artifact counts. |
+| ECL-FR-307 | Represent direct Work Item → Commit links where provider evidence exists, separately from a path derived through a PR. |
+| ECL-FR-308 | Represent provider-observed PR → Commit membership without claiming all PR commits are reachable at the selected Git revision. |
+| ECL-FR-309 | Retain observed Commit → Changed Path evidence for the exact repository and commit revision. |
+| ECL-FR-310 | Map changed paths through the existing component strategy, recording its configuration and mapping one path to its selected component. |
+| ECL-FR-311 | Expose a complete normative trace chain and its support independently from broader collection completeness. |
+| ECL-FR-312 | Preserve shorter paths and explain each unresolved expected hop; a PR-level changed-path shortcut never invents a commit. |
+| ECL-FR-313 | Label an absent relationship MISSING only when the relevant artifact and relationship lookup are supported, complete and within the selected boundary. |
+| ECL-FR-314 | Label evidence UNAVAILABLE when a required capability, usable source, compatible scope or population is unavailable; expose the reason. |
+| ECL-FR-315 | Propagate incomplete enumeration/enrichment, truncation, malformed records or interrupted lookup as PARTIAL for the affected scope, retaining valid positive evidence. |
+| ECL-FR-316 | Produce identical paths, gaps, counts and ordering from identical normalized input, identity mappings, boundaries and configuration. |
+| ECL-FR-317 | Normalize exact duplicate links once while preserving distinct observations; isolate contradictory duplicates without inflating coverage. |
+| ECL-FR-318 | Reject or isolate malformed required IDs/endpoints/links deterministically with safe diagnostics; missing optional fields do not erase valid links. |
+| ECL-FR-319 | Display source-specific collection times, query/time/revision scopes and completeness; prohibit silent joins or comparisons across incompatible boundaries. |
+| ECL-FR-320 | Preserve v0.1 scoring/reports and v0.2 review semantics/reports unchanged; absence of traceability evidence remains valid and means unavailable. |
+| ECL-FR-321 | Use minimum approved data, omit confidential titles/identities by default, and prevent sensitive content from crossing export/error/public-artifact boundaries. |
+| ECL-FR-322 | Distinguish FAILED acquisition from valid empty evidence; retain useful validated evidence with PARTIAL on interruption and never report an unperformed lookup as MISSING. |
+| ECL-FR-323 | Permit configurable Server base/collection/project/repository and API/capability profiles without cloud URLs, credentials or network assumptions in core values. |
+| ECL-FR-324 | Define and later validate a project-owned SYNTHETIC fixture containing complete/partial/missing/unavailable/failure, multicomponent, duplicate and malformed cases. |
+| ECL-FR-325 | Distinguish DIRECT_PROVIDER_LINK, DIRECT_SOURCE_LINK (e.g. observed Git changes) and DERIVED_LINK; derived Work Item → Component never claims direct provider assertion. |
+| ECL-FR-326 | Report coverage as explicit distinct numerator/denominator with boundary, provider/source, completeness, excluded/unknown populations and unavailable zero-denominator ratios. |
+| ECL-FR-327 | Show artifact-oriented path/gap explanations and separate coverage dimensions, without a single opaque traceability score or people ranking. |
+| ECL-FR-328 | Retain cycle diagnostics and terminate path derivation safely; cyclic/unsupported relationships cannot create evidence or repeated traversal counts. |
+
+## Status contract: three independent axes
+
+Collection status reuses **COMPLETE / PARTIAL / FAILED** from the established evidence vocabulary; capability is **SUPPORTED / UNSUPPORTED / UNKNOWN** per relationship kind and scoped lookup. Trace/path status is **VERIFIED / PARTIAL / MISSING / UNAVAILABLE**. Governance verification status in the traceability matrix is a fourth, separate concept: this design does not mark runtime requirements VERIFIED.
+
+- **VERIFIED trace path:** every required hop exists with valid provenance and compatible artifact scope. It verifies connection evidence only, not business correctness or understanding. It may coexist with a PARTIAL collection; the collection badge must remain visible.
+- **MISSING hop:** a supported, complete lookup found no relationship for an in-boundary endpoint. Example: a fully enumerated merged PR has no observed work-item link. It says nothing about work items outside the selected boundary.
+- **UNAVAILABLE hop:** unsupported/unknown capability, failed lookup with no usable evidence, incompatible boundaries, missing source population or an unresolvable excluded reference; state the cause. Zero observed population yields no ratio, not 0%.
+- **PARTIAL trace:** some expected hop is incomplete/malformed or only a short chain is evidenced. Known complete absence on a hop remains a MISSING gap; unavailable hops remain UNAVAILABLE gaps. Positive supported portions remain visible.
+
+A component groups individual path/gap states; it never hides them behind a single score. Define `N` as distinct eligible artifacts in the selected summary population and `F` as those with at least one full supported normative chain (not the number of alternate paths). A component summary uses mapped commit/path occurrences as its population; artifact-specific summaries identify their population explicitly. Apply these rules in order:
+
+| Condition | Aggregate summary |
+| --- | --- |
+| Required source/population/capability or compatible boundary is unavailable, or N=0 | UNAVAILABLE with reason; no zero-ratio claim |
+| N>0 and any required lookup/population is incomplete/malformed/interrupted | PARTIAL, even if all currently observed artifacts have positive paths |
+| N>0, required lookups are supported and COMPLETE, F=0 | MISSING full-chain evidence in this boundary |
+| Supported COMPLETE population, 0<F<N | PARTIAL, with individual MISSING gaps listed |
+| Supported COMPLETE population, F=N | VERIFIED connection evidence only |
+
+Individual shorter paths remain PARTIAL full-chain results with per-hop gaps even when a complete aggregate population with F=0 is summarized MISSING. Direct WI_COMMIT paths may satisfy intent metrics while full normative PR chains are missing; those two dimensions are never conflated. A positive full path can remain VERIFIED during incomplete collection; the aggregate stays PARTIAL or UNAVAILABLE under the rules above. The independent collection state is always displayed. This cardinality contract resolves independent design-review R1 without changing scope.
+
+## Coverage populations and observable metrics
+
+All ratios count DISTINCT scoped artifacts. A valid observed positive link/path is usable during partial acquisition; a noncovered artifact is not automatically MISSING. Report unknown/excluded counts and per-relationship lookup states. Ratios from an incomplete population are labelled observed-population PARTIAL, not extrapolated to repository history. An unsupported required capability, incompatible joined scope, or zero denominator makes the ratio unavailable (null), with counts retained only where independently established.
+
+| Dimension | Numerator | Denominator | Required relation scope |
+| --- | --- | --- | --- |
+| Merged-PR intent coverage | Observed merged PRs with ≥1 valid direct work-item link to a resolved in-boundary work item | Distinct merged PRs enumerated in selected repository/query boundary | Work items and WI→PR lookups for each enumerated PR; no guessed link |
+| Commit intent coverage | Observed commits with a resolved WI→Commit link or compatible WI→PR→Commit path | Distinct commits in the selected Git revision/time/filter boundary | Complete identities and compatible WI/PR/commit membership scope |
+| Component-change intent coverage | Distinct `(repository, commit, changed path)` occurrences mapped to that component with a supported work-item path | Distinct observed occurrences mapped to that component under the same Git/filter/component configuration | Commit intent plus observed changes; this is neither lines nor number of contributors |
+| Work-item implementation coverage | Enumerated work items reaching ≥1 observed commit/path/component by a supported path | Distinct work items explicitly enumerated in selected project/work-item query boundary | WI→PR/Commit and implementation lookups; a work item linked only to a PR is not yet observed code implementation |
+
+The work-item query must enumerate the chosen work-item population independently of linked PRs; otherwise unlinked work items cannot be counted or labelled missing. Boundary includes type/state filters if selected, explicit half-open UTC time windows `[start,end)` with the field used, and the repository/revision set. Cross-boundary links remain explainable references but cannot inflate numerator or redefine denominator. Overlapping PRs sharing one commit count once in commit/change metrics. Metrics are descriptive evidence coverage; no strong/weak quality thresholds are adopted in initial v0.3.
+
+## Non-functional requirements
+
+| ID | Requirement |
+| --- | --- |
+| ECL-NFR-301 | Core immutable evidence and derivation shall be independent of provider SDKs, REST DTOs, Azure URL/auth types and network clients. |
+| ECL-NFR-302 | Normalization and derivation shall be deterministic with explicit identity rules, sorted output, deduplication, bounded traversal and cycle handling. |
+| ECL-NFR-303 | Every retained record/link/path shall have auditable sanitized source/boundary provenance; derivations retain their supporting evidence references. |
+| ECL-NFR-304 | Never persist or emit PATs, auth headers, bearer tokens, passwords, cookies, secret-bearing URLs, raw responses or local temporary paths. |
+| ECL-NFR-305 | Do not retain unnecessary personal fields, comments, attachments/custom fields or confidential text; default persisted/exported views use approved labels or opaque aliases. |
+| ECL-NFR-306 | Errors shall contain stable sanitized categories and safe scope aliases only; raw exception/provider bodies and network configuration remain adapter-private. |
+| ECL-NFR-307 | v0.1/v0.2 input validity, scoring, reviews and optional-section absence shall remain unchanged; new report evidence must be additive and versioned. |
+| ECL-NFR-308 | Reproducibility shall identify input snapshots, query/revision/time bounds, identity mapping, component strategy/filter configuration, normalization/derivation versions and collection time. |
+| ECL-NFR-309 | Schema evolution shall use typed extensible references/links and explicit versions without adding v0.4 runtime concepts in v0.3 or reinterpreting old fields. |
+| ECL-NFR-310 | Partial/failed/unsupported relationship acquisition shall never be interpreted as a complete empty population or complete negative evidence. |
+| ECL-NFR-311 | Services/Server API versions, capabilities, pagination and deployment configuration shall be explicit adapter profiles; no universal version compatibility claim. |
+| ECL-NFR-312 | Core derivation shall run offline on normalized evidence with no hidden network calls, authentication or LLM/inference dependency. |
+| ECL-NFR-313 | Public documentation, fixtures, CI and validation shall use only SYNTHETIC, intentionally public or project-owned approved public data, never employer/NATO/NCIA/defence/customer/private-project evidence. |
+
+## Privacy and future presentation contract
+
+References must be scoped and non-secret. Adapter-private native project/repository identifiers and URLs may be needed transiently to acquire evidence, but default persisted/shared provenance uses approved public scopes or stable opaque aliases with a mapping fingerprint; reverse mappings and confidential titles are not exported. Work-item title is optional, disabled for private content unless explicitly approved, and never needed for joins. Creation/change/closure timestamps are optional context, not causal links; choose only useful ones explicitly. No individual identities are introduced by v0.3; existing v0.1/v0.2 identity fields are untouched.
+
+An eventual artifact view shows component, observed work items/PRs/commit/path references, direct/derived labels, each unresolved hop and reason, raw distinct coverage counts and both source boundaries. No tab, controls, network flow or runtime report change is created here. UI layout is a future Product Owner/Architect gate; these content semantics are already normative.
+
+## Handoff and remaining delivery gates
+
+Product Owner exit: value, scope, non-goals, populations and observable outcomes are explicit. Architecture must resolve identity/join ownership, typed paths and capability/completeness evidence before QA/Developer work. QA defines cases in `acceptance-criteria.md`; runtime implementation remains unstarted. This specification is not an authorization to start product implementation after its PR.

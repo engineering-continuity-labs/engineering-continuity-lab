@@ -32,3 +32,6 @@ The lifecycle is: **Problem → Specification → Acceptance Criteria → Archit
 v0.1 specifications are in [v0.1](v0.1/). They are normative for implemented v0.1 behavior; material that explains why or how belongs in `docs/`.
 
 v0.2 specification and design work is in [v0.2](v0.2/). It defines implemented public PR/review evidence behavior, additive report compatibility, and evidence-based verification status. Git-only v0.1 scoring remains unchanged.
+
+
+v0.3 is a [traceability specification/design baseline](v0.3/product-spec.md), with [acceptance/fixture design](v0.3/acceptance-criteria.md), [planned traceability](v0.3/traceability.md), and [architecture decisions](../docs/traceability-evidence.md). It introduces no runtime implementation. Requirements are ACCEPTED intended behavior; runtime verification remains unperformed. Runtime trace-path VERIFIED/MISSING/PARTIAL/UNAVAILABLE labels, acquisition COMPLETE/PARTIAL/FAILED, and governance verification statuses are independent concepts.
