@@ -16,6 +16,4 @@ The previous work already contained provider-neutral evidence, deterministic rev
 
 Evidence: `docs/validation/v0.2-completion.md`, `docs/validation/v0.2-code-review.md`, `docs/validation/eshop-v0.2-summary.json`. Release notes: `docs/release-notes-v0.2.0.md`. Recommended tag after merge/green required CI: `v0.2.0`. No tag/release or v0.3 work is created.
 
-PR CI must pass before merge. PR creation in this execution was blocked by GitHub integration permissions (`403 Resource not accessible by integration`); browser fallback was unavailable (`Computer Use permissions are not granted`). Open the PR through an authorized GitHub session and wait for CI. The automation did not claim remote green checks.
-
-Compare: https://github.com/engineering-continuity-labs/engineering-continuity-lab/compare/main...release/v0.2.0?expand=1
+PR #16 is open from `release/v0.2.0` to `main`. [Remote CI run #36](https://github.com/engineering-continuity-labs/engineering-continuity-lab/actions/runs/37658078272) passed every step at head `420d63264d83cf3a532d09594cc43adbf141b3c4`. The implementation is independently approved. Subsequent commits require their own green CI before merge.

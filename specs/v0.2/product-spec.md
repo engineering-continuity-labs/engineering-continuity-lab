@@ -1,6 +1,6 @@
 # v0.2 product specification: PR and review evidence
 
-**Status:** Implemented and automatically verified on `release/v0.2.0`, independently reviewed. Real public eShop collection remains MANUAL/PARTIAL; PR creation/remote CI is blocked by GitHub integration permissions. Evidence is recorded in `traceability.md`.
+**Status:** Implemented and automatically verified on `release/v0.2.0`, independently reviewed. Real public eShop collection remains MANUAL/PARTIAL; PR #16 exists and remote CI run #36 passed at head `420d632`; PR metadata correction remains blocked by integration permissions. Evidence is recorded in `traceability.md`.
 
 ## Problem and product goal
 
