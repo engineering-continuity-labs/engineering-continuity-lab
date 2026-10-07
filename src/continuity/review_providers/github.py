@@ -1,4 +1,4 @@
-"""Public GitHub REST adapter with bounded, explicit collection completeness."""
+"""Public GitHub REST adapter with complete, explicit pagination."""
 from datetime import UTC, datetime
 import json
 import re
@@ -51,10 +51,10 @@ def _state(value: object) -> ReviewState:
 class GitHubPublicReviewEvidence:
     """Fetch a bounded public snapshot without tokens or raw payload retention."""
 
-    def __init__(self, maximum_pull_requests: int = 20) -> None:
-        if maximum_pull_requests < 1:
-            raise ValueError("maximum pull requests must be positive")
-        self.maximum_pull_requests = maximum_pull_requests
+    def __init__(self, maximum_pages: int = 1000) -> None:
+        if maximum_pages < 1:
+            raise ValueError("maximum pages must be positive")
+        self.maximum_pages = maximum_pages
 
     def _get(self, path: str) -> tuple[list[dict[str, Any]], bool]:
         request = Request(f"https://api.github.com{path}", headers={
@@ -66,12 +66,23 @@ class GitHubPublicReviewEvidence:
                 raise ValueError("GitHub returned an unexpected collection")
             return [item for item in data if isinstance(item, dict)], "rel=\"next\"" in response.headers.get("Link", "")
 
+    def _all(self, path: str) -> tuple[list[dict[str, Any]], bool]:
+        """Follow deterministic page numbers; exhaustion means a partial snapshot."""
+        items: list[dict[str, Any]] = []
+        separator = "&" if "?" in path else "?"
+        for page in range(1, self.maximum_pages + 1):
+            batch, next_page = self._get(f"{path}{separator}page={page}")
+            items.extend(batch)
+            if not next_page:
+                return items, False
+        return items, True
+
     def acquire(self, request: ReviewEvidenceRequest) -> ReviewEvidenceCollection:
         repository = github_repository(request.repository)
         retrieved = datetime.now(UTC)
         provenance = ProviderProvenance("github", repository, request.evidence_boundary, retrieved)
         try:
-            pulls, has_more = self._get(f"/repos/{repository}/pulls?state=closed&sort=updated&direction=desc&per_page={self.maximum_pull_requests}")
+            pulls, has_more = self._all(f"/repos/{repository}/pulls?state=closed&sort=updated&direction=desc&per_page=100")
             merged = [pull for pull in pulls if pull.get("merged_at")]
             evidence: list[PullRequestEvidence] = []
             diagnostics: list[str] = []
@@ -83,8 +94,8 @@ class GitHubPublicReviewEvidence:
                 if not identifier or author is None or merged_at is None:
                     diagnostics.append("malformed merged pull request omitted")
                     continue
-                files, files_more = self._get(f"/repos/{repository}/pulls/{identifier}/files?per_page=100")
-                reviews, reviews_more = self._get(f"/repos/{repository}/pulls/{identifier}/reviews?per_page=100")
+                files, files_more = self._all(f"/repos/{repository}/pulls/{identifier}/files?per_page=100")
+                reviews, reviews_more = self._all(f"/repos/{repository}/pulls/{identifier}/reviews?per_page=100")
                 paths = tuple(sorted({item["filename"] for item in files if isinstance(item.get("filename"), str)}))
                 if not paths:
                     diagnostics.append(f"pull request {identifier} has no usable changed paths")

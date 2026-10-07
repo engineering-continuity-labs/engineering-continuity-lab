@@ -3,7 +3,7 @@ export const riskOf=x=>x>=.8?'CRITICAL':x>=.6?'HIGH':x>=.4?'MEDIUM':'LOW';
 const finite=(v,min=0,max=1)=>typeof v==='number'&&Number.isFinite(v)&&v>=min&&v<=max;
 export function validateReport(r){
  const fail=()=>{throw Error('Select a valid continuity analyze JSON report. Person and departure exports are not supported here.');};
- if(!r||r.model!=='experimental-v0.1'||!Array.isArray(r.components)||typeof r.revision!=='string'||typeof r.as_of!=='string'||!Number.isFinite(Date.parse(r.as_of))||!Number.isInteger(r.commit_count)||r.commit_count<0)fail();
+ if(!r||!['experimental-v0.1','experimental-v0.2'].includes(r.model)||!Array.isArray(r.components)||typeof r.revision!=='string'||typeof r.as_of!=='string'||!Number.isFinite(Date.parse(r.as_of))||!Number.isInteger(r.commit_count)||r.commit_count<0)fail();
  if(r.filters!==undefined&&(!r.filters||typeof r.filters!=='object'||['paths','authors'].some(k=>r.filters[k]!==undefined&&(!Array.isArray(r.filters[k])||r.filters[k].some(v=>typeof v!=='string')))))fail();
  if(r.filter_evidence!==undefined&&(!r.filter_evidence||!Number.isInteger(r.filter_evidence.excluded_file_changes)||!Number.isInteger(r.filter_evidence.input_file_changes)))fail();
  const names=new Set();
@@ -16,6 +16,7 @@ export function validateReport(r){
   }
   if(Math.abs(shares-1)>1e-6||Math.abs(c.contributors.reduce((s,p)=>s+p.share*p.share,0)-c.concentration)>1e-6)fail();
  }
+ if(r.review_evidence!==undefined&&(!r.report_version||!Array.isArray(r.review_evidence.components)||!r.review_evidence.provenance))fail();
  return r;
 }
 export function departure(report,who){

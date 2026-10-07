@@ -68,6 +68,7 @@ def analysis_output(repository: str, include_review_evidence: bool = False) -> d
                     f"https://github.com/{reference}", "latest 20 closed pull requests at collection time",
                 ))
                 output["review_evidence"] = asdict(analyze_reviews(review_collection, DirectoryComponents()))
+                output["report_version"] = "2.0"
         return output
 
 

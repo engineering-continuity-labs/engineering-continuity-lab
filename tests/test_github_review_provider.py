@@ -12,10 +12,11 @@ class GitHubReviewProviderTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             github_repository("https://gitlab.com/org/repo")
 
-    def test_acquires_merged_review_evidence_and_marks_pagination_partial(self) -> None:
+    def test_acquires_all_pages_of_merged_review_evidence(self) -> None:
         provider = GitHubPublicReviewEvidence()
         responses = [
             ([{"number": 4, "merged_at": "2026-01-01T00:00:00Z", "user": {"login": "author"}}], True),
+            ([], False),
             ([{"filename": "src/core/a.py"}], False),
             ([
                 {"id": 1, "state": "APPROVED", "user": {"login": "reviewer"}, "submitted_at": "2026-01-02T00:00:00Z"},
@@ -24,7 +25,7 @@ class GitHubReviewProviderTests(unittest.TestCase):
         ]
         with patch.object(provider, "_get", side_effect=responses):
             result = provider.acquire(ReviewEvidenceRequest("https://github.com/org/repo", "first page"))
-        self.assertEqual(result.status, CollectionStatus.PARTIAL)
+        self.assertEqual(result.status, CollectionStatus.COMPLETE)
         self.assertEqual(result.provenance.repository, "org/repo")
         self.assertEqual(result.pull_requests[0].changed_paths, ("src/core/a.py",))
         self.assertEqual(result.pull_requests[0].reviews[-1].state, ReviewState.COMMENTED)
