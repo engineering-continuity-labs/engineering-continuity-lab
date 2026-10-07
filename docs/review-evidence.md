@@ -43,6 +43,12 @@ The future domain layer should use immutable value objects equivalent to these c
 
 The review aggregation must not mutate Git evidence or invoke v0.1 scoring. A future report extension should add a versioned `review_evidence` section to a Git report or define an explicit joined view; both choices must preserve a Git-only report unchanged.
 
+## Implemented public-provider boundary
+
+The local explorer uses a public GitHub REST adapter for GitHub repository URLs or local repositories with a GitHub `origin` remote. It collects the latest 20 closed pull requests at collection time, then retrieves paths and review events for merged pull requests in that bounded set. More pages, including files or reviews beyond the first API page, are explicitly marked `PARTIAL`; a provider failure is marked `FAILED`. No token, authentication header, raw provider payload, URL query, fragment, or user-info is accepted into the evidence contract.
+
+On 2026-10-07, the public `dotnet/eShop` validation collection returned `PARTIAL` evidence with one merged pull request in its latest 20 closed pull requests. This is a live provider boundary, not the v0.1 fixed Git revision, and must not be compared as a complete historical PR census.
+
 ## Qualification, coverage, and concentration
 
 An effective APPROVED or CHANGES_REQUESTED review by an identified, non-author, provider-non-bot reviewer qualifies. COMMENTED remains an observed event but does not qualify. An effective event marked dismissed by the provider does not qualify. Missing reviewer identities and unknown states remain explicit non-qualifying evidence.

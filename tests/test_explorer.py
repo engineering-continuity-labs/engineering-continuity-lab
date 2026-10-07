@@ -1,4 +1,5 @@
 from http.client import HTTPConnection
+from datetime import UTC, datetime
 import json
 import os
 from pathlib import Path
@@ -10,6 +11,7 @@ from unittest.mock import patch
 
 from continuity.cli import main
 from continuity.explorer import make_server
+from continuity.domain.reviews import CollectionStatus, ProviderProvenance, PullRequestEvidence, ReviewEvidenceCollection, ReviewIdentity
 
 
 class ExplorerTests(unittest.TestCase):
@@ -84,6 +86,29 @@ class ExplorerTests(unittest.TestCase):
         status, response, _ = self.request(port, "POST", "/api/unknown", {})
         self.assertEqual(status, 404)
         self.assertEqual(response, {"error": "unknown local API path"})
+
+    def test_non_github_local_analysis_explains_unavailable_review_evidence(self) -> None:
+        port = self.start_server()
+        status, report, _ = self.request(port, "POST", "/api/analyze", {
+            "repository": str(self.repository), "review_evidence": True,
+        })
+        self.assertEqual(status, 200)
+        self.assertIn("review_evidence_error", report)
+
+    def test_github_origin_includes_provider_review_evidence(self) -> None:
+        self.git("remote", "add", "origin", "https://github.com/example/repository.git")
+        collection = ReviewEvidenceCollection(
+            ProviderProvenance("github", "example/repository", "fixture", datetime.now(UTC)),
+            (PullRequestEvidence("1", ReviewIdentity("author"), datetime.now(UTC), ("module.py",), ()),),
+            CollectionStatus.COMPLETE,
+        )
+        with patch("continuity.explorer.GitHubPublicReviewEvidence.acquire", return_value=collection):
+            port = self.start_server()
+            status, report, _ = self.request(port, "POST", "/api/analyze", {
+                "repository": str(self.repository), "review_evidence": True,
+            })
+        self.assertEqual(status, 200)
+        self.assertEqual(report["review_evidence"]["provenance"]["status"], "COMPLETE")
 
     def test_cli_explorer_command_dispatches_to_local_server(self) -> None:
         with patch("continuity.explorer.serve") as serve:

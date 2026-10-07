@@ -1,10 +1,12 @@
 """Loopback-only server that connects the local browser explorer to Git analysis."""
 from dataclasses import asdict
+from datetime import datetime
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import json
 from pathlib import Path
 import socket
+import subprocess
 import webbrowser
 from socketserver import BaseServer
 from typing import Any, cast
@@ -15,24 +17,40 @@ from continuity.domain.models import DirectoryComponents
 from continuity.git.history import GitHistory
 from continuity.git.source import resolve_repository
 from continuity.scoring.model import ScoringConfig
+from continuity.analysis.reviews import analyze_reviews
+from continuity.domain.reviews import ReviewEvidenceRequest
+from continuity.review_providers.github import GitHubPublicReviewEvidence, github_repository
 
 STATIC_DIRECTORY = Path(__file__).resolve().parents[2] / "ui" / "dist"
 MAX_REQUEST_BYTES = 64 * 1024
 
 
-def analysis_output(repository: str) -> dict[str, Any]:
+def _github_reference(repository: str, local_path: Path) -> str | None:
+    try:
+        return github_repository(repository)
+    except ValueError:
+        pass
+    result = subprocess.run(("git", "-C", str(local_path), "config", "--get", "remote.origin.url"),
+                            capture_output=True, text=True, check=False)
+    try:
+        return github_repository(result.stdout.strip())
+    except ValueError:
+        return None
+
+
+def analysis_output(repository: str, include_review_evidence: bool = False) -> dict[str, Any]:
     """Produce the unchanged `analyze` JSON schema for one local repository."""
     config = ScoringConfig()
     filters = FilterConfig()
     with resolve_repository(repository) as workspace:
-        history, evidence = filter_history(GitHistory(workspace.path).read(), filters)
+        history, filter_evidence = filter_history(GitHistory(workspace.path).read(), filters)
         report = analyze(history, DirectoryComponents(), config)
         output = {
         "model": "experimental-v0.1",
         "warning": "Git activity is only a proxy for knowledge.",
         "configuration": {"weights": dict(config.weights), "half_life_days": config.half_life_days, "component_depth": 1},
         "filters": asdict(filters),
-        "filter_evidence": asdict(evidence),
+        "filter_evidence": asdict(filter_evidence),
         "revision": report.revision,
         "as_of": report.as_of.isoformat(),
         "shallow": report.shallow,
@@ -41,6 +59,15 @@ def analysis_output(repository: str) -> dict[str, Any]:
         }
         if workspace.source is not None:
             output["source"] = workspace.source
+        if include_review_evidence:
+            reference = _github_reference(repository, workspace.path)
+            if reference is None:
+                output["review_evidence_error"] = "Review evidence currently requires a public GitHub repository URL or GitHub origin remote."
+            else:
+                review_collection = GitHubPublicReviewEvidence().acquire(ReviewEvidenceRequest(
+                    f"https://github.com/{reference}", "latest 20 closed pull requests at collection time",
+                ))
+                output["review_evidence"] = asdict(analyze_reviews(review_collection, DirectoryComponents()))
         return output
 
 
@@ -56,7 +83,8 @@ class ExplorerHandler(SimpleHTTPRequestHandler):
         super().end_headers()
 
     def send_json(self, status: HTTPStatus, payload: dict[str, Any]) -> None:
-        encoded = json.dumps(payload, ensure_ascii=True).encode()
+        encoded = json.dumps(payload, ensure_ascii=True,
+                             default=lambda value: value.isoformat() if isinstance(value, datetime) else str(value)).encode()
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(encoded)))
@@ -93,7 +121,7 @@ class ExplorerHandler(SimpleHTTPRequestHandler):
             repository_path = payload["repository"].strip()
             if not repository_path:
                 raise ValueError("repository path cannot be empty")
-            self.send_json(HTTPStatus.OK, analysis_output(repository_path))
+            self.send_json(HTTPStatus.OK, analysis_output(repository_path, bool(payload.get("review_evidence", False))))
         except (ValueError, OSError, TypeError, OverflowError, json.JSONDecodeError) as error:
             self.send_json(HTTPStatus.BAD_REQUEST, {"error": str(error)})
 

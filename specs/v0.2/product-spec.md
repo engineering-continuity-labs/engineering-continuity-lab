@@ -1,6 +1,6 @@
 # v0.2 product specification: PR and review evidence
 
-**Status:** Draft — specification and design only; no v0.2 product behavior is implemented by this change.
+**Status:** Partially implemented. The public GitHub provider, deterministic review aggregation, and local explorer view are implemented. Provider pagination beyond the bounded collection, report export schema integration, and broader validation remain partial or manual in `traceability.md`.
 
 ## Problem and product goal
 
