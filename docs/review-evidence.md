@@ -13,11 +13,11 @@ flowchart LR
     Map --> Views[Separate authorship and review views]
 ```
 
-No domain object in this boundary contains GitHub REST, GraphQL, or Azure DevOps DTOs. A GitHub adapter may later translate provider payloads at its edge; an Azure DevOps adapter must be able to populate the same domain contract.
+No domain object in this boundary contains GitHub REST, GraphQL, or Azure DevOps DTOs. The GitHub adapter translates provider payloads at its edge; an Azure DevOps adapter must be able to populate the same domain contract.
 
 ## Provider-independent domain contract
 
-The future domain layer should use immutable value objects equivalent to these concepts:
+The domain layer uses immutable value objects equivalent to these concepts:
 
 | Concept | Required information | Notes |
 | --- | --- | --- |
@@ -29,7 +29,7 @@ The future domain layer should use immutable value objects equivalent to these c
 | `Reviewer` | stable identity, optional display name, provider-declared bot flag when supplied | No team or employment inference. |
 | `ReviewEvidenceCollection` | items, provenance, completeness, diagnostics | Distinguishes COMPLETE, PARTIAL, and FAILED collection outcomes. |
 
-`ReviewEvidenceProvider.acquire(request)` should return `ReviewEvidenceCollection`, not `History`. The request will eventually contain a public repository reference and an explicit boundary/configuration. It must not accept or emit credentials as data. A provider adapter validates and normalizes at its edge before creating domain evidence.
+`ReviewEvidenceProvider.acquire(request)` should return `ReviewEvidenceCollection`, not `History`. The request contains a public repository reference and an explicit boundary/configuration. It must not accept or emit credentials as data. A provider adapter validates and normalizes at its edge before creating domain evidence.
 
 ## Data flow and derivation
 
@@ -41,13 +41,13 @@ The future domain layer should use immutable value objects equivalent to these c
 6. Apply the documented qualification policy to effective reviews. Preserve non-qualifying evidence and reasons.
 7. Derive review coverage, reviewer distribution, reviewer HHI, unreviewed merged PR references, and an authorship-versus-review comparison view.
 
-The review aggregation must not mutate Git evidence or invoke v0.1 scoring. A future report extension should add a versioned `review_evidence` section to a Git report or define an explicit joined view; both choices must preserve a Git-only report unchanged.
+The review aggregation must not mutate Git evidence or invoke v0.1 scoring. The report adds a versioned `review_evidence` section while preserving every existing Git field.
 
 ## Implemented public-provider boundary
 
-The local explorer uses a public GitHub REST adapter for GitHub repository URLs or local repositories with a GitHub `origin` remote. It collects the latest 20 closed pull requests at collection time, then retrieves paths and review events for merged pull requests in that bounded set. More pages, including files or reviews beyond the first API page, are explicitly marked `PARTIAL`; a provider failure is marked `FAILED`. No token, authentication header, raw provider payload, URL query, fragment, or user-info is accepted into the evidence contract.
+The local explorer uses a public GitHub REST adapter for GitHub repository URLs or local repositories with a GitHub `origin` remote. It traverses public closed-PR, changed-file, and review-event pages in order until collection completes, a safety limit is reached, or the public API prevents continuation. Uncollected evidence is explicitly `PARTIAL`; a provider failure before useful evidence is collected is `FAILED`. No token, authentication header, raw provider payload, URL query, fragment, or user-info is accepted into the evidence contract.
 
-On 2026-10-07, the public `dotnet/eShop` validation collection returned `PARTIAL` evidence with one merged pull request in its latest 20 closed pull requests. This is a live provider boundary, not the v0.1 fixed Git revision, and must not be compared as a complete historical PR census.
+On 2026-10-07 at 16:35:19 UTC (19:35:19 Europe/Istanbul), the completed public `dotnet/eShop` adapter inspected 100 closed PRs, observed 9 merged PRs, and retained 6 merged PRs with 24 review events and 5 qualifying effective reviews across 7 components. A provider continuation failure and public rate limit prevented completion: the collection and every component are PARTIAL. Counts describe collected records only; they are not the complete repository history. See `docs/validation/eshop-v0.2-summary.json` and the normalized static `ui/dist/eshop-reviews.js`. The Git baseline remains independent.
 
 ## Qualification, coverage, and concentration
 
@@ -93,9 +93,18 @@ QA must separately assert:
 
 Provider integration tests must not require private repositories, employer data, or credentials in CI. A mocked provider transport may exercise public-provider pagination, malformed records, and error semantics. The real public dotnet/eShop validation is a documented manual/integration boundary check, not a source fixture committed into this repository.
 
-## Open implementation decisions
+## v0.2 completion design (Solution Architect handoff)
 
-1. Whether a future provider boundary is an explicit date range, PR-number range, or provider snapshot identifier.
-2. The additive report versioning shape and whether joined views are emitted as one report or linked reports.
-3. How a concrete provider expresses unavailable changed-file lists for a merged PR without misreporting component coverage.
-4. Whether provider-declared bot exclusion is fixed v0.2 policy or an explicit future configuration option. The initial specified policy is exclusion with visible reason.
+The Git model remains `experimental-v0.1`: it identifies unchanged Git scoring. The additive envelope `report_version: "2.0"` identifies review-capable reports. A report without review evidence remains valid, including with the additive envelope. Reviews are unavailable when absent. Export serializes the whole validated report; import validates normalized provenance, retained PR/events, statuses, and derived component counts, shares, HHI, risks, and identifiers.
+
+The adapter follows the actual GitHub Link `rel=next` target, restricted to HTTPS api.github.com, the same endpoint, and credential-free page/per_page/filter query values. Cycles and a default 1000-page per-endpoint limit stop with PARTIAL. It does not invent page numbers from a next flag. Transport results carry collected items and safe diagnostics so a later failure does not erase validated progress. PR enumeration continues into normalization even if its later page failed. A PR with some valid paths and interrupted review/file collection may survive but the entire collection and every component are PARTIAL. A PR with no usable paths cannot contribute; no inferred paths are invented. An interruption before any usable PR is FAILED; a valid empty collection is COMPLETE. GitHub's files endpoint has a 3000-file cap: reaching that ceiling is conservatively PARTIAL even without a next link.
+
+HTTP 429 and 403 with rate-limit indicators become a fixed public-rate-limit diagnostic. Other failures receive a fixed generic diagnostic. No raw exception, body, or headers cross the adapter boundary. Required malformed records mark partiality; optional absent timestamps keep events with provider-order fallback, and malformed timestamps become unavailable with a diagnostic. Counts of closed PRs inspected and merged PRs observed are additive collection metadata for honest validation.
+
+Public results are snapshots of reachable API history, not an atomic historical census or the v0.1 fixed revision. No token support, automatic retry/wait, or hosted API collection is introduced.
+
+Reviewer identifiers use the same case-insensitive identity key for effective-state grouping and cross-PR unit aggregation. Conflicting duplicate event payloads at identical ordering keys are rejected by the domain; the adapter conservatively isolates provider conflicts as non-qualifying UNKNOWN events with PARTIAL status. Missing optional timestamps record fallback ordering without alone making collection incomplete. A 403 body may be inspected up to 4096 bytes solely for rate-limit indicators; no content is retained or exposed. The package release version is 0.2.0, independent of the unchanged Git scoring model identifier.
+
+Comparison implementation handoff for ECL-FR-211: the additive review report records `component_depth` for the directory strategy. The Reviews view displays Git authorship HHI only for an exact component match with equal recorded directory depth; otherwise comparison is unavailable. Imported early review reports without depth remain valid but cannot assert compatible scope. The bundled review sample uses depth 1, whereas the fixed Git baseline uses depth 2; it must explicitly show that difference. Review exclusions and both source boundaries are visible. QA verifies compatible and incompatible comparisons using the actual renderer.
+
+Independent review R1 returned to Solution Architect/QA: import must reconcile derived aggregates with retained normalized events, not just validate their arithmetic. For recorded directory depth, validate the exact component mapping, effective-review units, covered/mapped counts, unreviewed identifiers, and exclusions from retained PRs. For early reports without a known strategy/depth, at least reject units exceeding qualifying retained events, coverage exceeding qualifying PRs, and unreviewed identifiers that actually qualify. Public GitHub reviewer keys are case-insensitive ASCII logins. QA includes deleting retained events while preserving aggregates, altering units to an unrelated identity, changing paths/components, and effective-state overrides; all must be rejected rather than rendered as valid evidence.

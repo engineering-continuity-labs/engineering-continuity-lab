@@ -2,7 +2,7 @@
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 
-from continuity.domain.models import ComponentStrategy
+from continuity.domain.models import ComponentStrategy, DirectoryComponents
 from continuity.domain.reviews import (
     PullRequestEvidence,
     ReviewEvidenceCollection,
@@ -43,6 +43,7 @@ class ComponentReviewReport:
 class ReviewReport:
     provenance: ReviewEvidenceCollection
     components: tuple[ComponentReviewReport, ...]
+    component_depth: int | None = None
 
 
 def _event_order(event: ReviewEvent) -> tuple[float, int, str]:
@@ -57,6 +58,8 @@ def effective_reviews(pull_request: PullRequestEvidence) -> tuple[EffectiveRevie
     unique_events: dict[str, ReviewEvent] = {}
     for event in pull_request.reviews:
         retained = unique_events.get(event.identifier)
+        if retained is not None and _event_order(event) == _event_order(retained) and retained != event:
+            raise ValueError("conflicting duplicate review event evidence")
         if retained is None or _event_order(event) > _event_order(retained):
             unique_events[event.identifier] = event
     grouped: dict[str, list[ReviewEvent]] = defaultdict(list)
@@ -127,7 +130,7 @@ def analyze_reviews(evidence: ReviewEvidenceCollection, strategy: ComponentStrat
             qualifying = [review for review in reviews if review.qualifying and review.reviewer is not None]
             if qualifying:
                 covered += 1
-                units.update(review.reviewer.identifier for review in qualifying if review.reviewer is not None)
+                units.update(review.reviewer.identifier.casefold() for review in qualifying if review.reviewer is not None)
             else:
                 uncovered.append(identifier)
             exclusions.update(review.exclusion_reason for review in reviews if review.exclusion_reason)
@@ -148,4 +151,4 @@ def analyze_reviews(evidence: ReviewEvidenceCollection, strategy: ComponentStrat
             unreviewed_pull_requests=tuple(uncovered),
             excluded_reasons=dict(sorted(exclusions.items())),
         ))
-    return ReviewReport(evidence, tuple(reports))
+    return ReviewReport(evidence, tuple(reports), strategy.depth if isinstance(strategy, DirectoryComponents) else None)

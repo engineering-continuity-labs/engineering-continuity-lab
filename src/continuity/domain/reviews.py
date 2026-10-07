@@ -105,6 +105,8 @@ class ReviewEvidenceCollection:
     pull_requests: tuple[PullRequestEvidence, ...]
     status: CollectionStatus = CollectionStatus.COMPLETE
     diagnostics: tuple[str, ...] = ()
+    closed_pull_requests_inspected: int = 0
+    merged_pull_requests_observed: int = 0
 
 
 class ReviewEvidenceProvider(Protocol):

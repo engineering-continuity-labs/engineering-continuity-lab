@@ -1,6 +1,6 @@
 # v0.2 product specification: PR and review evidence
 
-**Status:** Partially implemented. The public GitHub provider, deterministic review aggregation, and local explorer view are implemented. Provider pagination beyond the bounded collection, report export schema integration, and broader validation remain partial or manual in `traceability.md`.
+**Status:** Implemented and automatically verified on `release/v0.2.0`, independently reviewed. Real public eShop collection remains MANUAL/PARTIAL; remote PR CI is pending. Evidence is recorded in `traceability.md`.
 
 ## Problem and product goal
 
@@ -39,6 +39,8 @@ v0.2 excludes Azure DevOps integration, private-repository authentication, requi
 | ECL-FR-215 | The system shall retain only the minimum provider evidence needed for the defined views and shall avoid persisting raw provider payloads. |
 | ECL-FR-216 | The system shall preserve v0.1 Git-only analysis behavior and allow a Git-only report to remain valid without review evidence. |
 | ECL-FR-217 | v0.2 validation shall use the public dotnet/eShop repository as its primary target and shall document any boundary difference from the v0.1 fixed Git revision. |
+| ECL-FR-218 | Public acquisition shall traverse all reachable closed-PR, file, and review pages under an explicit safety limit, retaining only merged PRs. Uncollected or malformed evidence shall never be COMPLETE. Public rate limits require no authentication and produce PARTIAL when valid mapped PR evidence survives, otherwise FAILED. |
+| ECL-FR-219 | Reports shall add `report_version: "2.0"` when review evidence is present, preserve the v0.1 Git model and fields, and support export/import without losing provenance, completeness, events, or derived results. Missing review evidence means unavailable, not zero. Malformed review structures shall be rejected on import. |
 
 ## Review semantics
 

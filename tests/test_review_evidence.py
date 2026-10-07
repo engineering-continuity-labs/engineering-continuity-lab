@@ -2,7 +2,7 @@
 from datetime import UTC, datetime, timedelta
 import unittest
 
-from continuity.analysis.reviews import analyze_reviews, effective_reviews
+from continuity.analysis.reviews import analyze_reviews, effective_reviews, _risk
 from continuity.domain.models import DirectoryComponents
 from continuity.domain.reviews import (
     CollectionStatus,
@@ -44,6 +44,56 @@ def pull(identifier: str, paths: tuple[str, ...], reviews: tuple[ReviewEvent, ..
 
 
 class ReviewEvidenceTests(unittest.TestCase):
+    def test_all_review_states_and_exclusion_policy(self) -> None:
+        for state, qualifies, reason in (
+            (ReviewState.APPROVED, True, None),
+            (ReviewState.CHANGES_REQUESTED, True, None),
+            (ReviewState.COMMENTED, False, "commented"),
+            (ReviewState.DISMISSED, False, "dismissed"),
+            (ReviewState.UNKNOWN, False, "unsupported_state"),
+        ):
+            with self.subTest(state=state):
+                review = effective_reviews(pull("one", ("src/a.py",), (event("one", state, ALICE),)))[0]
+                self.assertEqual((review.qualifying, review.exclusion_reason), (qualifies, reason))
+
+    def test_fallback_order_then_stable_id_and_dismissal_transition(self) -> None:
+        events = (ReviewEvent("a", ReviewState.APPROVED, ALICE, provider_order=1),
+                  ReviewEvent("b", ReviewState.CHANGES_REQUESTED, ALICE, provider_order=2),
+                  ReviewEvent("c", ReviewState.DISMISSED, ALICE, provider_order=2))
+        for ordered in (events, tuple(reversed(events))):
+            result = effective_reviews(pull("one", ("src/a.py",), ordered))[0]
+            self.assertEqual(result.event.identifier, "c")
+            self.assertFalse(result.qualifying)
+
+    def test_empty_mapping_has_no_zero_or_low_population(self) -> None:
+        self.assertEqual(analyze_reviews(collection(), DirectoryComponents()).components, ())
+        self.assertEqual(analyze_reviews(collection(pull("one", (), ())), DirectoryComponents()).components, ())
+
+    def test_reviewer_case_variants_use_one_identity_across_pull_requests(self) -> None:
+        report = analyze_reviews(collection(
+            pull("one", ("src/a.py",), (event("one", ReviewState.APPROVED, ALICE),)),
+            pull("two", ("src/b.py",), (event("two", ReviewState.APPROVED, ReviewIdentity("Alice")),)),
+        ), DirectoryComponents())
+        self.assertEqual(report.components[0].reviewer_units, {"alice": 2})
+        self.assertEqual(report.components[0].concentration, 1)
+
+    def test_identical_order_conflicting_duplicate_event_is_rejected_deterministically(self) -> None:
+        events = (event("same", ReviewState.APPROVED, ALICE), event("same", ReviewState.COMMENTED, ALICE))
+        for ordered in (events, tuple(reversed(events))):
+            with self.assertRaisesRegex(ValueError, "conflicting duplicate review event"):
+                effective_reviews(pull("one", ("src/a.py",), ordered))
+
+    def test_hhi_boundaries_and_equal_share_normalization(self) -> None:
+        for value, expected in ((0, "LOW"), (.39999, "LOW"), (.4, "MEDIUM"), (.59999, "MEDIUM"), (.6, "HIGH"), (.79999, "HIGH"), (.8, "CRITICAL"), (1, "CRITICAL")):
+            self.assertEqual(_risk(value), expected)
+        reviewers = tuple(ReviewIdentity(f"person{i}") for i in range(4))
+        report = analyze_reviews(collection(pull("one", ("src/a.py",), tuple(
+            event(str(i), ReviewState.APPROVED, person) for i, person in enumerate(reviewers)))), DirectoryComponents())
+        item = report.components[0]
+        self.assertEqual(sum(item.reviewer_shares.values()), 1)
+        self.assertEqual(item.concentration, .25)
+        self.assertEqual(item.risk, "LOW")
+
     def test_effective_review_is_newest_and_commented_does_not_qualify(self) -> None:
         evidence = pull("42", ("src/core/a.py",), (
             event("one", ReviewState.APPROVED, ALICE, 1),

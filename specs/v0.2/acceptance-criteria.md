@@ -1,6 +1,6 @@
 # v0.2 acceptance criteria: PR and review evidence
 
-**Status:** Draft — these criteria define future implementation verification; this change adds no runtime behavior.
+**Status:** Runtime acceptance criteria; automated and manual evidence is recorded in `traceability.md`.
 
 | ID | Given / When / Then |
 | --- | --- |
@@ -22,3 +22,6 @@
 | ECL-AC-216 | **Given** a Git-only v0.1 report, **when** v0.2 support is introduced, **then** the existing report remains valid and its scoring, classifications, and stress-test results do not change. |
 | ECL-AC-217 | **Given** dotnet/eShop validation, **when** v0.2 evidence is collected, **then** the result records the public repository, provider collection boundary, retrieval time, completeness, and how that boundary differs from the v0.1 fixed Git revision. |
 | ECL-AC-218 | **Given** provider integration, **when** evidence, errors, or provenance are persisted or rendered, **then** no token, authorization header, API secret, credential-bearing URL, raw payload, or local temporary path is exposed. |
+| ECL-AC-219 | **Given** GitHub-style next links across PR, file, and review pages, **when** acquisition runs, **then** exact validated same-endpoint next targets are followed deterministically; completion has no incomplete-pagination diagnostic, while safety exhaustion, cycles, malformed records, and continuation failures are explicit. |
+| ECL-AC-220 | **Given** HTTP 403 rate-limit or 429 responses, **when** public acquisition cannot finish, **then** normalized valid PR evidence is retained with PARTIAL, or FAILED if none survives, and only a safe diagnostic is emitted. |
+| ECL-AC-221 | **Given** a Git-only v0.1 report or a v2 COMPLETE/PARTIAL/no-qualifying-review report, **when** it is exported and reopened, **then** Git fields and review results/provenance remain identical; structurally or numerically inconsistent review evidence is rejected. |

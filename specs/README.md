@@ -31,4 +31,4 @@ The lifecycle is: **Problem → Specification → Acceptance Criteria → Archit
 
 v0.1 specifications are in [v0.1](v0.1/). They are normative for implemented v0.1 behavior; material that explains why or how belongs in `docs/`.
 
-v0.2 specification and design work is in [v0.2](v0.2/). It defines future PR/review evidence behavior only; it does not imply a provider implementation or change v0.1 behavior.
+v0.2 specification and design work is in [v0.2](v0.2/). It defines implemented public PR/review evidence behavior, additive report compatibility, and evidence-based verification status. Git-only v0.1 scoring remains unchanged.

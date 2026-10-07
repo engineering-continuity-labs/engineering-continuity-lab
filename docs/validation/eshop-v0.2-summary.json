@@ -1,0 +1,87 @@
+{
+  "retrieved_at": "2026-10-07T16:35:19.861137+00:00",
+  "evidence_boundary": "public closed-PR history reachable via GitHub REST Link pagination; merged PRs only; files and review events; maximum 1000 pages per endpoint; interrupted collection is incomplete",
+  "status": "PARTIAL",
+  "closed_pull_requests_inspected": 100,
+  "merged_pull_requests_observed": 9,
+  "merged_pull_requests_retained": 6,
+  "review_events": 24,
+  "qualifying_effective_reviews": 5,
+  "components_with_review_evidence": 7,
+  "coverage": {
+    "(root)": {
+      "covered": 3,
+      "mapped": 4,
+      "coverage": 0.75
+    },
+    ".github": {
+      "covered": 0,
+      "mapped": 1,
+      "coverage": 0.0
+    },
+    ".vscode": {
+      "covered": 1,
+      "mapped": 1,
+      "coverage": 1.0
+    },
+    "e2e": {
+      "covered": 1,
+      "mapped": 2,
+      "coverage": 0.5
+    },
+    "img": {
+      "covered": 1,
+      "mapped": 1,
+      "coverage": 1.0
+    },
+    "src": {
+      "covered": 3,
+      "mapped": 4,
+      "coverage": 0.75
+    },
+    "tests": {
+      "covered": 2,
+      "mapped": 3,
+      "coverage": 0.6666666666666666
+    }
+  },
+  "concentration": {
+    "(root)": {
+      "hhi": 0.5555555555555556,
+      "risk": "MEDIUM"
+    },
+    ".github": {
+      "hhi": null,
+      "risk": null
+    },
+    ".vscode": {
+      "hhi": 1.0,
+      "risk": "CRITICAL"
+    },
+    "e2e": {
+      "hhi": 1.0,
+      "risk": "CRITICAL"
+    },
+    "img": {
+      "hhi": 1.0,
+      "risk": "CRITICAL"
+    },
+    "src": {
+      "hhi": 0.5555555555555556,
+      "risk": "MEDIUM"
+    },
+    "tests": {
+      "hhi": 1.0,
+      "risk": "CRITICAL"
+    }
+  },
+  "excluded_review_reasons": {
+    "self_review": 2,
+    "provider_declared_bot": 5
+  },
+  "diagnostics": [
+    "GitHub public API failure prevented complete review evidence collection.",
+    "GitHub public API rate limit prevented complete review evidence collection."
+  ],
+  "public_api_limitations": true
+}

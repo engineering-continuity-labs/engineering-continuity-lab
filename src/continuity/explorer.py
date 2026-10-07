@@ -19,7 +19,7 @@ from continuity.git.source import resolve_repository
 from continuity.scoring.model import ScoringConfig
 from continuity.analysis.reviews import analyze_reviews
 from continuity.domain.reviews import ReviewEvidenceRequest
-from continuity.review_providers.github import GitHubPublicReviewEvidence, github_repository
+from continuity.review_providers.github import BOUNDARY, GitHubPublicReviewEvidence, github_repository
 
 STATIC_DIRECTORY = Path(__file__).resolve().parents[2] / "ui" / "dist"
 MAX_REQUEST_BYTES = 64 * 1024
@@ -65,7 +65,7 @@ def analysis_output(repository: str, include_review_evidence: bool = False) -> d
                 output["review_evidence_error"] = "Review evidence currently requires a public GitHub repository URL or GitHub origin remote."
             else:
                 review_collection = GitHubPublicReviewEvidence().acquire(ReviewEvidenceRequest(
-                    f"https://github.com/{reference}", "latest 20 closed pull requests at collection time",
+                    f"https://github.com/{reference}", BOUNDARY,
                 ))
                 output["review_evidence"] = asdict(analyze_reviews(review_collection, DirectoryComponents()))
                 output["report_version"] = "2.0"

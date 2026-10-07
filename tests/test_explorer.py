@@ -10,8 +10,8 @@ import unittest
 from unittest.mock import patch
 
 from continuity.cli import main
-from continuity.explorer import make_server
-from continuity.domain.reviews import CollectionStatus, ProviderProvenance, PullRequestEvidence, ReviewEvidenceCollection, ReviewIdentity
+from continuity.explorer import analysis_output, make_server
+from continuity.domain.reviews import CollectionStatus, ProviderProvenance, PullRequestEvidence, ReviewEvidenceCollection, ReviewIdentity, ReviewEvent, ReviewState
 
 
 class ExplorerTests(unittest.TestCase):
@@ -114,6 +114,29 @@ class ExplorerTests(unittest.TestCase):
         with patch("continuity.explorer.serve") as serve:
             self.assertEqual(main(["explorer", "--port", "8766"]), 0)
         serve.assert_called_once_with(8766, None, True)
+
+    def test_python_analysis_browser_export_import_preserves_complete_partial_and_no_reviews(self) -> None:
+        """ECL-AC-216/221: real Git analysis + normalized provider -> browser round trip."""
+        self.git("remote", "add", "origin", "https://github.com/example/repository.git")
+        now = datetime(2026, 10, 7, tzinfo=UTC)
+        baseline = analysis_output(str(self.repository))
+        for status in (CollectionStatus.COMPLETE, CollectionStatus.PARTIAL):
+            for state in (ReviewState.APPROVED, ReviewState.COMMENTED):
+                evidence = ReviewEvidenceCollection(
+                    ProviderProvenance("github", "example/repository", "all public merged history", now),
+                    (PullRequestEvidence("1", ReviewIdentity("author"), now, ("module.py",),
+                        (ReviewEvent("1", state, ReviewIdentity("reviewer"), now, 1),)),), status,
+                    ("public rate limit",) if status is CollectionStatus.PARTIAL else (), 1, 1,
+                )
+                with patch("continuity.explorer.GitHubPublicReviewEvidence.acquire", return_value=evidence):
+                    report = analysis_output(str(self.repository), True)
+                self.assertEqual({k: v for k, v in report.items() if k not in ("review_evidence", "report_version")}, baseline)
+                encoded = json.dumps(report, default=lambda value: value.isoformat())
+                script = "import{importReport,exportReport}from'./ui/dist/model.js';let s='';for await(const c of process.stdin)s+=c;console.log(exportReport(importReport(s)));"
+                result = subprocess.run(["node", "--input-type=module", "-e", script], input=encoded,
+                                        text=True, capture_output=True, check=True,
+                                        cwd=Path(__file__).resolve().parents[1])
+                self.assertEqual(json.loads(result.stdout), json.loads(encoded))
 
     def test_cli_explorer_passes_startup_repository_and_no_browser(self) -> None:
         with patch("continuity.explorer.serve") as serve:
