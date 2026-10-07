@@ -1,6 +1,6 @@
 # v0.3 acceptance criteria and QA design
 
-**Status: ACCEPTED verification plan for eventual implementation; execution DRAFT/unperformed for v0.3 runtime.** This design-only PR runs existing regression checks but creates no runtime classes/tests/fixtures or network client. All cases below are planned deterministic synthetic verification, not evidence of implemented v0.3 behavior.
+**Status: ACCEPTED verification contract.** Offline execution evidence is now recorded per criterion in `traceability.md` and `tests/test_traceability.py`; live adapter/report/presenter gates remain deferred. Original design oracles below are unchanged.
 
 ## Acceptance cases
 
@@ -35,7 +35,7 @@
 | ECL-AC-327 | Given zero population or linked-only WI discovery without independent enumeration, when coverage derives, then relevant ratios are null/UNAVAILABLE, not 0%; any known counts remain separately identified. | EMPTY and LINKED_ONLY variants |
 | ECL-AC-328 | Given an old v0.1 report, when v0.3 support is eventually added, then loading/export/departure/scoring/classification remain unchanged and absent traceability stays valid. | Existing v0.1 regression baseline + future round trip |
 | ECL-AC-329 | Given v0.2 review evidence, when traceability links change or are absent, then review qualification, units, shares, HHI, provenance/completeness and export/import remain identical. | Existing v0.2 baseline + future immutable join checks |
-| ECL-AC-330 | Given fixture data, when used in docs/tests/CI, then it is labelled SYNTHETIC with project-owned artificial IDs/full hashes; no claim of live Azure evidence or private/employer/defence/customer data. | Fixture-origin manual audit + manifest check |
+| ECL-AC-330 | Given fixture data, when used in docs/tests/CI, then it is labelled SYNTHETIC with project-owned artificial IDs/full hashes; no claim of live Azure evidence or private/employer/defence/customer data. | Fixture-origin audit + synthetic provider manifest check |
 | ECL-AC-331 | Given synthetic secret sentinels, raw response/exception fields and confidential metadata, when normalized/exported/errored, then only allowlisted fields/safe categories/aliases remain; no token/header/body/path/unauthorized title is reflected. | Redaction/allowlist negative fixtures; publication review |
 | ECL-AC-332 | Given Services and Server deployment profiles with differing versions/collection URLs/capabilities/continuation mechanisms, when a future adapter normalizes, then core refs stay provider-neutral and unsupported relationships remain unavailable. | Adapter-profile fixtures; later MANUAL live compatibility matrix |
 | ECL-AC-333 | Given evidence timestamps, when reports derive, then collection/query/UTC time-field and fixed-revision differences are retained; changing titles/timing/author text cannot create links. | Snapshot/version tests and no-inference negative cases |
@@ -46,7 +46,7 @@
 | ECL-AC-338 | Given a future v0.4 kind/link, when extension is designed, then typed/versioned extension can coexist without reinterpreting existing trace links; v0.3 rejects unsupported kinds until explicitly accepted. | Future extension design/schema contract tests |
 | ECL-AC-339 | Given known distinct population N and full-chain-supported count F, when summary derives, then unavailable/unsupported/incompatible or N=0 yields UNAVAILABLE; any incomplete required lookup yields PARTIAL; supported COMPLETE N>0/F=0 yields MISSING; 0<F<N yields PARTIAL; F=N yields VERIFIED. Individual short paths keep PARTIAL and their hop gap states; no alternate-route count changes F. | Cardinality/status boundary fixtures, including all-missing and positive-in-partial cases |
 
-## Project-owned synthetic fixture design (not executable data)
+## Project-owned synthetic fixture contract
 
 Fixture namespace is `synthetic/ecl-traceability-demo`; project `demo-project`, repository `demo-system`; no actual enterprise tenant or external project. Display names below are artificial. Work-item identifiers are canonical `1001`/`1002`/`1003`; PR identifiers `51`–`54`; `WI-`/`PR-` are display labels. Commits a/b/c/d denote full 40-character SHA-1 hashes made of a/b/c/d respectively, not abbreviated IDs. All observations use a fixed UTC fixture timestamp, versioned normalization/identity map and a component directory depth of 2.
 
@@ -70,7 +70,7 @@ BASE oracles: PR direct intent=3/4; commit intent=4/4; change intent per compone
 
 ## Variant manifest and expected failure boundaries
 
-Each variant is a named transformation of BASE, not a second unlabelled provider dataset. A future fixture generator must emit inputs and exact oracles, including counts of rejected/unknown/excluded records. No generator is introduced here.
+Each variant is a named transformation of BASE, not a second unlabelled provider dataset. A future fixture generator must emit inputs and exact oracles, including counts of rejected/unknown/excluded records. The offline provider now implements named immutable fixture transformations; none are live Azure data.
 
 | Variant | Planned mutation / oracle |
 | --- | --- |
@@ -99,4 +99,4 @@ Planned runtime suites: domain normalization/references; typed derivation/status
 
 Design PR checks: stable unique Spec IDs and complete FR/NFR→AC→design→planned implementation/verification mapping; no `src/`, UI, CLI, test, packaging, auth or runtime schema modifications; independent specification review; all existing `unittest`, strict mypy, Node model/handler/Pages, syntax/static assets and wheel build checks. These checks show baseline compatibility and document integrity, not v0.3 runtime coverage.
 
-Runtime statuses remain ACCEPTED/planned, never VERIFIED until implementation and the applicable planned tests exist and pass. Live Server support stays MANUAL/unvalidated. QA exit: every criterion has synthetic observable oracles or a clearly deferred adapter/report/UI verification gate; no acceptance criterion was weakened to match existing code.
+Runtime statuses now follow the executed criterion mapping in `traceability.md`; later delivery remains ACCEPTED/PARTIAL and no live compatibility is VERIFIED. Live Server support stays MANUAL/unvalidated. QA exit: every criterion has synthetic observable oracles or a clearly deferred adapter/report/UI verification gate; no acceptance criterion was weakened to match existing code.
