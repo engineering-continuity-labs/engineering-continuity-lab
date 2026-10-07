@@ -138,7 +138,7 @@ node --check ui/dist/model.js
 
 - **v0.1** Git engineering-continuity baseline
 - **v0.2** Provider-independent merged PR and review evidence: review coverage, reviewer concentration, and separate authorship-versus-review comparison
-- **v0.3** Azure DevOps traceability
+- **v0.3** [Artifact traceability evidence design](specs/v0.3/product-spec.md): Work Item → PR → Commit → Changed Path → Component; provider-independent, Azure DevOps Services/Server planned. Specification/design only; runtime not implemented.
 - **v0.4** Requirements, test, and architecture evidence
 - **v0.5** Technical handover verification
 
