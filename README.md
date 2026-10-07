@@ -137,7 +137,7 @@ node --check ui/dist/model.js
 ## Roadmap
 
 - **v0.1** Git engineering-continuity baseline
-- **v0.2** PR/review evidence
+- **v0.2** Provider-independent merged PR and review evidence: review coverage, reviewer concentration, and separate authorship-versus-review comparison
 - **v0.3** Azure DevOps traceability
 - **v0.4** Requirements, test, and architecture evidence
 - **v0.5** Technical handover verification

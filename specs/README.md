@@ -30,3 +30,5 @@ The lifecycle is: **Problem → Specification → Acceptance Criteria → Archit
 7. Experimental assumptions remain visible.
 
 v0.1 specifications are in [v0.1](v0.1/). They are normative for implemented v0.1 behavior; material that explains why or how belongs in `docs/`.
+
+v0.2 specification and design work is in [v0.2](v0.2/). It defines future PR/review evidence behavior only; it does not imply a provider implementation or change v0.1 behavior.
