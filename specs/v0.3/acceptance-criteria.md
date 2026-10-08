@@ -142,3 +142,14 @@ No acceptance criterion is weakened or added by this closure. Independent post-m
 | ECL-AC-360 | COMPLETE/PARTIAL/FAILED reports remain valid and map to exit 0/3/4; fatal errors produce no JSON and exit 2 without leaking raw exception text. | Synthetic positive, late failure and first failure, report round trip, stderr sentinel assertions. |
 
 Live deployment compatibility remains MANUAL. Developer must preserve all prior report/provider/CLI tests. Independent review and green CI remain merge gates.
+
+## Traceability Explorer QA plan (before development)
+
+| ID | Criterion | Planned verification |
+| --- | --- | --- |
+| ECL-AC-361 | BASE and Azure-derived full v3 report views show collection/trace status independently, counts, boundaries, typed paths/origins and scoped gap explanations; no business correctness claim. | Renderer and actual app upload/tab/export tests against Python-generated fixtures; observed/derived origin checks. |
+| ECL-AC-362 | PARTIAL/FAILED/UNSUPPORTED/EMPTY/PR_PATH_ONLY variants show truthful availability and shorter paths; absent evidence is unavailable; no denominator or hop invented. | All synthetic variants, metrics/null, gaps and empty states; legacy v1/v2 app regression. |
+| ECL-AC-363 | Component/status/text filters narrow displayed paths without altering evidence, support details resolve, filters reset on report load; invalid imports retain current report. | Actual handler tests, immutability, export/reopen equivalence. |
+| ECL-AC-364 | Alias/path markup cannot execute or become provider links; controls labelled, statuses textual, long refs wrap and static page has sample action. | Escaping/HTML tests, DOM handlers, static assets; manual responsive/keyboard/visual check recorded honestly. |
+
+QA must run existing full Python/mypy/Node/syntax/wheel gates and independent review before merge. Real deployment and final live release validation remain MANUAL.

@@ -1,0 +1,29 @@
+/** Presentation only: callers supply the existing validated report section. */
+const esc=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const refKey=ref=>JSON.stringify(['kind','provider','instance','scope','repository','identifier','context','configuration','algorithm'].map(key=>ref[key]));
+const refText=ref=>`${ref.kind} ${ref.identifier} · ${ref.provider}/${ref.instance}/${ref.scope}${ref.repository?' · repository '+ref.repository:''}${ref.context?' · context '+ref.context:''}${ref.configuration?' · configuration '+ref.configuration:''} · algorithm ${ref.algorithm}`;
+const ref=artifact=>`<span class="trace-reference">${esc(refText(artifact))}</span>`;
+const label=value=>`<span class="trace-status">${esc(value)}</span>`;
+const empty=text=>`<p class="empty">${esc(text)}</p>`;
+export function traceComponents(section){return [...new Set(section.result.paths.flatMap(path=>path.nodes.filter(node=>node.kind==='COMPONENT').map(node=>node.identifier)))].sort();}
+export function filteredPaths(section,{component='',status='',query=''}={}){
+ const text=query.trim().toLowerCase();
+ return section.result.paths.filter(path=>(!component||path.nodes.some(node=>node.kind==='COMPONENT'&&node.identifier===component))&&(!status||path.status===status)&&(!text||path.nodes.some(node=>refText(node).toLowerCase().includes(text))));
+}
+export function renderTraceability(section,filters={}){
+ if(!section)return empty('Traceability unavailable for this report. Open a validated v3 Git report with traceability evidence, or use the synthetic traceability sample.');
+ const {collection,result}=section,paths=filteredPaths(section,filters),links=[...collection.observed_links,...result.derived_links];
+ const supportKey=link=>JSON.stringify([refKey(link.source),refKey(link.target),link.type,link.origin]);
+ const linkMap=new Map(links.map(link=>[supportKey(link),link]));
+ const gap=gap=>`${ref(gap.endpoint)} <strong>${esc(gap.relationship)} · ${esc(gap.direction)}</strong> ${label(gap.status)} <span>${esc(gap.reason)}</span>`;
+ const support=item=>{const evidence=linkMap.get(supportKey(item));return `<li>${ref(item.source)} → ${ref(item.target)}<br><strong>${esc(item.type)}</strong> · ${esc(item.origin)}${evidence?.observations.length?`<ul>${evidence.observations.map(observation=>`<li>Boundary ${esc(observation.boundary)} · ${esc(observation.identifier)} · ${esc(observation.observed_at)} · ${esc(observation.basis)}</li>`).join('')}</ul>`:''}</li>`;};
+ return `<div class="trace-heading"><h2>Artifact traceability</h2><p>Collection ${label(collection.status)} · Trace summary ${label(result.summary)}</p><p class="muted">VERIFIED confirms observed connection evidence only, not business correctness or knowledge. Collection completeness is separate from each path status.</p></div>
+ <p>Component strategy: ${esc(collection.component_strategy.name)} · ${esc(collection.component_strategy.configuration)}. Derivation: ${esc(result.derivation_version)}.</p>
+ <h3>Coverage · full report</h3><div class="table-scroll"><table><thead><tr><th>Dimension / component</th><th>Observed coverage</th><th>Trace / collection status</th><th>Unknown / excluded</th><th>Reason / boundaries</th></tr></thead><tbody>${result.metrics.map(metric=>`<tr><td>${esc(metric.dimension)}${metric.component?'<br>'+ref(metric.component):''}</td><td>${metric.numerator} / ${metric.denominator}<br>${metric.value===null?'Unavailable':(metric.value*100).toFixed(1)+'%'}</td><td>${label(metric.status)} / ${label(metric.collection_status)}</td><td>${metric.unknown_count} / ${metric.excluded_count}</td><td>${esc(metric.reason||'—')}<br>${esc(metric.boundaries.join(', '))}</td></tr>`).join('')}</tbody></table></div>
+ <h3>Source boundaries · full report</h3>${collection.boundaries.map(boundary=>`<details class="trace-card"><summary>${esc(boundary.identifier)} · ${esc(boundary.provider)} · ${esc(boundary.repository)}</summary><dl>${Object.entries(boundary).map(([key,value])=>`<dt>${esc(key)}</dt><dd>${esc(value??'Not declared')}</dd>`).join('')}</dl></details>`).join('')||empty('No source boundaries declared.')}
+ <h3>Paths · ${paths.length} of ${result.paths.length}</h3>${paths.map(path=>`<details class="trace-card"><summary>${label(path.status)} ${path.nodes.map(node=>`${esc(node.kind)} ${esc(node.identifier)}`).join(' → ')}</summary><ol class="trace-chain">${path.nodes.map(node=>`<li>${ref(node)}</li>`).join('')}</ol><p>Boundaries: ${esc(path.boundaries.join(', '))} · Rule ${esc(path.rule_version)}</p><h4>Supporting hops</h4><ol>${path.supports.map(support).join('')}</ol><h4>Unresolved hops</h4>${path.gaps.length?`<ul>${path.gaps.map(item=>`<li>${gap(item)}</li>`).join('')}</ul>`:empty('No unresolved hops on this path.')}</details>`).join('')||empty('No paths match these filters. Evidence and full-report totals remain unchanged.')}
+ <h3>Artifacts · full report</h3><ul class="trace-artifacts">${result.artifacts.map(item=>`<li>${label(item.status)} ${ref(item.artifact)}</li>`).join('')}</ul>
+ <h3>Gaps · full report</h3>${result.gaps.length?`<ul>${result.gaps.map(item=>`<li>${gap(item)}</li>`).join('')}</ul>`:empty('No recorded gaps.')}
+ <details class="trace-card"><summary>Lookup completeness and capabilities · full report (${collection.lookups.length})</summary><ul>${collection.lookups.map(lookup=>`<li>${lookup.endpoint?ref(lookup.endpoint):esc(lookup.population)} · ${esc(lookup.relationship||'POPULATION')} · ${esc(lookup.direction)} · ${label(lookup.status)} · ${esc(lookup.capability)} · boundary ${esc(lookup.boundary)}</li>`).join('')}</ul></details>
+ <details class="trace-card"><summary>Diagnostics · full report (${result.diagnostics.length})</summary><ul>${result.diagnostics.map(item=>`<li>${esc(item.reason)}${item.endpoint?' · '+ref(item.endpoint):''} · ${esc(item.relationship||'All relationships')}</li>`).join('')}</ul></details>`;
+}

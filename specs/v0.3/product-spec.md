@@ -151,3 +151,15 @@ Authorized after merged closure PR #21. This increment supersedes the prior libr
 | ECL-NFR-319 | Connection parsing is bounded and strict, rejects duplicate/unknown fields and credential-shaped fields, exposes no HTTP/TLS bypass, and never echoes configuration contents or terminal secrets. |
 
 Non-goals: explorer/UI integration, credential storage, name resolution, live compatibility certification, new scoring/schema/derivation, OAuth/NTLM/Kerberos, version bump or release.
+
+## Traceability Explorer presentation increment (Product Owner)
+
+User authorizes completing and merging this increment after independent review and CI. Existing FR327/334 and privacy/status semantics remain normative. No acquisition, auth, scoring or report schema change.
+
+| ID | Requirement |
+| --- | --- |
+| ECL-FR-344 | A Traceability view renders validated v3 report evidence: collection status separate from path/artifact status, raw distinct coverage counts with null/unavailable handling and unknown/excluded counts, scoped boundaries, artifacts, ordered paths/hop origins/supports and each gap reason/direction. VERIFIED means observed connection evidence only. |
+| ECL-FR-345 | Users can filter paths by component, trace status and artifact text, inspect supporting evidence, and open a clearly synthetic sample. Filters affect presentation only, preserve totals/evidence and reset when a new report loads. Legacy reports show unavailable rather than fabricated zero coverage. |
+| ECL-NFR-320 | Escape displayed artifact/provenance text; never construct provider URLs from aliases. No network acquisition, browser persistence or new credentials; validated import/export keeps the underlying report unchanged. Controls have accessible labels and empty-state feedback; long references wrap. |
+
+Non-goals: Azure explorer connection integration, standalone-section envelope fabrication, live compatibility certification, v0.4, release/tag/version bump.

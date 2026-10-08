@@ -40,7 +40,7 @@ The section has two owned objects. `collection` contains collection status, comp
 
 Canonical serialization sorts every semantically unordered list by stable typed identity and serializes object keys consistently. Derived links are separate from observations, retain their ordered support identities and cannot enter the input collection as authoritative links. Ratios are finite numerator/denominator values when available; empty or unavailable populations use null and preserve their status/reason. Collection, capability and trace statuses are independent.
 
-The browser validator mirrors the declared v1/v2/v3 envelope and traceability rules, validates reference/link/path/gap/coverage semantics, and preserves v3 data on export/import. It does not add traceability to ordinary repository analysis or render a traceability view. Unknown versions/types fail closed. Private labels, transport data, credentials, raw provider responses, arbitrary titles and local paths are not part of this schema; safe aliases and approved synthetic labels are the only provenance values eligible for publication.
+The browser validator mirrors the declared v1/v2/v3 envelope and traceability rules, validates reference/link/path/gap/coverage semantics, and preserves v3 data on export/import. It does not add traceability to ordinary repository analysis. The separate [Traceability Explorer presentation](traceability-explorer.md) renders validated report evidence without recomputing it. Unknown versions/types fail closed. Private labels, transport data, credentials, raw provider responses, arbitrary titles and local paths are not part of this schema; safe aliases and approved synthetic labels are the only provenance values eligible for publication.
 
 The independent report review corrections retain this boundary: additional wire identity/order, lookup ownership, diagnostic normalization and recognizable-private-value checks live in the reporting/browser consumers. Domain types and offline derivation are unchanged. Canonical Python timestamp output is UTC; the browser validates Gregorian ISO timestamps and uses microsecond instants and Unicode code points for equivalent boundary/order checks. Duplicate JSON fields and input-reflecting parser errors fail closed. Opaque aliases still require the source approval described by the product privacy contract; syntactic checks cannot certify provenance origin.
 
@@ -59,7 +59,7 @@ flowchart LR
     Report --> Browser[Browser validator / import / export]
 ```
 
-The browser accepts this normalized report contract; it has no Azure connection or visual traceability flow. The normal Git explorer does not call the Azure provider. Closure corrections quarantine contradictory WI records before normalization, retain valid WIQL IDs on an invalid page without guessing continuation, bound both PR-reference routes and reject recognizable private path values before domain construction. Core derivation, report schema, scoring and transport responsibilities remain unchanged.
+The browser accepts this normalized report contract and renders it in a Traceability tab; it has no Azure connection flow. The normal Git explorer does not call the Azure provider. Closure corrections quarantine contradictory WI records before normalization, retain valid WIQL IDs on an invalid page without guessing continuation, bound both PR-reference routes and reject recognizable private path values before domain construction. Core derivation, report schema, scoring and transport responsibilities remain unchanged.
 
 ## Local Azure acquisition CLI
 
