@@ -1,6 +1,6 @@
 """Explicit, canonical JSON boundary for v0.3 traceability reports."""
 from collections.abc import Mapping
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 import re
 from typing import Any, TypeVar
@@ -38,6 +38,32 @@ from continuity.domain.models import DirectoryComponents
 
 SCHEMA_VERSION = "1.0"
 _T = TypeVar("_T")
+_TIMESTAMP = re.compile(
+    r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}"
+    r"(?:\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])"
+)
+_PRIVATE = re.compile(
+    r"(?:gh[pousr]_|github_pat_|glpat-|sk-[A-Za-z0-9_-]{20,}|(?:AKIA|ASIA)[A-Z0-9]{16}|"
+    r"(?:authorization|bearer|password|passwd|cookie|set-cookie|pat|token|secret)[=: ]|"
+    r"(?:authorization|bearer|password|cookie|pat|token|secret)_SENTINEL|"
+    r"https?://|file://|(?:^|/)(?:Users|home|tmp|private/var|var/tmp)/)", re.IGNORECASE
+)
+
+
+def _public_values(value: Any, depth: int = 0) -> None:
+    """Reject recognizable private material; opaque aliases still require source approval."""
+    if depth > 100:
+        raise ValueError("invalid public traceability value")
+    if isinstance(value, str):
+        if _PRIVATE.search(value) or any(0xD800 <= ord(char) <= 0xDFFF for char in value):
+            raise ValueError("invalid public traceability value")
+    elif isinstance(value, dict):
+        for key, item in value.items():
+            _public_values(key, depth + 1)
+            _public_values(item, depth + 1)
+    elif isinstance(value, (list, tuple)):
+        for item in value:
+            _public_values(item, depth + 1)
 
 
 def _object(value: Any, keys: set[str]) -> Mapping[str, Any]:
@@ -56,13 +82,17 @@ def _enum(enum_type: type[_T], value: Any) -> _T:
 
 
 def _iso(value: datetime | None) -> str | None:
-    return value.isoformat() if value is not None else None
+    if value is None:
+        return None
+    result = value.astimezone(timezone.utc).isoformat()
+    _required_datetime(result)
+    return result
 
 
 def _datetime(value: Any, *, optional: bool = False) -> datetime | None:
     if value is None and optional:
         return None
-    if not isinstance(value, str):
+    if not isinstance(value, str) or _TIMESTAMP.fullmatch(value) is None:
         raise ValueError("invalid traceability timestamp")
     try:
         parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
@@ -97,10 +127,15 @@ def _ref_to_dict(ref: ArtifactReference) -> dict[str, str]:
 def _ref_from_dict(value: Any) -> ArtifactReference:
     data = _object(value, {"kind", "provider", "instance", "scope", "identifier", "repository",
                            "context", "configuration", "algorithm"})
-    return ArtifactReference(
+    if not all(isinstance(item, str) for item in data.values()):
+        raise ValueError("invalid traceability reference")
+    ref = ArtifactReference(
         _enum(ArtifactKind, data["kind"]), data["provider"], data["instance"], data["scope"],
         data["identifier"], data["repository"], data["context"], data["configuration"], data["algorithm"],
     )
+    if dict(data) != _ref_to_dict(ref):
+        raise ValueError("noncanonical traceability reference")
+    return ref
 
 
 def _identity_to_dict(key: LinkKey) -> dict[str, Any]:
@@ -132,9 +167,9 @@ def _identity_from_dict(value: Any) -> LinkKey:
             _enum(TraceLinkOrigin, data["origin"]))
 
 
-def _observation_to_dict(value: Observation) -> dict[str, str]:
+def _observation_to_dict(value: Observation) -> dict[str, Any]:
     return {"identifier": value.identifier, "boundary": value.boundary,
-            "observed_at": value.observed_at.isoformat(), "basis": value.basis}
+            "observed_at": _iso(value.observed_at), "basis": value.basis}
 
 
 def _observation_from_dict(value: Any) -> Observation:
@@ -146,7 +181,7 @@ def _boundary_to_dict(value: EvidenceBoundary) -> dict[str, Any]:
     return {
         "identifier": value.identifier, "provider": value.provider, "instance": value.instance,
         "project": value.project, "repository": value.repository,
-        "collected_at": value.collected_at.isoformat(), "snapshot": value.snapshot, "query": value.query,
+        "collected_at": _iso(value.collected_at), "snapshot": value.snapshot, "query": value.query,
         "identity_mapping": value.identity_mapping, "filter_policy": value.filter_policy,
         "revision": value.revision, "time_field": value.time_field, "start": _iso(value.start),
         "end": _iso(value.end), "normalization_version": value.normalization_version,
@@ -282,7 +317,7 @@ def _collection_from_dict(value: Any) -> TraceabilityEvidenceCollection:
             _enum(Direction, lookup["direction"]),
             _enum(Population, lookup["population"]) if lookup["population"] is not None else None,
         ))
-    return TraceabilityEvidenceCollection(
+    evidence = TraceabilityEvidenceCollection(
         tuple(_boundary_from_dict(item) for item in data["boundaries"]), tuple(items),
         tuple(_ref_from_dict(item) for item in populations["pull_requests"]),
         tuple(_ref_from_dict(item) for item in populations["merged_pull_requests"]),
@@ -293,6 +328,39 @@ def _collection_from_dict(value: Any) -> TraceabilityEvidenceCollection:
         tuple(_diagnostic_from_dict(item) for item in data["diagnostics"]),
         strategy["name"], strategy["configuration"],
     )
+    boundary_ids = {boundary.identifier for boundary in evidence.boundaries}
+    if any(lookup.boundary not in boundary_ids for lookup in evidence.lookups):
+        raise ValueError("unresolved lookup boundary")
+    grammar = {
+        TraceLinkType.WI_PR: ((ArtifactKind.WORK_ITEM,), ArtifactKind.PULL_REQUEST),
+        TraceLinkType.WI_COMMIT: ((ArtifactKind.WORK_ITEM,), ArtifactKind.COMMIT),
+        TraceLinkType.PR_COMMIT: ((ArtifactKind.PULL_REQUEST,), ArtifactKind.COMMIT),
+        TraceLinkType.COMMIT_PATH: ((ArtifactKind.COMMIT,), ArtifactKind.CHANGED_PATH),
+        TraceLinkType.PR_PATH: ((ArtifactKind.PULL_REQUEST,), ArtifactKind.PR_PATH),
+        TraceLinkType.PATH_COMPONENT: ((ArtifactKind.CHANGED_PATH, ArtifactKind.PR_PATH), ArtifactKind.COMPONENT),
+        TraceLinkType.WI_COMPONENT: ((ArtifactKind.WORK_ITEM,), ArtifactKind.COMPONENT),
+    }
+    for parsed_lookup in evidence.lookups:
+        if parsed_lookup.endpoint is not None and parsed_lookup.relationship is not None:
+            sources, target = grammar[parsed_lookup.relationship]
+            if (parsed_lookup.endpoint.kind not in sources if parsed_lookup.direction == Direction.OUTBOUND
+                    else parsed_lookup.endpoint.kind != target):
+                raise ValueError("invalid lookup endpoint kind")
+    # Compare the submitted wire collection, not a pre-sorted reserialization.
+    # Timestamp spellings may differ within the supported ISO grammar.
+    if not _strict_equal(_timestamp_spellings(data), _collection_to_dict(evidence)):
+        raise ValueError("noncanonical traceability collection")
+    return evidence
+
+
+def _timestamp_spellings(item: Any) -> Any:
+    if isinstance(item, dict):
+        return {key: _iso(_datetime(child, optional=True))
+                if key in {"collected_at", "observed_at", "start", "end"}
+                else _timestamp_spellings(child) for key, child in item.items()}
+    if isinstance(item, list):
+        return [_timestamp_spellings(child) for child in item]
+    return item
 
 
 def _result_to_dict(value: TraceabilityReport) -> dict[str, Any]:
@@ -361,13 +429,18 @@ def traceability_to_dict(report: TraceabilityReport) -> dict[str, Any]:
     result = _result_to_dict(report)
     if not _strict_equal(result, _result_to_dict(recomputed)):
         raise ValueError("traceability result does not match its evidence")
-    return {"schema_version": SCHEMA_VERSION, "collection": _collection_to_dict(normalized),
-            "result": result}
+    section = {"schema_version": SCHEMA_VERSION, "collection": _collection_to_dict(normalized),
+               "result": result}
+    # Export must pass the same wire checks as import, including boundary ownership.
+    _public_values(section)
+    _collection_from_dict(section["collection"])
+    return section
 
 
 def traceability_from_dict(value: Any) -> TraceabilityReport:
     """Validate and reconstruct a traceability report from its explicit JSON contract."""
     try:
+        _public_values(value)
         section = _object(value, {"schema_version", "collection", "result"})
         if section["schema_version"] != SCHEMA_VERSION:
             raise ValueError("unsupported traceability schema")
@@ -377,10 +450,10 @@ def traceability_from_dict(value: Any) -> TraceabilityReport:
             raise ValueError("traceability collection is not normalized")
         report = derive(normalized, _strategy(normalized))
         expected = _result_to_dict(report)
-        if not _strict_equal(section["result"], expected):
+        if not _strict_equal(_timestamp_spellings(section["result"]), expected):
             raise ValueError("traceability result contradicts its evidence")
         return report
-    except (KeyError, TypeError, ValueError, OverflowError):
+    except (KeyError, TypeError, ValueError, OverflowError, RecursionError):
         raise ValueError("invalid traceability report") from None
 
 
@@ -391,9 +464,17 @@ def traceability_to_json(report: TraceabilityReport) -> str:
 
 def traceability_from_json(value: str) -> TraceabilityReport:
     """Parse and validate deterministic traceability JSON without reflecting input."""
+    def unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for key, item in pairs:
+            if key in result:
+                raise ValueError("duplicate JSON field")
+            result[key] = item
+        return result
     try:
-        parsed = json.loads(value, parse_constant=lambda _: (_ for _ in ()).throw(ValueError()))
-    except (json.JSONDecodeError, TypeError, ValueError):
+        parsed = json.loads(value, object_pairs_hook=unique_object,
+                            parse_constant=lambda _: (_ for _ in ()).throw(ValueError()))
+    except (json.JSONDecodeError, TypeError, ValueError, RecursionError):
         raise ValueError("invalid traceability JSON") from None
     return traceability_from_dict(parsed)
 
@@ -407,7 +488,7 @@ def validate_report_envelope(value: Any) -> dict[str, Any]:
             or isinstance(value.get("commit_count"), bool) or value["commit_count"] < 0):
         raise ValueError("invalid continuity report envelope")
     try:
-        _required_datetime(value["as_of"])
+        datetime.fromisoformat(value["as_of"].replace("Z", "+00:00"))
     except (TypeError, ValueError):
         raise ValueError("invalid continuity report envelope") from None
     version = value.get("report_version")

@@ -129,3 +129,24 @@ test('browser rejects malformed v3 paths, links, gaps, metrics, provenance and f
  for(const mutate of mutations){const report=pythonReport();mutate(report);assert.throws(()=>validateReport(report));}
  for(const version of ['4.0',null]){const future={...pythonReport(),report_version:version};assert.throws(()=>validateReport(future));}
 });
+
+const reviewCorpus=JSON.parse(execFileSync(python,['-c',`import json,sys;sys.path[:0]=['src','tests'];from traceability_report_adversaries import adversarial_reports,normalization_adversaries,additional_valid_reports;print(json.dumps({'invalid':{**adversarial_reports(),**normalization_adversaries()},'valid':additional_valid_reports()}))`],{cwd:repositoryRoot,encoding:'utf8',maxBuffer:16*1024*1024}));
+test('independent review shared wire adversaries fail closed in the browser',()=>{
+ for(const [name,report] of Object.entries(reviewCorpus.invalid))assert.throws(()=>validateReport(report),undefined,name);
+});
+test('every synthetic variant and precise boundary/Unicode fixture survives Python-browser-Python',()=>{
+ for(const variant of ['NO_INTENT','DIRECT_ONLY','MULTIPATH','DUPLICATES','CONFLICT','CYCLE','MALFORMED','UNSUPPORTED_TYPE','OPTIONAL','POSITIVE_PARTIAL','LATE_FAILURE','LINKED_ONLY','BOUNDARY','NO_INFERENCE']){
+  const report=pythonReport(variant);assert.deepEqual(importReport(exportReport(report)),report,variant);assertPythonAccepts(report);
+ }
+ for(const [name,report] of Object.entries(reviewCorpus.valid)){assert.deepEqual(importReport(exportReport(report)),report,name);assertPythonAccepts(report);}
+});
+test('malformed JSON, duplicate fields and recursion failures never echo submitted secrets',()=>{
+ const base=pythonReport(),payload=JSON.stringify(base);
+ for(const value of [payload.replace('"schema_version":"1.0"','"schema_version":"SECRET","schema_version":"1.0"'),payload.replace('"schema_version":"1.0"','"schema_version":"1.0","schema_vers\\u0069on":"1.0"'),'{"SECRET":','{"SECRET":Infinity}','['.repeat(2000)+']'.repeat(2000)]){
+  assert.throws(()=>importReport(value),error=>error.message.startsWith('Select a valid continuity')&&!error.message.includes('SECRET'));
+ }
+ const cycle=structuredClone(base);cycle.traceability_evidence.self=cycle.traceability_evidence;
+ assert.throws(()=>validateReport(cycle),error=>error.message.startsWith('Select a valid continuity'));
+ assert.throws(()=>exportReport(cycle),error=>error.message.startsWith('Select a valid continuity'));
+ const saved=exportReport(base);assert.throws(()=>importReport('{"SECRET":'));assert.deepEqual(importReport(saved),base);
+});

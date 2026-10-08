@@ -97,17 +97,62 @@ const tracePopulations=['WORK_ITEMS','PULL_REQUESTS','COMMITS','CHANGES'];
 const directions=['OUTBOUND','INBOUND'];
 const exact=(v,keys)=>object(v)&&Object.keys(v).length===keys.length&&keys.every(k=>Object.hasOwn(v,k));
 const safeToken=v=>typeof v==='string'&&/^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$/.test(v);
-const safePath=v=>typeof v==='string'&&v.length>0&&v.length<=1024&&!v.startsWith('/')&&!v.includes('\\')&&!/[\u0000-\u001f\u007f:?#@]/.test(v)&&v.split('/').every(p=>p&&p!=='.'&&p!=='..');
-const stable=v=>Array.isArray(v)?v.map(stable):object(v)?Object.fromEntries(Object.keys(v).sort().map(k=>[k,stable(v[k])])):v;
+// Trace timestamps use a strict Gregorian ISO subset and preserve microseconds.
+const traceInstant=value=>{
+ if(typeof value!=='string')return null;
+ const match=/^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(?:\.([0-9]{1,6}))?(Z|([+-])([0-9]{2}):([0-9]{2}))$/.exec(value);
+ if(!match)return null;
+ const [year,month,day,hour,minute,second]=match.slice(1,7).map(Number);
+ const leap=year%4===0&&(year%100!==0||year%400===0),days=[31,leap?29:28,31,30,31,30,31,31,30,31,30,31];
+ if(year<1||month<1||month>12||day<1||day>days[month-1]||hour>23||minute>59||second>59||Number(match[10]??0)>23||Number(match[11]??0)>59)return null;
+ const millis=Date.parse(`${match[1]}-${match[2]}-${match[3]}T${match[4]}:${match[5]}:${match[6]}${match[8]}`);
+ if(!Number.isFinite(millis))return null;
+ const instant=BigInt(millis)*1000n+BigInt((match[7]??'').padEnd(6,'0'));
+ return instant>=-62135596800000000n&&instant<=253402300799999999n?instant:null;
+};
+const traceTimestamp=value=>traceInstant(value)!==null;
+const privateTraceValue=/(?:gh[pousr]_|github_pat_|glpat-|sk-[A-Za-z0-9_-]{20,}|(?:AKIA|ASIA)[A-Z0-9]{16}|(?:authorization|bearer|password|passwd|cookie|set-cookie|pat|token|secret)[=: ]|(?:authorization|bearer|password|cookie|pat|token|secret)_SENTINEL|https?:\/\/|file:\/\/|(?:^|\/)(?:Users|home|tmp|private\/var|var\/tmp)\/)/i;
+function publicTraceValues(value,depth=0){
+ if(depth>100)return false;
+ if(typeof value==='string'){
+  if(privateTraceValue.test(value))return false;
+  // Reject unpaired surrogate code points, which cannot form canonical UTF-8.
+  for(const char of value){const code=char.codePointAt(0);if(code>=0xd800&&code<=0xdfff)return false;}
+ }else if(Array.isArray(value)){return value.every(item=>publicTraceValues(item,depth+1));}
+ else if(object(value)){return Object.entries(value).every(([key,item])=>publicTraceValues(key,depth+1)&&publicTraceValues(item,depth+1));}
+ return true;
+}
+const compareText=(left,right)=>{
+ const a=Array.from(left,char=>char.codePointAt(0)),b=Array.from(right,char=>char.codePointAt(0));
+ for(let i=0;i<Math.min(a.length,b.length);i++)if(a[i]!==b[i])return a[i]<b[i]?-1:1;
+ return Math.sign(a.length-b.length);
+};
+const compareTuple=(a,b)=>{
+ for(let i=0;i<Math.min(a.length,b.length);i++){
+  const compared=Array.isArray(a[i])?compareTuple(a[i],b[i]):typeof a[i]==='string'?compareText(a[i],b[i]):a[i]<b[i]?-1:a[i]>b[i]?1:0;
+  if(compared)return compared;
+ }
+ return Math.sign(a.length-b.length);
+};
+const domainRefKey=ref=>['COMMIT','CHANGED_PATH','COMPONENT'].includes(ref.kind)?[ref.kind,ref.repository,ref.algorithm,ref.context,ref.configuration,ref.identifier]:[ref.kind,ref.provider,ref.instance,ref.scope,ref.repository,ref.context,ref.configuration,ref.identifier];
+const domainLinkKey=link=>[domainRefKey(link.source),domainRefKey(link.target),link.type,link.origin];
+const safePath=v=>typeof v==='string'&&v.length>0&&Array.from(v).length<=1024&&!v.startsWith('/')&&!v.includes('\\')&&!/[\u0000-\u001f\u007f:?#@]/.test(v)&&v.split('/').every(p=>p&&p!=='.'&&p!=='..');
+const canonicalTraceTime=value=>{
+ if(value===null)return null;const instant=traceInstant(value);if(instant===null)return value;
+ const fraction=(instant%1000000n+1000000n)%1000000n,seconds=(instant-fraction)/1000000n;
+ const date=new Date(Number(seconds*1000n)).toISOString().slice(0,-5);
+ return date+(fraction?'.'+String(fraction).padStart(6,'0'):'')+'+00:00';
+};
+const stable=v=>Array.isArray(v)?v.map(stable):object(v)?Object.fromEntries(Object.keys(v).sort().map(k=>[k,['collected_at','observed_at','start','end'].includes(k)?canonicalTraceTime(v[k]):stable(v[k])])):v;
 const same=(a,b)=>JSON.stringify(stable(a))===JSON.stringify(stable(b));
-const ordered=(values,key=value=>JSON.stringify(stable(value)))=>values.every((value,index)=>index===0||key(values[index-1])<=key(value));
-const compareCanonical=(a,b)=>{const left=JSON.stringify(stable(a)),right=JSON.stringify(stable(b));return left<right?-1:left>right?1:0;};
+const ordered=(values,key=value=>JSON.stringify(stable(value)))=>values.every((value,index)=>index===0||compareText(key(values[index-1]),key(value))<=0);
+const compareCanonical=(a,b)=>{const left=JSON.stringify(stable(a)),right=JSON.stringify(stable(b));return compareText(left,right);};
 const refFields=['kind','provider','instance','scope','identifier','repository','context','configuration','algorithm'];
 const refKey=ref=>JSON.stringify(stable(ref));
 const linkIdentity=link=>({source:link.source,target:link.target,type:link.type,origin:link.origin});
 const linkKey=link=>JSON.stringify(stable(linkIdentity(link)));
 function validateTraceability(section,fail){
- if(!exact(section,['schema_version','collection','result'])||section.schema_version!=='1.0')fail();
+ if(!publicTraceValues(section)||!exact(section,['schema_version','collection','result'])||section.schema_version!=='1.0')fail();
  const collection=section.collection,result=section.result;
  if(!exact(collection,['status','component_strategy','boundaries','work_items','populations','observed_links','lookups','diagnostics'])||!statuses.includes(collection.status))fail();
  if(!exact(collection.component_strategy,['name','configuration'])||collection.component_strategy.name!=='directory'||!/^depth-[1-9][0-9]*$/.test(collection.component_strategy.configuration))fail();
@@ -126,9 +171,9 @@ function validateTraceability(section,fail){
  if(!Array.isArray(collection.boundaries)||!Array.isArray(collection.work_items)||!exact(collection.populations,['pull_requests','merged_pull_requests','commits','changed_paths'])||!Array.isArray(collection.observed_links)||!Array.isArray(collection.lookups)||!Array.isArray(collection.diagnostics))fail();
  const boundaryFields=['identifier','provider','instance','project','repository','collected_at','snapshot','query','identity_mapping','filter_policy','revision','time_field','start','end','normalization_version','join_contract'];
  for(const boundary of collection.boundaries){
-  if(!exact(boundary,boundaryFields)||![boundary.identifier,boundary.provider,boundary.instance,boundary.project,boundary.repository,boundary.snapshot,boundary.query,boundary.identity_mapping,boundary.filter_policy,boundary.normalization_version].every(safeToken)||!timestamp(boundary.collected_at))fail();
+  if(!exact(boundary,boundaryFields)||![boundary.identifier,boundary.provider,boundary.instance,boundary.project,boundary.repository,boundary.snapshot,boundary.query,boundary.identity_mapping,boundary.filter_policy,boundary.normalization_version].every(safeToken)||!traceTimestamp(boundary.collected_at))fail();
   if((boundary.revision!==null&&(typeof boundary.revision!=='string'||!/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/.test(boundary.revision)))||(boundary.time_field!==null&&!safeToken(boundary.time_field))||(boundary.join_contract!==null&&!safeToken(boundary.join_contract)))fail();
-  if((boundary.start===null)!==(boundary.end===null)||(boundary.start!==null&&(!timestamp(boundary.start)||!timestamp(boundary.end)||Date.parse(boundary.start)>=Date.parse(boundary.end)||boundary.time_field===null)))fail();
+  if((boundary.start===null)!==(boundary.end===null)||(boundary.start!==null&&(!traceTimestamp(boundary.start)||!traceTimestamp(boundary.end)||traceInstant(boundary.start)>=traceInstant(boundary.end)||boundary.time_field===null)))fail();
   if(boundaries.has(boundary.identifier))fail();boundaries.set(boundary.identifier,boundary);
  }
  if(!ordered(collection.boundaries,item=>item.identifier))fail();
@@ -141,7 +186,7 @@ function validateTraceability(section,fail){
   const key=addRef(item.reference);if(itemRefs.has(key))fail();itemRefs.add(key);
  }
  if(!ordered(collection.work_items,item=>refKey(item.reference)))fail();
- function validObservation(observation){return exact(observation,['identifier','boundary','observed_at','basis'])&&[observation.identifier,observation.boundary,observation.basis].every(safeToken)&&timestamp(observation.observed_at);}
+ function validObservation(observation){return exact(observation,['identifier','boundary','observed_at','basis'])&&[observation.identifier,observation.boundary,observation.basis].every(safeToken)&&traceTimestamp(observation.observed_at);}
  const populationRefs=new Map();
  for(const [name,kind] of [['pull_requests','PULL_REQUEST'],['merged_pull_requests','PULL_REQUESTS'],['commits','COMMIT'],['changed_paths','CHANGED_PATH']]){
   const list=collection.populations[name];if(!Array.isArray(list))fail();const seen=new Set();
@@ -179,12 +224,12 @@ function validateTraceability(section,fail){
  const observationKeys=new Set();
  for(const [key,link] of linkMap){
   const withinLink=new Set();
-  if(!ordered(link.observations,observation=>JSON.stringify([observation.boundary,observation.identifier,observation.observed_at,observation.basis])))fail();
+  if(!link.observations.every((observation,index)=>index===0||compareTuple([link.observations[index-1].boundary,link.observations[index-1].identifier,traceInstant(link.observations[index-1].observed_at),link.observations[index-1].basis],[observation.boundary,observation.identifier,traceInstant(observation.observed_at),observation.basis])<=0))fail();
   for(const observation of link.observations){const observationKey=observation.boundary+':'+observation.identifier;if(withinLink.has(observationKey)||observationKeys.has(observationKey))fail();withinLink.add(observationKey);observationKeys.add(observationKey);}
   if(link.type==='COMMIT_PATH'&&(link.source.repository!==link.target.repository||link.source.identifier!==link.target.context||link.source.algorithm!==link.target.algorithm))fail();
   if(link.type==='PR_PATH'&&(link.source.repository!==link.target.repository||link.source.identifier!==link.target.context))fail();
  }
- const sameInstant=(left,right)=>left===right||(left!==null&&right!==null&&Date.parse(left)===Date.parse(right));
+ const sameInstant=(left,right)=>left===right||(left!==null&&right!==null&&traceInstant(left)===traceInstant(right));
  const compatibleBoundaries=(left,right)=>left.repository===right.repository&&left.identity_mapping===right.identity_mapping&&left.filter_policy===right.filter_policy&&(left.revision===null||right.revision===null||left.revision===right.revision)&&left.join_contract===right.join_contract&&((left.query===right.query&&left.time_field===right.time_field&&sameInstant(left.start,right.start)&&sameInstant(left.end,right.end))||(left.join_contract!==null));
  const eligibleLinks=collection.observed_links.filter(link=>isPopulationRef(link.source)&&(isPopulationRef(link.target)||link.target.kind==='PR_PATH')&&collection.boundaries.every(boundary=>link.observations.every(observation=>compatibleBoundaries(boundary,boundaries.get(observation.boundary)))));
  const eligibleLinkKeys=new Set(eligibleLinks.map(linkKey));
@@ -199,16 +244,33 @@ for(const link of collection.observed_links){
  for(const lookup of collection.lookups){
   if(!exact(lookup,['boundary','capability','status','endpoint','relationship','direction','population'])||!boundaries.has(lookup.boundary)||!traceCapabilities.includes(lookup.capability)||!statuses.includes(lookup.status)||!directions.includes(lookup.direction))fail();
   if(lookup.population!==null){if(!tracePopulations.includes(lookup.population)||lookup.endpoint!==null||lookup.relationship!==null)fail();}
-  else if(!validRef(lookup.endpoint)||!traceRelations.includes(lookup.relationship))fail();
+  else{
+   if(!validRef(lookup.endpoint)||!traceRelations.includes(lookup.relationship))fail();
+   const [sourceKinds,targetKind]=endpoints[lookup.relationship],kind=lookup.endpoint.kind;
+   if(lookup.direction==='OUTBOUND'?(Array.isArray(sourceKinds)?!sourceKinds.includes(kind):kind!==sourceKinds):kind!==targetKind)fail();
+   const ref=lookup.endpoint,boundary=boundaries.get(lookup.boundary);
+   if((ref.repository&&ref.repository!==boundary.repository)||(ref.kind==='WORK_ITEM'&&(ref.provider!==boundary.provider||ref.instance!==boundary.instance||ref.scope!==boundary.project))||(['PULL_REQUEST','PR_PATH'].includes(ref.kind)&&(ref.provider!==boundary.provider||ref.instance!==boundary.instance||ref.scope!==boundary.repository))){if(lookup.capability!=='UNKNOWN'||!collection.diagnostics.some(diagnostic=>diagnostic.reason==='INCOMPATIBLE_BOUNDARY'&&same(diagnostic.endpoint,ref)&&diagnostic.relationship===lookup.relationship))fail();}
+  }
+  for(const diagnostic of collection.diagnostics){
+   if((diagnostic.endpoint===null||same(diagnostic.endpoint,lookup.endpoint))&&(diagnostic.relationship===null||diagnostic.relationship===lookup.relationship)){
+    if(diagnostic.reason==='INCOMPATIBLE_BOUNDARY'){if(lookup.capability!=='UNKNOWN')fail();}
+    else if(lookup.status!=='PARTIAL')fail();
+   }
+  }
   const key=JSON.stringify(stable([lookup.endpoint?refKey(lookup.endpoint):null,lookup.relationship,lookup.direction,lookup.population]));if(lookupKeys.has(key))fail();lookupKeys.add(key);
  }
  if(!ordered(collection.lookups))fail();
  for(const diagnostic of collection.diagnostics){if(!exact(diagnostic,['reason','endpoint','relationship'])||!traceReasons.includes(diagnostic.reason)||(diagnostic.endpoint!==null&&!validRef(diagnostic.endpoint))||(diagnostic.relationship!==null&&!traceRelations.includes(diagnostic.relationship)))fail();}
- if(!ordered(collection.diagnostics))fail();
+ if(!ordered(collection.diagnostics)||new Set(collection.diagnostics.map(item=>JSON.stringify(stable(item)))).size!==collection.diagnostics.length)fail();
+ if(collection.status==='COMPLETE'&&collection.diagnostics.length)fail();
+ if(collection.status==='FAILED'&&(collection.work_items.length||collection.observed_links.length||collection.populations.commits.length))fail();
  if(!exact(result,['derivation_version','summary','direct_links','derived_links','paths','gaps','artifacts','metrics','diagnostics'])||result.derivation_version!=='offline-1'||!traceStates.includes(result.summary)||!Array.isArray(result.direct_links)||!Array.isArray(result.derived_links)||!Array.isArray(result.paths)||!Array.isArray(result.gaps)||!Array.isArray(result.artifacts)||!Array.isArray(result.metrics)||!Array.isArray(result.diagnostics))fail();
  if(!same(result.direct_links,collection.observed_links))fail();
  for(const link of result.derived_links)checkLink(link,true);
- for(const link of result.derived_links)for(const support of link.supports)if(!linkMap.has(JSON.stringify(stable(support))))fail();
+ for(const link of result.derived_links){
+  for(const support of link.supports)if(!linkMap.has(JSON.stringify(stable(support))))fail();
+  if(link.type==='PATH_COMPONENT'&&!link.supports.every((support,index)=>index===0||compareTuple(domainLinkKey(link.supports[index-1]),domainLinkKey(support))<0))fail();
+ }
  if(!ordered(result.derived_links))fail();
  const depth=Number(collection.component_strategy.configuration.slice('depth-'.length));
  const expectedComponent=path=>path.split('/').slice(0,-1).slice(0,depth).join('/')||'(root)';
@@ -326,7 +388,8 @@ for(const link of collection.observed_links){
  for(const path of expectedPaths){
   if(path.nodes[0].kind!=='WORK_ITEM'||path.nodes.at(-1).kind!=='COMPONENT')continue;
   const key=refKey(path.nodes[0])+'\u0000'+refKey(path.nodes.at(-1));
-  if(!expectedShortcuts.has(key))expectedShortcuts.set(key,{source:path.nodes[0],target:path.nodes.at(-1),supports:new Map()});
+  if(!expectedShortcuts.has(key))expectedShortcuts.set(key,{source:path.nodes[0],target:path.nodes.at(-1),routes:0,supports:new Map()});
+  expectedShortcuts.get(key).routes++;
   for(const support of path.supports)expectedShortcuts.get(key).supports.set(JSON.stringify(stable(support)),support);
  }
  const shortcutLinks=result.derived_links.filter(link=>link.type==='WI_COMPONENT');
@@ -334,6 +397,8 @@ for(const link of collection.observed_links){
  for(const expected of expectedShortcuts.values()){
   const shortcut=shortcutLinks.find(link=>refKey(link.source)===refKey(expected.source)&&refKey(link.target)===refKey(expected.target));
   const expectedSupportKeys=[...expected.supports.keys()],actualSupportKeys=shortcut?.supports.map(support=>JSON.stringify(stable(support)))??[];
+  const orderedSupports=[...expected.supports.values()];if(expected.routes>1)orderedSupports.sort((a,b)=>compareTuple(domainLinkKey(a),domainLinkKey(b)));
+  if(!same(shortcut?.supports,orderedSupports))fail();
   if(!shortcut||new Set(actualSupportKeys).size!==actualSupportKeys.length||actualSupportKeys.length!==expectedSupportKeys.length||actualSupportKeys.some(key=>!expected.supports.has(key)))fail();
  }
  const expectedGlobalGaps=result.paths.flatMap(path=>path.gaps);
@@ -361,6 +426,7 @@ for(const link of collection.observed_links){
  }
  const artifactKeys=new Set();
  for(const artifact of result.artifacts){if(!exact(artifact,['artifact','status'])||!validRef(artifact.artifact)||!traceStates.includes(artifact.status))fail();const key=refKey(artifact.artifact);if(artifactKeys.has(key))fail();artifactKeys.add(key);}
+ if(!ordered(result.artifacts,item=>refKey(item.artifact)))fail();
  const metricDimensions=['merged_pr_intent','commit_intent','component_change_intent','work_item_implementation'],metricKeys=new Set();
  for(const metric of result.metrics){
   if(!exact(metric,['dimension','numerator','denominator','value','status','collection_status','boundaries','sources','unknown_count','excluded_count','reason','component'])||!metricDimensions.includes(metric.dimension)||!count(metric.numerator)||!count(metric.denominator)||metric.numerator>metric.denominator||!traceStates.includes(metric.status)||!statuses.includes(metric.collection_status)||metric.collection_status!==collection.status||!Array.isArray(metric.boundaries)||!strings(metric.boundaries)||metric.boundaries.some(id=>!boundaries.has(id))||!same(metric.boundaries,collection.boundaries.map(boundary=>boundary.identifier))||!Array.isArray(metric.sources)||!metric.sources.every(safeToken)||!same(metric.sources,[...new Set(collection.boundaries.map(boundary=>boundary.provider))].sort())||!count(metric.unknown_count)||!count(metric.excluded_count)||(metric.reason!==null&&!traceReasons.includes(metric.reason))||(metric.component!==null&&(!validRef(metric.component)||metric.component.kind!=='COMPONENT')))fail();
@@ -464,9 +530,38 @@ for(const link of collection.observed_links){
  if(!same(result.diagnostics,expectedDiagnostics))fail();
  if(collection.status==='FAILED'&&!collection.observed_links.length&&!collection.work_items.length&&result.summary!=='UNAVAILABLE')fail();
 }
-export function exportReport(report){return JSON.stringify(validateReport(report),null,2);}
-export function importReport(json){return validateReport(JSON.parse(json));}
-export function validateReport(r){
+const reportError=()=>Error('Select a valid continuity analyze JSON report. Person and departure exports are not supported here.');
+// JSON.parse discards duplicate object keys. Check them before accepting a report.
+function uniqueJsonObjects(json){
+ if(typeof json!=='string')throw reportError();
+ let index=0;
+ const space=()=>{while(/[ \t\r\n]/.test(json[index]??'')&&index<json.length)index++;};
+ const string=()=>{
+  const start=index++;while(index<json.length){const char=json[index++];if(char==='\\'){index++;continue;}if(char==='"')return JSON.parse(json.slice(start,index));}
+  throw reportError();
+ };
+ const value=depth=>{
+  if(depth>100)throw reportError();space();const char=json[index];
+  if(char==='"'){string();return;}
+  if(char==='{'||char==='['){
+   index++;space();const close=char==='{'?'}':']',keys=new Set();if(json[index]===close){index++;return;}
+   for(;;){
+    space();if(char==='{'){
+     if(json[index]!=='"')throw reportError();const key=string();if(keys.has(key))throw reportError();keys.add(key);
+     space();if(json[index++]!==':')throw reportError();
+    }
+    value(depth+1);space();if(json[index]===close){index++;return;}if(json[index++]!==',')throw reportError();
+   }
+  }
+  const token=/^(?:true|false|null|-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?)/.exec(json.slice(index));
+  if(!token)throw reportError();index+=token[0].length;
+ };
+ value(0);space();if(index!==json.length)throw reportError();
+}
+export function exportReport(report){try{return JSON.stringify(validateReport(report),null,2);}catch{throw reportError();}}
+export function importReport(json){try{uniqueJsonObjects(json);return validateReport(JSON.parse(json));}catch{throw reportError();}}
+export function validateReport(r){try{return validateReportValue(r);}catch{throw reportError();}}
+function validateReportValue(r){
  const fail=()=>{throw Error('Select a valid continuity analyze JSON report. Person and departure exports are not supported here.');};
  if(!r||!['experimental-v0.1','experimental-v0.2'].includes(r.model)||!Array.isArray(r.components)||typeof r.revision!=='string'||typeof r.as_of!=='string'||!Number.isFinite(Date.parse(r.as_of))||!Number.isInteger(r.commit_count)||r.commit_count<0)fail();
  if(r.filters!==undefined&&(!r.filters||typeof r.filters!=='object'||['paths','authors'].some(k=>r.filters[k]!==undefined&&(!Array.isArray(r.filters[k])||r.filters[k].some(v=>typeof v!=='string')))))fail();

@@ -26,7 +26,7 @@ Architecture D301–D311 remains normative. Product Owner/Architect/QA handoffs 
 | ECL-NFR-301, 312 | ECL-AC-301, 332–333 | D301, D309 | offline core/provider boundary | domain dependency and fixture-network-isolation tests | PARTIAL |
 | ECL-NFR-309 | ECL-AC-336, 338 | D308, D311 | later additive versioned schema/types | future consumer migration/version/unsupported-kind tests | ACCEPTED |
 | ECL-FR-329–335 | ECL-AC-336, 340–349 | `docs/report-schema-v3.md`; `docs/architecture.md` | `continuity/reporting/traceability.py`; `ui/dist/model.js`; generated BASE fixture | `tests/test_traceability_reporting.py`; Python/browser semantic and round-trip tests | VERIFIED |
-| ECL-NFR-314–317 | ECL-AC-331, 341–346, 348–349 | `docs/report-schema-v3.md` | canonical allowlisted serializer and browser validation | deterministic, privacy, semantic-negative, and Python/browser round-trip tests | VERIFIED |
+| ECL-NFR-314–317 | ECL-AC-331, 341–346, 348–349 | `docs/report-schema-v3.md` | canonical allowlisted serializer and browser validation | deterministic, recognizable-private-value, semantic-negative and Python/browser tests pass; arbitrary alias origin approval remains manual | PARTIAL |
 
 ## Executed offline acceptance evidence
 
@@ -71,12 +71,14 @@ All references below resolve to `tests/test_traceability.py`, with method prefix
 | ECL-AC-339 | `test_ac339_*` | VERIFIED — offline synthetic contract |
 | ECL-AC-328 | `ui/tests/model.test.js`; `tests/test_traceability_reporting.py` | VERIFIED — v1 Git-only round trip and no traceability mutation |
 | ECL-AC-329 | `ui/tests/model.test.js`; `ui/tests/reviews-ui.test.js` | VERIFIED — v2 review behavior and v3 combined envelope round-trip |
-| ECL-AC-331 | `tests/test_traceability_reporting.py`; `ui/tests/model.test.js` | VERIFIED — title sentinel omitted; unsafe public provenance rejected |
+| ECL-AC-331 | `tests/test_traceability_reporting.py`; `tests/test_traceability_reporting_review.py`; shared adversarial corpus; `ui/tests/model.test.js` | PARTIAL — synthetic allowlist/recognizable credential/path/error negatives pass; arbitrary alias origin/publication requires source approval |
 | ECL-AC-336 | `tests/test_traceability_reporting.py`; `ui/tests/model.test.js` | VERIFIED — v3 additive section and contradictory paths/counts rejected |
-| ECL-AC-340–349 | `tests/test_traceability_reporting.py`; `ui/tests/model.test.js` | VERIFIED — envelope, semantics, statuses, metrics, ordering, BASE and PR_PATH_ONLY fixtures, and cross-runtime round trips |
+| ECL-AC-340–349 | `tests/test_traceability_reporting.py`; `ui/tests/model.test.js` | VERIFIED — automated synthetic envelope/semantics/status/metric/ordering/BASE/PR_PATH_ONLY and cross-runtime checks; corrected code awaits human review |
 
 ## Review, CI and remaining delivery
 
-Final v0.3 report-v3 local suite passed 148 Python tests, strict mypy25, 22 model/review Node tests, one Pages static test, JavaScript syntax checks, wheel build and `git diff --check`. See `docs/validation/v0.3-report-v3-verification.md` for commands and evidence. Remote PR CI remains an external delivery gate.
+The independent takeover run passed 160 Python tests, strict mypy for 25 source files, 26 Node tests (25 model/review and one Pages), both JavaScript syntax checks, wheel build and `git diff --check`. Exact commands, initial sandbox failures and delivery status are recorded in `docs/validation/v0.3-report-v3-verification.md`. This replaces inherited 148/149-count and unsubstantiated approval claims.
 
-The v0.3 report-v3 independent code review APPROVED after two rounds of findings/fixes and explicit PR_PATH_ONLY verification; no unresolved BLOCKER/MAJOR/MINOR findings remain. The reviewer could not run shell commands; local CI-equivalent validation is recorded in `docs/validation/v0.3-report-v3-verification.md`. The earlier offline implementation review is recorded in `docs/validation/v0.3-offline-review.md`. Services/Server acquisition, actual deployment/API/auth/TLS compatibility, traceability presentation, CLI acquisition and v0.4 remain deferred. Synthetic profiles cannot establish live Server support. No release is created.
+The complete independent initial review found two BLOCKER, seven MAJOR and one MINOR findings; corrections and QA evidence are preserved in `docs/validation/v0.3-report-v3-review.md`. Every correction awaits independent human re-review, as explicitly requested by the user. Automated VERIFIED criteria above do not constitute reviewer approval. Final review decision is REQUEST CHANGES pending that gate; no known implementation BLOCKER/MAJOR is left uncorrected. Remote CI is a separate delivery gate.
+
+Services/Server acquisition, actual deployment/API/auth/TLS compatibility, traceability presentation, CLI acquisition and v0.4 remain deferred. Synthetic profiles cannot establish live Server support or certify arbitrary private aliases for publication. The earlier offline implementation review remains in `docs/validation/v0.3-offline-review.md`. No release/tag or merge is created.
