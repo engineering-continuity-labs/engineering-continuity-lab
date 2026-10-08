@@ -2,10 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
 import {readFile} from 'node:fs/promises';
+import {existsSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
 import {renderTraceability,filteredPaths,traceComponents} from '../dist/traceability.js';
 import sample from '../dist/traceability-sample.js';
 import {validateReport,exportReport,importReport,demoReport} from '../dist/model.js';
-const python=process.platform==='win32'?'python':'.venv/bin/python';
+const venv=new URL('../../.venv/bin/python',import.meta.url);
+const python=process.env.PYTHON??(existsSync(venv)?fileURLToPath(venv):(process.platform==='win32'?'python':'python3'));
 const root=new URL('../../',import.meta.url);
 const variants=JSON.parse(execFileSync(python,['-c',`import sys,json;sys.path[:0]=['src','tests'];from traceability_report_fixture import synthetic_v3_report;from azure_rest_fixture import profile,IDENTITIES,STAMP,RestFixture;from continuity.traceability_providers.azure_devops import AzureDevOpsTraceabilityProvider;from continuity.analysis.traceability import derive;from continuity.reporting.traceability import with_traceability;r={v:synthetic_v3_report(v) for v in ['BASE','PARTIAL','FAILED','EMPTY','CAPABILITY','PR_PATH_ONLY']};git={k:v for k,v in r['BASE'].items() if k!='traceability_evidence'};r['AZURE']=with_traceability(git,derive(AzureDevOpsTraceabilityProvider(profile(),IDENTITIES,STAMP,'synthetic-snapshot',RestFixture()).acquire()));from dataclasses import replace;from continuity.traceability_providers.synthetic import base_fixture;from continuity.domain.models import DirectoryComponents;e=base_fixture();refs={c:replace(c,identifier=c.identifier[0]*64,algorithm='sha256') for c in e.commits};refs.update({p:replace(p,context=p.context[0]*64,algorithm='sha256') for p in e.changed_paths});e=replace(e,component_configuration='depth-1',commits=tuple(refs[c] for c in e.commits),changed_paths=tuple(refs[p] for p in e.changed_paths),links=tuple(replace(l,source=refs.get(l.source,l.source),target=refs.get(l.target,l.target)) for l in e.links),lookups=tuple(replace(l,endpoint=refs.get(l.endpoint,l.endpoint)) if l.endpoint else l for l in e.lookups));r['SHA256']=with_traceability(git,derive(e,DirectoryComponents(1)));print(json.dumps(r))`],{cwd:root,encoding:'utf8',maxBuffer:16*1024*1024}));
 
