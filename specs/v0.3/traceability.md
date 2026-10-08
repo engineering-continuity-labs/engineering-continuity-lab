@@ -1,6 +1,6 @@
 # v0.3 traceability of the traceability feature
 
-**Status: offline runtime and report-v3 serialization implemented; validation is scoped below.** Trace-path VERIFIED means observed connection evidence; governance VERIFIED means the named automated acceptance tests passed. Azure acquisition is implemented and synthetically tested in the separate increment below; live compatibility, traceability presentation and v0.4 remain deferred.
+**Status: offline runtime and report-v3 serialization implemented; validation is scoped below.** Trace-path VERIFIED means observed connection evidence; governance VERIFIED means the named automated acceptance tests passed. Azure acquisition is implemented and synthetically tested in the separate increment below; live compatibility, Azure explorer acquisition integration and v0.4 remain deferred; traceability presentation is implemented in the increment below.
 
 Architecture D301–D311 remains normative. Product Owner/Architect/QA handoffs for this slice are in `docs/validation/v0.3-offline-plan.md`. Actual modules: `src/continuity/domain/traceability.py`, `src/continuity/analysis/traceability.py`, `src/continuity/traceability_providers/synthetic.py`; tests: `tests/test_traceability.py`. Original design mapping below is retained with updated requirement-level status; grouped requirements including later delivery remain PARTIAL/ACCEPTED. See per-AC evidence for exact verification boundaries.
 
@@ -81,7 +81,7 @@ The independent takeover run passed 160 Python tests, strict mypy for 25 source 
 
 The complete historical initial review found two BLOCKER, seven MAJOR and one MINOR findings; all original counterexamples and corrections remain in `docs/validation/v0.3-report-v3-review.md`. Fresh separate non-author review on main `47ca31560d0d1a6c76ee6d3a76d9c9bbb19b74ad` found three additional MAJOR Python/browser gaps (RP-R11–13); minimal browser corrections and three paired Python/Node regressions closed them. Final Independent Code Reviewer APPROVE: R1–R4/R6–R10 VERIFIED CLOSED; R5 SUPERSEDED by retained history and fresh evidence. Actual full221Python/30Node/30-source checks passed; closure PR CI is a separate merge gate. Automated VERIFIED criteria alone are not approval. No live Azure, visual UI, release or v0.4 status is upgraded.
 
-The Services/Server acquisition library is now implemented below. Actual deployment/API/auth/TLS compatibility, traceability presentation, explorer acquisition integration and v0.4 remain deferred. Synthetic profiles cannot establish live Server support or certify arbitrary private aliases for publication. The earlier offline implementation review remains in `docs/validation/v0.3-offline-review.md`. PRs #17–21 are merged; no v0.3 release/tag exists, and this closure does not merge or release anything.
+The Services/Server acquisition library is now implemented below. Actual deployment/API/auth/TLS compatibility, explorer acquisition integration and v0.4 remain deferred. Synthetic profiles cannot establish live Server support or certify arbitrary private aliases for publication. The earlier offline implementation review remains in `docs/validation/v0.3-offline-review.md`. PRs #17–23 are merged; no v0.3 release/tag exists, and this closure does not merge or release anything.
 
 ## First Azure provider increment
 
@@ -109,7 +109,7 @@ Base `5f4d66715cd765751ebf57da565925211fd6e79f` is the green PR #20 merge. Initi
 | AZ-R03 → AC353 | `azure_devops.py`: same reference limit on dedicated fallback | `test_az_r03_*` overlimit/exactlimit/malformed positives | VERIFIED (synthetic regression); independently re-reviewed CLOSED |
 | AZ-R04 → AC331/354 | `azure_dto.py`: pre-domain recognizable-private-path rejection | `test_az_r04_*` credential sentinel families and safe paths | VERIFIED (synthetic regression); independently re-reviewed CLOSED |
 
-Synthetic/runtime criteria cannot certify live Azure Server/Services API, TLS or authentication. Those remain MANUAL/PARTIAL. Package 0.2.0 is unchanged; the separate local Azure connection increment is recorded below; visual traceability presentation remains deferred.
+Synthetic/runtime criteria cannot certify live Azure Server/Services API, TLS or authentication. Those remain MANUAL/PARTIAL. Package 0.2.0 is unchanged; the separate local Azure connection increment is recorded below; traceability presentation is implemented below; actual visual/keyboard inspection remains MANUAL.
 
 Final Azure closure decision is APPROVE from independent reviewer `/root/azure_independent_review`; AZ-R01–04 are CLOSED and no BLOCKER/MAJOR/MINOR remains in that inspected scope. That Azure approval did not close the historical report-v3 whole-diff gate; the separate current report review above now closes it. Neither review certifies a live deployment. Closure remote PR CI remains required; fresh local evidence is recorded in the closure verification, not inferred from prior totals.
 
@@ -123,3 +123,13 @@ Final Azure closure decision is APPROVE from independent reviewer `/root/azure_i
 | ECL-FR-343 | ECL-AC-360 | existing provider → derive → section serializer; fixed diagnostics/status exits | COMPLETE/PARTIAL/FAILED round trips and raw error sanitization | VERIFIED — synthetic automation; independent APPROVE |
 
 No CLI synthetic result certifies a live Azure deployment, publication rights or PAT scopes; these remain MANUAL. Independent review decision and exact gate results are recorded in docs/validation/v0.3-azure-local-connection-verification.md.
+
+## Traceability Explorer presentation
+
+| Requirements | Acceptance | Design / implementation | Verification | Status |
+| --- | --- | --- | --- | --- |
+| FR344 / existing FR327 | AC361–362 | docs/traceability-explorer.md → ui/dist/traceability.js and app tab | ui/tests/traceability-ui.test.js BASE/Azure/partial/failed/empty/capability/short-path/null/counts/origins/gaps/boundaries and declared mapping/hash display | VERIFIED — synthetic automated presentation; Independent Code Reviewer APPROVE |
+| FR345 | AC363 | app handlers, pure filters, existing report export | actual tab/sample/filter/reset/upload/export tests and evidence immutability | VERIFIED — automated handlers/immutability; Independent Code Reviewer APPROVE |
+| NFR320 | AC364 | escaped text, native labelled controls/details, wrapping CSS; no new network/persistence | escaped markup/no provider URLs and static accessibility hooks | PARTIAL — automated checks pass; OS/browser responsive/keyboard/visual check MANUAL, Computer Use permission unavailable |
+
+This presentation does not acquire Azure, invent a Git envelope for standalone CLI sections, change scoring/schema or certify deployment. Package0.2.0 unchanged. Review and fresh validation: docs/validation/v0.3-traceability-explorer-verification.md.
