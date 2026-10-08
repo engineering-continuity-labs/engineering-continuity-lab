@@ -164,13 +164,22 @@ class _Acquisition:
                 if root.get("queryType") != "flat" or dto.timestamp(root.get("asOf")) != self.at:
                     raise ValueError("invalid Azure query snapshot")
                 values = dto.array(root.get("workItems"))
-                page_ids = sorted(set(dto.reference_id(v) for v in values))
-                if any(i <= cursor for i in page_ids):
-                    raise ValueError("invalid Azure query progress")
+                valid_ids: set[int] = set()
+                invalid_page = False
+                for raw_ref in values:
+                    try:
+                        identifier = dto.reference_id(raw_ref)
+                        if identifier <= cursor:
+                            raise ValueError("invalid Azure query progress")
+                        valid_ids.add(identifier)
+                    except (ValueError, TypeError, OverflowError):
+                        invalid_page = True
+                page_ids = sorted(valid_ids)
                 room = self.p.limits.max_items - len(scan.records)
-                scan.records.extend(page_ids[:room])
-                if len(values) > self.p.limits.page_size or len(page_ids) > room:
+                scan.records.extend(page_ids[:min(room, self.p.limits.page_size)])
+                if invalid_page or len(values) > self.p.limits.page_size or len(page_ids) > room:
                     scan.invalid()
+                    # Valid positives survive, but a rejected page cannot supply a safe next cursor.
                     break
                 if len(values) < self.p.limits.page_size:
                     break
@@ -244,6 +253,8 @@ class _Acquisition:
 
         wi_scan = self._wi_ids()
         items: dict[int, WorkItemEvidence] = {}
+        wi_labels: dict[int, tuple[str, str]] = {}
+        conflicted_ids: set[int] = set()
         wi_states: dict[int, _State] = {}
         wi_ids = sorted(set(native_id(i) for i in wi_scan.records))
         for offset in range(0, len(wi_ids), self.p.limits.work_item_batch):
@@ -271,10 +282,19 @@ class _Acquisition:
                         {"New": WS.OPEN, "To Do": WS.OPEN, "Open": WS.OPEN, "Active": WS.ACTIVE,
                          "Doing": WS.ACTIVE, "Resolved": WS.ACTIVE, "Closed": WS.CLOSED, "Done": WS.CLOSED}.get(wi_state, WS.OTHER),
                         self._observation("wi-" + ref.identifier))
-                    if wi_key in items and items[wi_key] != item:
-                        item = min((items[wi_key], item), key=lambda w: (w.type, w.state))
+                    labels = (work_type, wi_state)
+                    if wi_key in conflicted_ids or wi_labels.get(wi_key, labels) != labels:
+                        conflicted_ids.add(wi_key)
+                        items.pop(wi_key, None)
+                        # Associations from conflicting DTOs are quarantined. Independent PR
+                        # references acquired later remain explicit but unresolved by the core.
+                        self.links = {key: link for key, link in self.links.items() if link.source != ref}
+                        found.add(wi_key)
+                        wi_states[wi_key] = _State(S.PARTIAL)
                         result.invalid()
-                        self._bad(ref)
+                        self.diagnostics.append(TraceDiagnostic(G.CONFLICTING_OBSERVATION, ref))
+                        continue
+                    wi_labels[wi_key] = labels
                     items[wi_key] = item
                     found.add(wi_key)
                     relation_state = _State() if self.p.include_artifact_relations else _State(capability=C.UNSUPPORTED)
@@ -340,7 +360,10 @@ class _Acquisition:
             if refs is None and detail.state.status == S.COMPLETE:
                 detail = self._one(endpoint + ("workitems",), {}, lambda v: dto.array(dto.obj(v).get("value")))
                 native_refs: list[int] = []
-                for raw in detail.records:
+                if len(detail.records) > self.p.limits.max_relations:
+                    detail.invalid()
+                    self._bad(ref, T.WI_PR)
+                for raw in detail.records[:self.p.limits.max_relations]:
                     try:
                         native_refs.append(dto.reference_id(raw))
                     except (ValueError, TypeError, OverflowError):

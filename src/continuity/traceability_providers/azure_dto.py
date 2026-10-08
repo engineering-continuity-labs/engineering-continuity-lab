@@ -8,6 +8,14 @@ from continuity.domain.traceability import safe_path
 from continuity.traceability_providers.azure_profile import guid, native_id
 
 
+_PRIVATE_PATH = re.compile(
+    r"(?:gh[pousr]_|github_pat_|glpat-|sk-[A-Za-z0-9_-]{20,}|(?:AKIA|ASIA)[A-Z0-9]{16}|"
+    r"(?:authorization|bearer|password|passwd|cookie|set-cookie|pat|token|secret)[_=: ]|"
+    r"(?:authorization|bearer|password|cookie|pat|token|secret)_SENTINEL|"
+    r"https?://|file://|(?:^|/)(?:Users|home|tmp|private/var|var/tmp)/)", re.IGNORECASE
+)
+
+
 def obj(value: object) -> dict[str, object]:
     if not isinstance(value, dict) or any(not isinstance(k, str) for k in value):
         raise ValueError("invalid Azure record")
@@ -109,6 +117,6 @@ def changed_path(value: object) -> str | None:
     path = path[1:]
     safe_path(path)
     # Avoid recognizable private/credential markers before entering domain evidence.
-    if re.search(r"(?:https?://|(?:^|/)(?:Users|home|tmp|private/var|var/tmp)/|(?:authorization|bearer|password|cookie|pat|token|secret)[_=: ])", path, re.I):
+    if _PRIVATE_PATH.search(path):
         raise ValueError("unapproved Azure path")
     return path
