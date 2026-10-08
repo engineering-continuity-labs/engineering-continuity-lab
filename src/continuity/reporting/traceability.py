@@ -363,18 +363,23 @@ def _timestamp_spellings(item: Any) -> Any:
     return item
 
 
-def _result_to_dict(value: TraceabilityReport) -> dict[str, Any]:
-    direct = [_link_to_dict(item) for item in value.direct_links]
-    derived = [_link_to_dict(item) for item in value.derived_links]
-    direct.sort(key=_canonical)
-    derived.sort(key=_canonical)
-    paths = [{
+def trace_path_to_dict(item: TracePath) -> dict[str, Any]:
+    """Serialize one exact path using the existing public traceability allowlist."""
+    return {
         "nodes": [_ref_to_dict(node) for node in item.nodes],
         "supports": [_identity_to_dict(support) for support in item.supports],
         "boundaries": sorted(item.boundaries), "status": item.status.value,
         "gaps": sorted((_gap_to_dict(gap) for gap in item.gaps), key=_canonical),
         "rule_version": item.rule_version,
-    } for item in value.paths]
+    }
+
+
+def _result_to_dict(value: TraceabilityReport) -> dict[str, Any]:
+    direct = [_link_to_dict(item) for item in value.direct_links]
+    derived = [_link_to_dict(item) for item in value.derived_links]
+    direct.sort(key=_canonical)
+    derived.sort(key=_canonical)
+    paths = [trace_path_to_dict(item) for item in value.paths]
     paths.sort(key=_canonical)
     gaps = [_gap_to_dict(item) for item in value.gaps]
     gaps.sort(key=_canonical)

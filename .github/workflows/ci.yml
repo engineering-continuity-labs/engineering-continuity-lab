@@ -29,13 +29,16 @@ jobs:
       - name: Run strict type checks
         run: python -m mypy --strict src
       - name: Run JavaScript model tests
-        run: node --test ui/tests/model.test.js ui/tests/reviews-ui.test.js ui/tests/traceability-ui.test.js
+        run: node --test ui/tests/model.test.js ui/tests/reviews-ui.test.js ui/tests/traceability-ui.test.js ui/tests/verification-ui.test.js
       - name: Validate static browser UI
         run: |
           node --check ui/dist/app.js
           node --check ui/dist/model.js
           node --check ui/dist/traceability.js
           node --check ui/dist/traceability-sample.js
+          node --check ui/dist/verification.js
+          node --check ui/dist/verification-sample.js
+          python scripts/generate_v04_demo.py --check
           test -f ui/dist/index.html
           test -f ui/dist/styles.css
           test -f ui/dist/pages.css

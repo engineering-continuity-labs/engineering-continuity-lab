@@ -33,3 +33,14 @@ Fixed approved aliases, immutable versions and one exact joined v0.3 BASE snapsh
 Variants: EMPTY; NO_LINKS; PARTIAL; LATE_FAILURE; FAILED; UNSUPPORTED; WRONG_SCOPE; STALE_REVISION; WRONG_TEST_VERSION; UNLINKED_POPULATIONS; LINKED_ONLY; DUPLICATES; CONFLICTING_RUN; MULTIPLE_RUNS; SHORT_CODE_PATH; MALFORMED; PRIVACY; LIMIT; REORDERED. Existing v0.3 boundary/gap semantics remain authority.
 
 Automated implementation gates: core unit/negative/regression/integration and exact counts, strict typing, existing Python/Node/UI/syntax/wheel/diff checks. Manual gates: source publication/version approval, live adapters/deployment compatibility and any later real visual verification. Design PR gates verify document chain and unchanged baseline, not runtime behavior.
+
+## Pre-development offline/demo QA refinement
+
+AC401–416 now target the offline core in this increment. Exact/hard/soft limits, duplicates/conflicts before truncation, canonical prefix selection and snapshot digest/scope/revision checks follow the Architect entry contract. Plan comparisons against original v0.3 paths rather than copying an asserted implementation count.
+
+| ID | Observable demo criterion |
+| --- | --- |
+| ECL-AC-417 | BASE/partial/stale/conflicting/empty demo scenarios are generated from actual Python derivation and show truthful metrics, outcome qualification, typed versioned associations, code chains/gaps and fixed diagnostics. |
+| ECL-AC-418 | Actual tab/scenario/export handlers preserve the loaded Git report, label SYNTHETIC and artifact format, escape text and provide labelled native controls; old import rejects v0.4-demo-1 while existing v1/v2/v3 imports remain compatible. |
+
+Manual: actual source publication/version authenticity, real adapters/test execution and OS visual/keyboard checks remain MANUAL. Demo is historical synthetic evidence only. CI must regenerate/compare bundled artifact and test actual handlers; independent review and green final-head CI required before authorized merge.
