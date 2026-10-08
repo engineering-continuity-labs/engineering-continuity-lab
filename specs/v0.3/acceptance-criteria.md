@@ -1,6 +1,6 @@
 # v0.3 acceptance criteria and QA design
 
-**Status: ACCEPTED verification contract.** Offline execution evidence is recorded per criterion in `traceability.md`; report v3 serialization/import/export is implemented and tested. Live adapter and traceability presenter gates remain deferred. Original offline design oracles below are unchanged.
+**Status: ACCEPTED verification contract.** Offline execution evidence is recorded per criterion in `traceability.md`; report v3 serialization/import/export is implemented and tested. The Azure acquisition library has synthetic provider evidence; live deployment compatibility and traceability presenter gates remain deferred. Original offline design oracles below are unchanged.
 
 ## Acceptance cases
 
@@ -114,3 +114,16 @@ Runtime statuses now follow the executed criterion mapping in `traceability.md`;
 ## Independent report review regression mapping
 
 Existing criteria remain unchanged. ECL-AC-331/341/348/349 include the shared adversarial corpus in `tests/traceability_report_adversaries.py`: exact source identities, unresolved lookup boundaries, every string-bearing provenance/reference record field, recognizable credential markers, duplicate JSON fields and sanitized parser errors. ECL-AC-342/346 include shortcut support ordering, artifact ordering, independent collection permutations, multiple boundaries/diagnostics, Unicode code-point ordering and equivalent timestamp representations. ECL-AC-343/345 include diagnostic-induced lookup completeness, UNKNOWN and incompatible-scope lookup normalization. ECL-AC-341/349 include real Gregorian dates, ISO precision/offset bounds and microsecond boundary compatibility. The corrective QA implementation is `tests/test_traceability_reporting_review.py` and `ui/tests/model.test.js`; human independent re-review is still required separately from these automated criteria.
+
+## Azure provider QA plan (recorded before development)
+
+| ID | Observable acceptance | Planned evidence |
+| --- | --- | --- |
+| ECL-AC-350 | All four deployment profiles and compatible overrides construct collection-aware, encoded URLs using the selected version; incompatible overrides fail without fallback. | Profile and URL tests; live compatibility MANUAL |
+| ECL-AC-351 | Azure-shaped project-owned BASE passes through provider, derive and report-v3 import/export with PR 3/4, commits 4/4, WI 2/3 and component changes 2/2,1/1,1/1. Independent lists retain unlinked artifacts. | Synthetic REST fixtures and oracle/round-trip tests |
+| ECL-AC-352 | Exact scoped artifact identities and provider references yield only direct provider links; malformed/cross-scope identities and text never create links. REST paths retain provider origin; existing derive creates components. | Scoping/encoding/no-inference/normalization negatives |
+| ECL-AC-353 | Paging, batching, duplicates, limits, failures and disabled operations preserve exact scoped capability/completeness; incomplete lookup never justifies MISSING. | Page/batch/zero/partial/failed/unsupported/status tests |
+| ECL-AC-354 | Native config, private IDs, people fields, titles, PAT/header/cookie/body/exception sentinels do not escape normalized evidence, report or transport errors/repr. TLS remains verified and redirect/URL escapes fail. | Mocked transport and loopback integration; publication origin MANUAL |
+| ECL-AC-355 | Equivalent 7.0/7.1/7.2 REST inputs normalize identically with deterministic ordering; complete regression checks and wheel pass. | Profile matrix/permutations/full Python and Node checks |
+
+QA strategy: test positive associations, independent empty populations and absent hops; malformed required fields, missing batch members, foreign IDs/artifacts, repeated tokens, short continuation pages, exact-limit pages, offset changes and WI keyset progress; first/late failures and 401/403/404/405/429/5xx; strict JSON and secret-bearing exception/body/header inputs. Human independent review is required by AGENTS.md; developer verification is not approval. Live TLS/auth/API/deployment compatibility remains MANUAL until observed.

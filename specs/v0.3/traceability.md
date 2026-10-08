@@ -1,13 +1,13 @@
 # v0.3 traceability of the traceability feature
 
-**Status: offline runtime and report-v3 serialization implemented; validation is scoped below.** Trace-path VERIFIED means observed connection evidence; governance VERIFIED means the named automated acceptance tests passed. Azure acquisition, traceability presentation and v0.4 delivery remain unimplemented.
+**Status: offline runtime and report-v3 serialization implemented; validation is scoped below.** Trace-path VERIFIED means observed connection evidence; governance VERIFIED means the named automated acceptance tests passed. Azure acquisition is implemented and synthetically tested in the separate increment below; live compatibility, traceability presentation and v0.4 remain deferred.
 
 Architecture D301–D311 remains normative. Product Owner/Architect/QA handoffs for this slice are in `docs/validation/v0.3-offline-plan.md`. Actual modules: `src/continuity/domain/traceability.py`, `src/continuity/analysis/traceability.py`, `src/continuity/traceability_providers/synthetic.py`; tests: `tests/test_traceability.py`. Original design mapping below is retained with updated requirement-level status; grouped requirements including later delivery remain PARTIAL/ACCEPTED. See per-AC evidence for exact verification boundaries.
 
 | Spec ID | Acceptance criteria | Design | Implementation / remaining plan | Verification | Status |
 | --- | --- | --- | --- | --- | --- |
 | ECL-FR-301 | ECL-AC-301, 319 | D301, D302, D310 | `domain/traceability.py`: minimum immutable WI values | synthetic domain/optional-field cases | VERIFIED |
-| ECL-FR-302, 323; ECL-NFR-311 | ECL-AC-322, 332 | D301, D305, D309 | later `traceability_providers/azure_devops.py` profile boundary | Services/Server capability/continuation fixtures; live compatibility MANUAL later | ACCEPTED |
+| ECL-FR-302, 323; ECL-NFR-311 | ECL-AC-322, 332 | D301, D305, D309 | `traceability_providers/azure_devops.py`, `azure_profile.py` | Provider profile/capability/continuation tests; live compatibility MANUAL | PARTIAL |
 | ECL-FR-303; ECL-NFR-303, 308 | ECL-AC-302, 308, 324–325, 333 | D302, D303, D306 | provenance/boundary/reference values | scoped joins, source timestamps, deterministic snapshot cases | PARTIAL |
 | ECL-FR-304, 325 | ECL-AC-302, 305, 308, 318, 334 | D303, D304 | typed observed links and supported projection rules | direct/source/derived label/support fixtures | VERIFIED |
 | ECL-FR-305, 311–312 | ECL-AC-308, 310–311, 334–335 | D303–D306 | `analysis/traceability.py`: typed paths and hop gaps | complete and short-chain fixtures with ordered support refs | VERIFIED |
@@ -62,7 +62,7 @@ All references below resolve to `tests/test_traceability.py`, with method prefix
 | ECL-AC-326 | `test_ac326_*` | VERIFIED — offline synthetic contract |
 | ECL-AC-327 | `test_ac327_*` | VERIFIED — offline synthetic contract |
 | ECL-AC-330 | `test_ac330_*` | VERIFIED — offline synthetic contract |
-| ECL-AC-332 | deferred; unsupported future relation rejection has AC318 evidence only | ACCEPTED — later adapter/report/presenter/extension gate |
+| ECL-AC-332 | `tests/test_azure_devops_provider.py`, `tests/test_azure_transport.py` | PARTIAL — automated Server/Services profile evidence passes; real deployments MANUAL |
 | ECL-AC-333 | `test_ac333_*` | VERIFIED — offline synthetic contract |
 | ECL-AC-334 | `test_ac334_*` | VERIFIED — offline synthetic contract |
 | ECL-AC-335 | `test_ac335_*` | VERIFIED — offline synthetic contract |
@@ -79,6 +79,21 @@ All references below resolve to `tests/test_traceability.py`, with method prefix
 
 The independent takeover run passed 160 Python tests, strict mypy for 25 source files, 26 Node tests (25 model/review and one Pages), both JavaScript syntax checks, wheel build and `git diff --check`. Exact commands, initial sandbox failures and delivery status are recorded in `docs/validation/v0.3-report-v3-verification.md`. This replaces inherited 148/149-count and unsubstantiated approval claims.
 
-The complete independent initial review found two BLOCKER, seven MAJOR and one MINOR findings; corrections and QA evidence are preserved in `docs/validation/v0.3-report-v3-review.md`. Every correction awaits independent human re-review, as explicitly requested by the user. Automated VERIFIED criteria above do not constitute reviewer approval. Final review decision is REQUEST CHANGES pending that gate; no known implementation BLOCKER/MAJOR is left uncorrected. PR creation is blocked by GitHub integration HTTP 403 / unauthenticated CLI / unavailable computer-use permission. No PR or remote PR CI exists yet; the branch is pushed and a full prepared PR description is retained. Remote CI is a separate delivery gate.
+The complete independent initial review found two BLOCKER, seven MAJOR and one MINOR findings; corrections and QA evidence are preserved in `docs/validation/v0.3-report-v3-review.md`. Every correction awaits independent human re-review, as explicitly requested by the user. Automated VERIFIED criteria above do not constitute reviewer approval. Final review decision is REQUEST CHANGES pending that gate; no known implementation BLOCKER/MAJOR is left uncorrected. That historical delivery record predates manually opened/merged PR #19. The Azure branch starts from its green merge commit `96c519a8c10b53d14e110d2e76b27171171fddc2`; it does not import post-merge commits from the old feature branch.
 
-Services/Server acquisition, actual deployment/API/auth/TLS compatibility, traceability presentation, CLI acquisition and v0.4 remain deferred. Synthetic profiles cannot establish live Server support or certify arbitrary private aliases for publication. The earlier offline implementation review remains in `docs/validation/v0.3-offline-review.md`. No release/tag or merge is created.
+The Services/Server acquisition library is now implemented below. Actual deployment/API/auth/TLS compatibility, traceability presentation, CLI acquisition and v0.4 remain deferred. Synthetic profiles cannot establish live Server support or certify arbitrary private aliases for publication. The earlier offline implementation review remains in `docs/validation/v0.3-offline-review.md`. No release/tag or merge is created.
+
+## First Azure provider increment
+
+The user-authorized scope is ECL-FR-336–339 / ECL-NFR-318, refining ECL-FR-302/303/322/323/325 and ECL-NFR-301/304–306/310–313/316. PO requirements and pre-development QA strategy are in the product/acceptance documents. Architecture and URL/capability/privacy contracts are in `docs/azure-devops-provider.md` and `docs/architecture.md`. Implementation remains confined to `traceability_providers/azure_{profile,transport,dto,devops}.py`. Domain/derive/report behavior is unchanged.
+
+| Spec → acceptance | Architecture → implementation | Actual automated verification | Status |
+| --- | --- | --- | --- |
+| ECL-FR-336 / ECL-AC-350, existing AC332 | Deployment/version/URL contracts → azure_profile.py | All four profiles, explicit compatible/incompatible override and Server/Services encoding tests | VERIFIED for runtime config/fixtures; live deployment compatibility MANUAL |
+| ECL-FR-337 / ECL-AC-351 | Independent populations/provider links → azure_devops.py + azure_dto.py | Azure-shaped BASE → provider → derive: PR3/4, commit4/4, WI2/3, component2/2,1/1,1/1; Python/report/browser round trip | VERIFIED (synthetic) |
+| ECL-FR-338 / ECL-AC-352 | Exact GUID scope/approved aliases → azure_profile.py + azure_dto.py | Artifact grammar, foreign project/repo, wrong family, malformed refs and no-text-inference negatives; provider origins/components | VERIFIED (synthetic); alias/path publication origin MANUAL |
+| ECL-FR-339 / ECL-AC-353, existing AC320–322/335/339 | Per-operation completeness → azure_devops.py | Offset/keyset/continuation pages, 200+1 batching, duplicates, short-page continuation, late/first failures, limits, empty/zero, unsupported and scoped status negatives | VERIFIED (synthetic) |
+| ECL-NFR-318 / ECL-AC-354, existing AC331 | Native/credential/TLS boundary → azure_transport.py | Strict JSON, finite bounds, PAT/body/person sentinels, categorical HTTP401/403/404/405/429/5xx, verified SSL context, no redirects/cookies/pickle; real synthetic loopback pipeline | PARTIAL — automated transport/privacy passes; source approval and live deployment TLS/auth MANUAL |
+| ECL-NFR-314/317 / ECL-AC-355 | Existing derive/report retained | Deterministic profile/permutation fixtures, 201 Python / 29-source mypy / 27 Node tests, wheel/syntax checks | VERIFIED for executed automated regression gates |
+
+Exact commands/results: `docs/validation/v0.3-azure-provider-verification.md`. Developer findings and independent human review gate: `docs/validation/v0.3-azure-provider-review.md`. Automated evidence does not approve the developer's own work. Remote PR CI and human review must be recorded before merge; no release/tag/automatic merge.

@@ -12,6 +12,15 @@ const generatePythonReport=`import json,sys;sys.path.insert(0,'src');sys.path.in
 const validatePythonReport=`import json,sys;sys.path.insert(0,'src');from continuity.reporting.traceability import traceability_from_dict,validate_report_envelope;report=json.load(sys.stdin);validate_report_envelope(report);traceability_from_dict(report['traceability_evidence']);print('valid')`;
 const pythonReport=(variant='BASE')=>JSON.parse(execFileSync(python,['-c',generatePythonReport,variant],{cwd:repositoryRoot,encoding:'utf8'}));
 const assertPythonAccepts=report=>assert.equal(execFileSync(python,['-c',validatePythonReport],{cwd:repositoryRoot,input:JSON.stringify(report),encoding:'utf8'}).trim(),'valid');
+test('Azure REST provider report survives Python-browser-Python round trip',()=>{
+ const script=`import json,sys;sys.path.insert(0,'src');sys.path.insert(0,'tests');from azure_rest_fixture import profile,IDENTITIES,STAMP,RestFixture;from continuity.traceability_providers.azure_devops import AzureDevOpsTraceabilityProvider;from continuity.analysis.traceability import derive;from continuity.reporting.traceability import with_traceability;provider=AzureDevOpsTraceabilityProvider(profile(),IDENTITIES,STAMP,'synthetic-snapshot',RestFixture());print(json.dumps(with_traceability({'model':'experimental-v0.1','revision':'synthetic','as_of':'2026-01-01T00:00:00Z','commit_count':0,'components':[]},derive(provider.acquire()))))`;
+ const report=JSON.parse(execFileSync(python,['-c',script],{cwd:repositoryRoot,encoding:'utf8'}));
+ assert.deepEqual(importReport(exportReport(report)),report);
+ assertPythonAccepts(importReport(exportReport(report)));
+ const metrics=report.traceability_evidence.result.metrics;
+ assert.equal(metrics.find(m=>m.dimension==='merged_pr_intent').numerator,3);
+ assert.equal(metrics.find(m=>m.dimension==='commit_intent').denominator,4);
+});
 test('bundled eShop validation sample has the documented revision and baseline counts',()=>{const report=validateReport(eShopReport);assert.equal(report.revision,'b4a40872005d4bb29e5b1fa1ff7e244143d39215');assert.equal(report.commit_count,347);assert.equal(report.components.length,48);assert.deepEqual(Object.fromEntries(['LOW','MEDIUM','HIGH','CRITICAL'].map(risk=>[risk,report.components.filter(component=>component.risk===risk).length])),{LOW:33,MEDIUM:10,HIGH:0,CRITICAL:5});});
 test('demo validates; concentration and shares agree',()=>assert.equal(validateReport(demoReport()).components.length,6));
 test('departure matches file overlap and pre-departure shares',()=>{const r=demoReport(),p=r.components[0].contributors[0];const impact=departure(r,p.contributor).find(i=>i.component==='src/payments');assert.equal(impact.loss,.92);assert.equal(impact.successor.overlap,.5);assert.equal(impact.uncovered.length,1);});
