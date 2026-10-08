@@ -34,4 +34,6 @@ v0.1 specifications are in [v0.1](v0.1/). They are normative for implemented v0.
 v0.2 specification and design work is in [v0.2](v0.2/). It defines implemented public PR/review evidence behavior, additive report compatibility, and evidence-based verification status. Git-only v0.1 scoring remains unchanged.
 
 
-v0.3 is a [traceability specification/design baseline](v0.3/product-spec.md), with [acceptance/fixture design](v0.3/acceptance-criteria.md), [planned traceability](v0.3/traceability.md), and [architecture decisions](../docs/traceability-evidence.md). It introduces no runtime implementation. Requirements are ACCEPTED intended behavior; runtime verification remains unperformed. Runtime trace-path VERIFIED/MISSING/PARTIAL/UNAVAILABLE labels, acquisition COMPLETE/PARTIAL/FAILED, and governance verification statuses are independent concepts.
+v0.3 [specifications](v0.3/product-spec.md) now cover implemented offline traceability, report v3, read-only Azure library/local CLI and the Traceability Explorer. [Traceability](v0.3/traceability.md) scopes automated evidence and remaining MANUAL live/visual checks; no v0.3 release is claimed. Trace status, collection status and governance verification are separate concepts.
+
+v0.4 [product design](v0.4/product-spec.md), [QA plan](v0.4/acceptance-criteria.md), [planned traceability](v0.4/traceability.md) and [architecture](../docs/v0.4-evidence-design.md) define the next requirements/test/architecture increment. No v0.4 runtime verification is claimed. v0.5 remains roadmap-only.
