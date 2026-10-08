@@ -1,6 +1,8 @@
 # v0.3 first implementation: offline traceability
 
-Normalized offline traceability evidence + project-owned SYNTHETIC validation, **not Azure DevOps integration**. No live Azure DevOps API calls are made. No UI, CLI, report-v3 serialization, auth, hosted demo or v0.4 changes.
+Normalized offline traceability evidence and project-owned SYNTHETIC validation, **not Azure DevOps integration**. Additive report v3 serialization/import/export is implemented. No live Azure DevOps API calls, traceability UI, CLI acquisition, authentication, hosted traceability sample, or v0.4 changes.
+
+The public report contract and compatibility rules are documented in [Report Schema v3](report-schema-v3.md). The traceability section is optional and Python/browser consumers retain v1/v2 behavior.
 
 ```python
 from continuity.analysis.traceability import derive
@@ -21,4 +23,4 @@ References accept bounded safe alias tokens; paths reject absolute/traversal/con
 
 Normalization retains valid direct evidence, sorts and deduplicates observations, and quarantines conflicting observation identities. Unsupported/self/reverse relations cannot contribute paths. Typed traversal is bounded to five nodes/four hops, keeps short paths and per-hop gaps, and retains ordered support. Derived mapping/shortcuts cannot be submitted as observed facts. Coverage deduplicates artifact/occurrence populations; null ratios preserve unavailable/empty contexts. Excluded counts are dimension-specific distinct out-of-boundary references, plus observed nonmerged PRs for the merged-PR metric; extra routes/hops cannot inflate them. PR snapshots are excluded from commit-change units. Positive full paths may remain VERIFIED during PARTIAL collection; aggregate status still follows N/F/completeness precedence.
 
-The report is an internal immutable Python analysis value, not a new exported JSON schema. Existing scoring/review reports and browser behavior remain unchanged. Next recommended PR: `spec: define v0.3 traceability report serialization contract`, then `feat: add versioned traceability report serialization` after Product Owner/Architect/QA accept exact fields/consistency and coordinated consumer compatibility. Live Azure adapter remains a separate later gate.
+The Python derivation value remains JSON-agnostic. `continuity.reporting.traceability` owns the explicit v3 conversion and semantic import validation; the browser validates and round-trips the same synthetic contract without a traceability presentation. Existing Git scoring and v0.2 review semantics remain unchanged. Next recommended implementation PR: the live Azure DevOps provider boundary, preceded by its Product Owner/Architect/QA contract and deployment/security gates. Do not add a traceability tab or v0.4 evidence types in that work.

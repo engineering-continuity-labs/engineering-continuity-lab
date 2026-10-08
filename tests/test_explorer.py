@@ -74,6 +74,7 @@ class ExplorerTests(unittest.TestCase):
         self.assertIsInstance(report, dict)
         self.assertEqual(report["commit_count"], 1)
         self.assertEqual(report["model"], "experimental-v0.1")
+        self.assertNotIn("traceability_evidence", report)
         self.assertTrue(report["components"])
 
     def test_explorer_rejects_empty_and_invalid_requests(self) -> None:

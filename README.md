@@ -138,7 +138,7 @@ node --check ui/dist/model.js
 
 - **v0.1** Git engineering-continuity baseline
 - **v0.2** Provider-independent merged PR and review evidence: review coverage, reviewer concentration, and separate authorship-versus-review comparison
-- **v0.3** [Artifact traceability evidence design](specs/v0.3/product-spec.md): Work Item → PR → Commit → Changed Path → Component; provider-independent, Azure DevOps Services/Server planned. Specification/design only; runtime not implemented.
+- **v0.3** [Offline artifact traceability](docs/offline-traceability.md): Work Item → PR → Commit → Changed Path → Component; additive report v3 serialization/import/export is implemented. Azure DevOps Services/Server acquisition remains deferred.
 - **v0.4** Requirements, test, and architecture evidence
 - **v0.5** Technical handover verification
 
@@ -159,3 +159,7 @@ The local explorer optionally collects public GitHub review evidence, separately
 Review-capable reports add `report_version: "2.0"`; `model: "experimental-v0.1"` continues to identify unchanged Git scoring. Existing Git-only JSON remains valid. Export Analysis Report downloads the entire validated report; reopening it retains review provenance, completeness, events, coverage and concentration. Invalid review structures are rejected.
 
 The [static demo](https://engineering-continuity-labs.github.io/engineering-continuity-lab/) bundles a normalized, explicitly PARTIAL eShop snapshot and makes no GitHub API requests. Its Git baseline remains at the documented fixed revision; review evidence has a separate collection time/boundary. See [collection results](docs/validation/eshop-v0.2-summary.json), [design](docs/review-evidence.md), and [completion evidence](docs/validation/v0.2-completion.md). To repeat the manual public run from a source checkout: `python scripts/validate_eshop_reviews.py`. That command refreshes the bundled normalized snapshot and summary; public rate limits may prevent completion.
+
+## v0.3 Offline Traceability and Report v3
+
+The merged offline core derives typed Work Item → PR → Commit → Changed Path → Component paths and explicit gaps from synthetic normalized evidence only. Report v3 adds optional `traceability_evidence` while retaining `model: "experimental-v0.1"` and existing Git/review sections. Python and browser imports validate typed relationships, path support, status independence, coverage counts, and privacy allowlists; the synthetic BASE report round-trips across both consumers. See [offline traceability](docs/offline-traceability.md), the [v3 schema](docs/report-schema-v3.md), and [v0.3 traceability matrix](specs/v0.3/traceability.md). There is no live Azure acquisition or traceability UI. The next major implementation is the separately designed Azure DevOps provider boundary.

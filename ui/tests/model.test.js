@@ -1,7 +1,17 @@
 import{test}from'node:test';
 import assert from'node:assert/strict';
+import{execFileSync}from'node:child_process';
+import{existsSync}from'node:fs';
+import{join}from'node:path';
+import{fileURLToPath}from'node:url';
 import{validateReport,demoReport,departure,exportReport,importReport}from'../dist/model.js';
 import eShopReport from'../dist/eshop-report.js';
+const repositoryRoot=fileURLToPath(new URL('../../',import.meta.url));
+const python=process.env.PYTHON??(existsSync(join(repositoryRoot,'.venv/bin/python'))?join(repositoryRoot,'.venv/bin/python'):'python3');
+const generatePythonReport=`import json,sys;sys.path.insert(0,'src');sys.path.insert(0,'tests');from traceability_report_fixture import synthetic_v3_report;print(json.dumps(synthetic_v3_report(sys.argv[1]),sort_keys=True,separators=(',',':')))`;
+const validatePythonReport=`import json,sys;sys.path.insert(0,'src');from continuity.reporting.traceability import traceability_from_dict,validate_report_envelope;report=json.load(sys.stdin);validate_report_envelope(report);traceability_from_dict(report['traceability_evidence']);print('valid')`;
+const pythonReport=(variant='BASE')=>JSON.parse(execFileSync(python,['-c',generatePythonReport,variant],{cwd:repositoryRoot,encoding:'utf8'}));
+const assertPythonAccepts=report=>assert.equal(execFileSync(python,['-c',validatePythonReport],{cwd:repositoryRoot,input:JSON.stringify(report),encoding:'utf8'}).trim(),'valid');
 test('bundled eShop validation sample has the documented revision and baseline counts',()=>{const report=validateReport(eShopReport);assert.equal(report.revision,'b4a40872005d4bb29e5b1fa1ff7e244143d39215');assert.equal(report.commit_count,347);assert.equal(report.components.length,48);assert.deepEqual(Object.fromEntries(['LOW','MEDIUM','HIGH','CRITICAL'].map(risk=>[risk,report.components.filter(component=>component.risk===risk).length])),{LOW:33,MEDIUM:10,HIGH:0,CRITICAL:5});});
 test('demo validates; concentration and shares agree',()=>assert.equal(validateReport(demoReport()).components.length,6));
 test('departure matches file overlap and pre-departure shares',()=>{const r=demoReport(),p=r.components[0].contributors[0];const impact=departure(r,p.contributor).find(i=>i.component==='src/payments');assert.equal(impact.loss,.92);assert.equal(impact.successor.overlap,.5);assert.equal(impact.uncovered.length,1);});
@@ -24,7 +34,7 @@ test('empty successful review collection is valid and unavailable, not zero cove
 test('optional reviewer shares may be omitted without changing concentration',()=>{const r=reviewReport();delete r.review_evidence.components[0].reviewer_shares;assert.doesNotThrow(()=>validateReport(r));});
 test('rejects malformed review provenance, status, identities and numerical contradictions',()=>{
  const mutations=[
- r=>delete r.report_version,r=>r.report_version='3.0',r=>r.review_evidence=null,
+ r=>delete r.report_version,r=>r.report_version='4.0',r=>r.review_evidence=null,
  r=>r.review_evidence.provenance.provenance=null,r=>r.review_evidence.provenance.provenance.retrieved_at='bad',
  r=>r.review_evidence.provenance.provenance.repository='https://secret@github.com/org/repo',
  r=>r.review_evidence.provenance.provenance.evidence_boundary='',r=>r.review_evidence.provenance.status='UNKNOWN',
@@ -60,4 +70,83 @@ test('known directory strategy reconciles multiple components and latest effecti
  r.review_evidence.provenance.pull_requests[0].reviews.unshift({...r.review_evidence.provenance.pull_requests[0].reviews[0],identifier:'older',provider_order:0,state:'COMMENTED'});
  r.review_evidence.components.push({...structuredClone(r.review_evidence.components[0]),component:'docs'});
  assert.deepEqual(importReport(exportReport(r)),r);
+});
+test('Python BASE v3 fixture validates and survives browser and Python round trips',()=>{
+ const report=pythonReport(),saved=importReport(exportReport(report));
+ assert.equal(report.report_version,'3.0');assert.equal(report.model,'experimental-v0.1');
+ assert.deepEqual(saved,report);assert.deepEqual(saved.traceability_evidence,report.traceability_evidence);
+ assertPythonAccepts(saved);
+});
+test('v3 permits review coexistence, PARTIAL evidence, FAILED evidence and Git-only envelopes',()=>{
+ const base=pythonReport(),combined={...reviewReport(),...base,report_version:'3.0',review_evidence:reviewReport().review_evidence};
+ assert.deepEqual(importReport(exportReport(combined)),combined);
+ const partial=pythonReport('PARTIAL'),failed=pythonReport('FAILED');
+ const capability=pythonReport('CAPABILITY'),empty=pythonReport('EMPTY');
+ const prPathOnly=pythonReport('PR_PATH_ONLY');
+ assert.equal(partial.traceability_evidence.collection.status,'PARTIAL');
+ assert.equal(failed.traceability_evidence.collection.status,'FAILED');
+ assert.equal(failed.traceability_evidence.result.summary,'UNAVAILABLE');
+ assert.deepEqual(importReport(exportReport(partial)),partial);assert.deepEqual(importReport(exportReport(failed)),failed);
+ assert.deepEqual(importReport(exportReport(capability)),capability);assert.deepEqual(importReport(exportReport(empty)),empty);
+ assert.deepEqual(importReport(exportReport(prPathOnly)),prPathOnly);
+ assert.ok(prPathOnly.traceability_evidence.result.paths.some(path=>path.nodes.some(node=>node.kind==='PR_PATH')));
+ assert.equal(prPathOnly.traceability_evidence.result.metrics.find(metric=>metric.dimension==='commit_intent').denominator,4);
+ assert.doesNotThrow(()=>validateReport({...demoReport(),report_version:'3.0'}));
+ assert.throws(()=>validateReport({...demoReport(),model:'experimental-v0.2',report_version:'3.0'}));
+});
+test('browser rejects malformed v3 paths, links, gaps, metrics, provenance and future types',()=>{
+ const mutations=[
+  r=>r.traceability_evidence.schema_version='2.0',
+  r=>r.traceability_evidence.collection.populations.commits[0].kind='FUTURE_COMMIT',
+  r=>r.traceability_evidence.collection.observed_links[0].type='FUTURE_LINK',
+  r=>r.traceability_evidence.collection.observed_links[0].origin='DERIVED_LINK',
+  r=>r.traceability_evidence.collection.observed_links[0].target=r.traceability_evidence.collection.populations.commits[0],
+  r=>r.traceability_evidence.collection.boundaries[0].query='https://user:SECRET@example.test',
+    r=>r.traceability_evidence.collection.status='UNKNOWN',
+    r=>r.traceability_evidence.collection.lookups[0].capability='FUTURE_CAPABILITY',
+    r=>r.traceability_evidence.collection.observed_links.push(structuredClone(r.traceability_evidence.collection.observed_links[0])),
+    r=>r.traceability_evidence.collection.populations.commits.reverse(),
+    r=>r.traceability_evidence.collection.populations.commits.splice(0,1),
+  r=>r.traceability_evidence.result.paths[0].nodes.push(r.traceability_evidence.result.paths[0].nodes[0]),
+    r=>{const path=r.traceability_evidence.result.paths.find(p=>p.status==='PARTIAL');path.gaps=[];},
+    r=>r.traceability_evidence.result.paths.reverse(),
+  r=>r.traceability_evidence.result.paths[0].supports.length=0,
+  r=>r.traceability_evidence.result.derived_links[0].supports=[],
+  r=>r.traceability_evidence.result.derived_links.splice(r.traceability_evidence.result.derived_links.findIndex(link=>link.type==='PATH_COMPONENT'),1),
+  r=>r.traceability_evidence.result.paths.pop(),
+  r=>r.traceability_evidence.result.gaps[0].status='VERIFIED',
+    r=>r.traceability_evidence.result.artifacts.find(a=>a.status==='MISSING').status='VERIFIED',
+  r=>r.traceability_evidence.result.metrics[0].numerator=r.traceability_evidence.result.metrics[0].denominator+1,
+  r=>r.traceability_evidence.result.metrics[0].value=.25,
+    r=>{const metric=r.traceability_evidence.result.metrics[0];metric.numerator=0;metric.value=0;metric.status='MISSING';metric.reason=null;},
+    r=>r.traceability_evidence.result.metrics[0].boundaries=['unknown-boundary'],
+    r=>r.traceability_evidence.result.metrics[0].excluded_count+=1,
+    r=>r.traceability_evidence.result.diagnostics.push({reason:'INCOMPATIBLE_BOUNDARY',endpoint:null,relationship:null}),
+    r=>r.traceability_evidence.result.derivation_version='offline-2',
+    r=>r.model='experimental-v0.2',
+    r=>{const gap=r.traceability_evidence.result.gaps.find(g=>g.status==='MISSING'),lookups=r.traceability_evidence.collection.lookups;const index=lookups.findIndex(l=>l.endpoint&&JSON.stringify(l.endpoint)===JSON.stringify(gap.endpoint)&&l.relationship===gap.relationship&&l.direction===gap.direction);lookups.splice(index,1);},
+ ];
+ for(const mutate of mutations){const report=pythonReport();mutate(report);assert.throws(()=>validateReport(report));}
+ for(const version of ['4.0',null]){const future={...pythonReport(),report_version:version};assert.throws(()=>validateReport(future));}
+});
+
+const reviewCorpus=JSON.parse(execFileSync(python,['-c',`import json,sys;sys.path[:0]=['src','tests'];from traceability_report_adversaries import adversarial_reports,normalization_adversaries,additional_valid_reports;print(json.dumps({'invalid':{**adversarial_reports(),**normalization_adversaries()},'valid':additional_valid_reports()}))`],{cwd:repositoryRoot,encoding:'utf8',maxBuffer:16*1024*1024}));
+test('independent review shared wire adversaries fail closed in the browser',()=>{
+ for(const [name,report] of Object.entries(reviewCorpus.invalid))assert.throws(()=>validateReport(report),undefined,name);
+});
+test('every synthetic variant and precise boundary/Unicode fixture survives Python-browser-Python',()=>{
+ for(const variant of ['NO_INTENT','DIRECT_ONLY','MULTIPATH','DUPLICATES','CONFLICT','CYCLE','MALFORMED','UNSUPPORTED_TYPE','OPTIONAL','POSITIVE_PARTIAL','LATE_FAILURE','LINKED_ONLY','BOUNDARY','NO_INFERENCE']){
+  const report=pythonReport(variant);assert.deepEqual(importReport(exportReport(report)),report,variant);assertPythonAccepts(report);
+ }
+ for(const [name,report] of Object.entries(reviewCorpus.valid)){assert.deepEqual(importReport(exportReport(report)),report,name);assertPythonAccepts(report);}
+});
+test('malformed JSON, duplicate fields and recursion failures never echo submitted secrets',()=>{
+ const base=pythonReport(),payload=JSON.stringify(base);
+ for(const value of [payload.replace('"schema_version":"1.0"','"schema_version":"SECRET","schema_version":"1.0"'),payload.replace('"schema_version":"1.0"','"schema_version":"1.0","schema_vers\\u0069on":"1.0"'),'{"SECRET":','{"SECRET":Infinity}','['.repeat(2000)+']'.repeat(2000)]){
+  assert.throws(()=>importReport(value),error=>error.message.startsWith('Select a valid continuity')&&!error.message.includes('SECRET'));
+ }
+ const cycle=structuredClone(base);cycle.traceability_evidence.self=cycle.traceability_evidence;
+ assert.throws(()=>validateReport(cycle),error=>error.message.startsWith('Select a valid continuity'));
+ assert.throws(()=>exportReport(cycle),error=>error.message.startsWith('Select a valid continuity'));
+ const saved=exportReport(base);assert.throws(()=>importReport('{"SECRET":'));assert.deepEqual(importReport(saved),base);
 });

@@ -1,6 +1,6 @@
 # v0.3 product specification: traceability evidence
 
-**Status: ACCEPTED product contract; first offline runtime slice implemented.** Runtime verification is scoped by criterion in `traceability.md`; Azure integration, report schema and presentation remain unimplemented. Product Owner handoff follows the user's accepted direction; design review and regression evidence are recorded separately in `traceability.md`.
+**Status: ACCEPTED product contract; offline core and additive report v3 serialization implemented.** Runtime verification is scoped by criterion in `traceability.md`; Azure integration and traceability presentation remain unimplemented. Product Owner handoffs and regression evidence are recorded in the design/verification records.
 
 ## Problem, value and change boundary
 
@@ -50,6 +50,13 @@ Non-goals: individual ranking/compliance/performance metrics; inferred ticket ma
 | ECL-FR-326 | Report coverage as explicit distinct numerator/denominator with boundary, provider/source, completeness, excluded/unknown populations and unavailable zero-denominator ratios. |
 | ECL-FR-327 | Show artifact-oriented path/gap explanations and separate coverage dimensions, without a single opaque traceability score or people ranking. |
 | ECL-FR-328 | Retain cycle diagnostics and terminate path derivation safely; cyclic/unsupported relationships cannot create evidence or repeated traversal counts. |
+| ECL-FR-329 | Serialize a derived traceability report through an intentional public contract containing normalized evidence and its auditable derived result, not implementation-specific object dumps. |
+| ECL-FR-330 | Import traceability reports into validated provider-neutral values and reject contradictions between normalized evidence and serialized paths, gaps, artifact states or metrics. |
+| ECL-FR-331 | Add `traceability_evidence` under envelope `report_version` 3.0 without renaming or removing Git or review fields. |
+| ECL-FR-332 | Preserve explicit artifact kinds/scopes, typed link endpoints, origins, ordered support, collection/capability/trace states and derivation/configuration identity across round trips. |
+| ECL-FR-333 | Serialize coverage numerator, denominator, ratio/null semantics, status, boundary/source, unknown and excluded counts; reject inconsistent arithmetic. |
+| ECL-FR-334 | Validate and export/import v3 traceability reports in the static browser while retaining v1/v2 compatibility and rejecting unsupported future types/versions. |
+| ECL-FR-335 | Provide deterministic canonical traceability serialization and a project-owned synthetic report derived from the accepted BASE fixture. |
 
 ## Status contract: three independent axes
 
@@ -102,6 +109,10 @@ The work-item query must enumerate the chosen work-item population independently
 | ECL-NFR-311 | Services/Server API versions, capabilities, pagination and deployment configuration shall be explicit adapter profiles; no universal version compatibility claim. |
 | ECL-NFR-312 | Core derivation shall run offline on normalized evidence with no hidden network calls, authentication or LLM/inference dependency. |
 | ECL-NFR-313 | Public documentation, fixtures, CI and validation shall use only SYNTHETIC, intentionally public or project-owned approved public data, never employer/NATO/NCIA/defence/customer/private-project evidence. |
+| ECL-NFR-314 | Repeated serialization of the same normalized result shall produce byte-identical canonical traceability JSON with stable ordering and no acquisition-order dependence. |
+| ECL-NFR-315 | Import validation shall enforce the same typed path, link, gap, support, status and coverage semantics as offline derivation; unknown future values fail closed. |
+| ECL-NFR-316 | Serialized traceability shall use explicit field allowlists and safe normalized provenance; it shall not expose provider DTOs, credentials, transport settings, local paths or unapproved private labels. |
+| ECL-NFR-317 | Python and browser validation/export/import shall preserve accepted v3 traceability evidence and reject the same unsupported schema/type categories. |
 
 ## Privacy and future presentation contract
 
