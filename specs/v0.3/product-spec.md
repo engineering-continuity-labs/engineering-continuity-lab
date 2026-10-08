@@ -1,6 +1,6 @@
 # v0.3 product specification: traceability evidence
 
-**Status: ACCEPTED product contract; offline core and additive report v3 serialization implemented.** Runtime verification is scoped by criterion in `traceability.md`; Azure integration and traceability presentation remain unimplemented. Product Owner handoffs and regression evidence are recorded in the design/verification records.
+**Status: ACCEPTED product contract; offline core and additive report v3 serialization implemented.** Runtime verification is scoped by criterion in `traceability.md`; The first Azure acquisition library is implemented with synthetic validation; live deployment compatibility and traceability presentation remain separate gates. Product Owner handoffs and regression evidence are recorded in the design/verification records.
 
 ## Problem, value and change boundary
 
@@ -12,7 +12,7 @@ The original specification PR delivered specifications, architecture, evidence-m
 
 ## Accepted eventual scope and non-goals
 
-Azure DevOps Services and Azure DevOps Server/on-premises are the first planned concrete provider family. Work-item/PR/commit relationships must be provider-recorded; Git commit changes and deterministic component mapping complete the chain. Core concepts remain provider-independent. The first implementation will operate offline on explicitly SYNTHETIC project-owned evidence; live acquisition is a separate future change.
+Azure DevOps Services and Azure DevOps Server/on-premises are the first planned concrete provider family. Work-item/PR/commit relationships must be provider-recorded; Git commit changes and deterministic component mapping complete the chain. Core concepts remain provider-independent. The first implementation operated offline on explicitly SYNTHETIC project-owned evidence. The separately authorized Azure acquisition increment below adds a read-only library provider; live compatibility remains unvalidated.
 
 Initial queries inspect work items affecting a component, PRs and commits associated with a work item, affected components, PRs/commits without observed intent, work items without observed implementation, and exactly where a chain stops. Merged PRs only contribute to PR coverage; open/abandoned PR references may be retained as unresolved contextual references but are excluded from that denominator.
 
@@ -123,3 +123,17 @@ An eventual artifact view shows component, observed work items/PRs/commit/path r
 ## Handoff and remaining delivery gates
 
 Product Owner exit: value, scope, non-goals, populations and observable outcomes are explicit. Architecture must resolve identity/join ownership, typed paths and capability/completeness evidence before QA/Developer work. QA defines cases in `acceptance-criteria.md`; the separately authorized first runtime slice is offline only. Runtime work requires separate authorization; the first offline slice was explicitly authorized after specification PR #17 merged.
+
+## First Azure DevOps acquisition increment (Product Owner)
+
+ECL-FR-302/323 remain the provider boundary; the following refines its first live-capable implementation without changing offline status/coverage rules.
+
+| ID | Requirement |
+| --- | --- |
+| ECL-FR-336 | An explicit immutable deployment profile selects Server current/7.2, Server 2022.1/7.1, Server 2022/7.0 or Services/7.2; a compatible explicit override never triggers automatic downgrade. |
+| ECL-FR-337 | Read-only acquisition independently enumerates completed repository PRs, all project work-item IDs and commit ancestry at an explicit immutable Git revision. It obtains provider-declared WI_PR, PR_COMMIT and explicit WI_COMMIT artifacts; optional commit changes feed existing derivation. |
+| ECL-FR-338 | Every exported scope and native numeric artifact identity uses an explicitly approved alias mapping. Native addresses, names, IDs, credentials and DTOs remain acquisition-private. Titles stay disabled. Exact project/repository identities qualify artifact links; display names/text never establish links. |
+| ECL-FR-339 | Endpoint-specific paging and deterministic work-item batches have finite bounds; interrupted enumeration retains positive evidence with partial affected lookups. Unsupported, unknown, failed and complete-empty evidence remain distinguishable. |
+| ECL-NFR-318 | Stdlib-only transport verifies TLS, bounds time/response bytes, strictly decodes JSON, blocks redirects and credential-bearing URLs, persists no cookies, and sanitizes failures. Optional PAT is supplied only at runtime. Plain HTTP is restricted to explicit loopback test mode. |
+
+Scope: library provider and synthetic validation, no connection UI/CLI, OAuth, NTLM, Kerberos, writes, releases or people analytics. Live Server compatibility requires a separate dedicated non-sensitive environment; synthetic success cannot certify it. The caller approves scope, artifact aliases and repository paths for publication.
