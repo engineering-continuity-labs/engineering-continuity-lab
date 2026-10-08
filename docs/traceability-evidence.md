@@ -1,6 +1,6 @@
 # v0.3 traceability evidence architecture — design only
 
-**Status: proposed implementation contract for the accepted product intent; no runtime implementation.** Inputs: `specs/v0.3/product-spec.md` ECL-FR-301–328 and ECL-NFR-301–313. Existing `domain/models.py`, `domain/reviews.py`, `analysis/reviews.py`, and reporting boundaries are reused semantically. This document describes future concepts; it introduces no Python classes, adapter, persisted schema, client, UI or network calls.
+**Status: accepted implementation contract; offline baseline now implemented separately.** Inputs: `specs/v0.3/product-spec.md` ECL-FR-301–328 and ECL-NFR-301–313. Existing `domain/models.py`, `domain/reviews.py`, `analysis/reviews.py`, and reporting boundaries are reused semantically. The original design introduced no runtime code. The first authorized offline baseline follows D301–D311; see `docs/offline-traceability.md`. No live adapter, persisted report schema, UI or network client is implemented.
 
 ## Decision D301 — separate acquisition, offline core
 

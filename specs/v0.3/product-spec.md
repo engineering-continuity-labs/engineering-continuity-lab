@@ -1,6 +1,6 @@
 # v0.3 product specification: traceability evidence
 
-**Status: ACCEPTED intended design for this specification PR; NOT IMPLEMENTED.** No v0.3 runtime requirement is VERIFIED. Product Owner handoff follows the user's accepted direction; design review and regression evidence are recorded separately in `traceability.md`.
+**Status: ACCEPTED product contract; first offline runtime slice implemented.** Runtime verification is scoped by criterion in `traceability.md`; Azure integration, report schema and presentation remain unimplemented. Product Owner handoff follows the user's accepted direction; design review and regression evidence are recorded separately in `traceability.md`.
 
 ## Problem, value and change boundary
 
@@ -8,7 +8,7 @@ Git authorship (v0.1) and PR review interaction (v0.2) describe historical activ
 
 The initial normative chain is **Work Item → Pull Request → Commit → Changed Path → Component**. Shorter observed paths are also useful: Work Item → PR → Component, Work Item → Commit → Component, PR → Commit → Component, Commit → Component. A short path does not satisfy the full-chain contract and must expose skipped/missing/unavailable hops; no relationship is fabricated to fill the gap.
 
-This change delivers specifications, architecture, evidence-model and verification design only. The Developer role materializes these documents and validates the unchanged baseline. It stops before product implementation: no domain classes, executable fixtures, provider client, runtime logic, schema changes, UI, CLI, authentication or Azure DevOps network access is added.
+The original specification PR delivered specifications, architecture, evidence-model and verification design only. In that original PR the Developer materialized documents and validated the unchanged baseline, stopping before product implementation: no domain classes, executable fixtures, provider client, runtime logic, schema changes, UI, CLI, authentication or Azure DevOps network access is added.
 
 ## Accepted eventual scope and non-goals
 
@@ -111,4 +111,4 @@ An eventual artifact view shows component, observed work items/PRs/commit/path r
 
 ## Handoff and remaining delivery gates
 
-Product Owner exit: value, scope, non-goals, populations and observable outcomes are explicit. Architecture must resolve identity/join ownership, typed paths and capability/completeness evidence before QA/Developer work. QA defines cases in `acceptance-criteria.md`; runtime implementation remains unstarted. This specification is not an authorization to start product implementation after its PR.
+Product Owner exit: value, scope, non-goals, populations and observable outcomes are explicit. Architecture must resolve identity/join ownership, typed paths and capability/completeness evidence before QA/Developer work. QA defines cases in `acceptance-criteria.md`; the separately authorized first runtime slice is offline only. Runtime work requires separate authorization; the first offline slice was explicitly authorized after specification PR #17 merged.
