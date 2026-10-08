@@ -138,7 +138,7 @@ node --check ui/dist/model.js
 
 - **v0.1** Git engineering-continuity baseline
 - **v0.2** Provider-independent merged PR and review evidence: review coverage, reviewer concentration, and separate authorship-versus-review comparison
-- **v0.3** [Offline artifact traceability](docs/offline-traceability.md): Work Item → PR → Commit → Changed Path → Component; additive report v3 serialization/import/export is implemented. Azure DevOps Services/Server acquisition remains deferred.
+- **v0.3** Artifact traceability is implemented: [offline paths/gaps/coverage](docs/offline-traceability.md), [report v3](docs/report-schema-v3.md), and a read-only [Azure DevOps provider](docs/azure-devops-provider.md) with Server current/7.2, Server2022.1/7.1, Server2022/7.0 and Services/7.2 target profiles. Synthetic REST validation and runtime-only PAT transport are implemented. Real deployment compatibility certification, local connection CLI/config UX, OAuth/NTLM/Kerberos and visual traceability UI remain deferred; the package stays at 0.2.0 until v0.3 release preparation.
 - **v0.4** Requirements, test, and architecture evidence
 - **v0.5** Technical handover verification
 
@@ -146,7 +146,7 @@ node --check ui/dist/model.js
 
 Specifications are the source of truth for observable behavior. Documentation explains architecture, rationale, usage, and validation evidence; source implements the specifications; tests provide verification evidence.
 
-Read the [governance process](specs/README.md), [v0.1 product specification](specs/v0.1/product-spec.md), [normative scoring contract](specs/v0.1/scoring-spec.md), [acceptance criteria](specs/v0.1/acceptance-criteria.md), and [traceability matrix](specs/v0.1/traceability.md). v0.2 PR/review evidence is implemented; verification is mapped in [v0.2 traceability](specs/v0.2/traceability.md). Future roadmap work begins with specifications: v0.3 Azure DevOps traceability, v0.4 requirements/test/architecture evidence, and v0.5 technical handover verification.
+Read the [governance process](specs/README.md), [v0.1 product specification](specs/v0.1/product-spec.md), [normative scoring contract](specs/v0.1/scoring-spec.md), [acceptance criteria](specs/v0.1/acceptance-criteria.md), and [traceability matrix](specs/v0.1/traceability.md). v0.2 PR/review evidence is implemented; verification is mapped in [v0.2 traceability](specs/v0.2/traceability.md). The [v0.3 specification and traceability matrix](specs/v0.3/traceability.md) map implemented core, report and Azure-provider behavior to synthetic evidence. Remaining v0.3 connection/presentation work and future v0.4/v0.5 changes require their own specification-driven handoffs.
 
 ## License
 
@@ -160,6 +160,12 @@ Review-capable reports add `report_version: "2.0"`; `model: "experimental-v0.1"`
 
 The [static demo](https://engineering-continuity-labs.github.io/engineering-continuity-lab/) bundles a normalized, explicitly PARTIAL eShop snapshot and makes no GitHub API requests. Its Git baseline remains at the documented fixed revision; review evidence has a separate collection time/boundary. See [collection results](docs/validation/eshop-v0.2-summary.json), [design](docs/review-evidence.md), and [completion evidence](docs/validation/v0.2-completion.md). To repeat the manual public run from a source checkout: `python scripts/validate_eshop_reviews.py`. That command refreshes the bundled normalized snapshot and summary; public rate limits may prevent completion.
 
-## v0.3 Offline Traceability and Report v3
+## v0.3 Traceability, Report v3 and Azure Provider
 
-The merged offline core derives typed Work Item → PR → Commit → Changed Path → Component paths and explicit gaps from synthetic normalized evidence only. Report v3 adds optional `traceability_evidence` while retaining `model: "experimental-v0.1"` and existing Git/review sections. Python and browser imports validate typed relationships, path support, status independence, coverage counts, and privacy allowlists; the synthetic BASE report round-trips across both consumers. See [offline traceability](docs/offline-traceability.md), the [v3 schema](docs/report-schema-v3.md), and [v0.3 traceability matrix](specs/v0.3/traceability.md). There is no live Azure acquisition or traceability UI. The next major implementation is the separately designed Azure DevOps provider boundary.
+The merged core derives typed Work Item → PR → Commit → Changed Path → Component paths, qualified gaps and distinct artifact coverage from normalized evidence. Report v3 adds optional `traceability_evidence` while retaining `model: "experimental-v0.1"` and existing Git/review sections. Python and browser consumers validate and round-trip typed relationships, supports, status and coverage semantics.
+
+The read-only Azure provider independently acquires completed PRs, project work items and fixed-revision commit ancestry. It maps explicit provider associations and optional commit changes into `TraceabilityEvidenceCollection`; existing `derive()` produces `TraceabilityReport`, then report-v3 serialization feeds browser validation/import/export. No links are inferred from titles or messages. Server current/7.2 is the primary target profile, with Server2022.1/7.1, Server2022/7.0 and Services/7.2 profiles and bounded explicit overrides. PAT support is runtime-only in transport; native addresses/IDs are separated from approved public aliases.
+
+Project-owned SYNTHETIC Azure-shaped responses validate this pipeline, including loopback HTTP. **Real Azure Server/Services compatibility remains MANUAL until tested in a dedicated non-sensitive live environment.** The normal Git explorer does not acquire Azure evidence automatically. Local connection/configuration UX, OAuth/NTLM/Kerberos and visual traceability UI remain deferred. Package version 0.2.0 and releases v0.1.0/v0.2.0 remain unchanged; v0.3 is implemented in increments and has not been released.
+
+See [provider usage and limits](docs/azure-devops-provider.md), [offline traceability](docs/offline-traceability.md), [report-v3 schema](docs/report-schema-v3.md), [traceability matrix](specs/v0.3/traceability.md), [independent provider review](docs/validation/v0.3-azure-provider-review.md) and [closure verification](docs/validation/v0.3-closure-verification.md).

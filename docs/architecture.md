@@ -47,3 +47,16 @@ The independent report review corrections retain this boundary: additional wire 
 ## Azure DevOps traceability acquisition
 
 The first live-capable library adapter is described in [Azure provider design](azure-devops-provider.md). `azure_profile.py` owns immutable deployment/API/bounds and private native→approved-alias config; `azure_transport.py` owns bound relative read requests, verified TLS, runtime-only optional PAT and strict bounded JSON; `azure_dto.py` projects allowlisted REST values and exact scoped artifact identities; `azure_devops.py` independently acquires populations and normalizes provider observations/lookups. Only existing `analysis.traceability.derive()` creates paths/components/gaps/coverage, and only existing report-v3 serialization publishes them. No domain, scoring, connection CLI or UI behavior changes.
+
+The implemented traceability library path is separate from ordinary Git explorer acquisition:
+
+```mermaid
+flowchart LR
+    Azure[Azure DevOps Provider] --> Evidence[Normalized TraceabilityEvidenceCollection]
+    Evidence --> Derive[derive]
+    Derive --> Trace[TraceabilityReport]
+    Trace --> Report[Report v3]
+    Report --> Browser[Browser validator / import / export]
+```
+
+The browser accepts this normalized report contract; it has no Azure connection or visual traceability flow. The normal Git explorer does not call the Azure provider. Closure corrections quarantine contradictory WI records before normalization, retain valid WIQL IDs on an invalid page without guessing continuation, bound both PR-reference routes and reject recognizable private path values before domain construction. Core derivation, report schema, scoring and transport responsibilities remain unchanged.
