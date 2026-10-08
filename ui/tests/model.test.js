@@ -159,3 +159,13 @@ test('malformed JSON, duplicate fields and recursion failures never echo submitt
  assert.throws(()=>exportReport(cycle),error=>error.message.startsWith('Select a valid continuity'));
  const saved=exportReport(base);assert.throws(()=>importReport('{"SECRET":'));assert.deepEqual(importReport(saved),base);
 });
+
+const closureCorpus=JSON.parse(execFileSync(python,['-c',`import json,sys;sys.path[:0]=['src','tests'];from traceability_report_adversaries import closure_review_reports;print(json.dumps(closure_review_reports()))`],{cwd:repositoryRoot,encoding:'utf8',maxBuffer:16*1024*1024}));
+for(const finding of ['RP-R11','RP-R12','RP-R13'])test(`closure ${finding} matches Python acceptance at configuration/completeness boundaries`,()=>{
+ assert.throws(()=>validateReport(closureCorpus.invalid[finding]));
+ const valid=closureCorpus.valid[finding];
+ assert.deepEqual(importReport(exportReport(valid)),valid);assertPythonAccepts(valid);
+ if(finding==='RP-R12'){
+  const dual=closureCorpus.valid['RP-R12-DUAL'];assert.deepEqual(importReport(exportReport(dual)),dual);assertPythonAccepts(dual);
+ }
+});

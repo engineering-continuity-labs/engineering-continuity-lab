@@ -156,3 +156,49 @@ def normalization_adversaries():
     value['traceability_evidence']['collection']['boundaries'][1]['start'] = value['traceability_evidence']['collection']['boundaries'][0]['start']
     cases['contradictory-microsecond-join'] = value
     return cases
+
+
+def closure_review_reports():
+    """RP-R11–13 paired valid producers and internally consistent adversaries."""
+    from dataclasses import replace
+    from continuity.analysis.traceability import derive
+    from continuity.domain.reviews import CollectionStatus
+    from continuity.domain.traceability import Direction, GapReason, TraceDiagnostic, TraceLinkType, TraceabilityCapability
+    from continuity.reporting.traceability import with_traceability
+    from continuity.traceability_providers.synthetic import base_fixture
+
+    base = synthetic_v3_report()
+    git = {k:v for k,v in base.items() if k != 'traceability_evidence'}
+    evidence = base_fixture()
+
+    def configuration(report, length):
+        value = deepcopy(report)
+        def change(node):
+            if isinstance(node, dict):
+                for key, child in node.items():
+                    if key == 'configuration' and child == 'depth-2':
+                        node[key] = 'depth-' + '9' * (length - 6)
+                    else:
+                        change(child)
+            elif isinstance(node, list):
+                for child in node:
+                    change(child)
+        change(value['traceability_evidence'])
+        return value
+
+    inbound = with_traceability(git, derive(replace(evidence, lookups=tuple(
+        replace(lookup, direction=Direction.INBOUND) if lookup.population else lookup for lookup in evidence.lookups))))
+    stale_inbound = deepcopy(inbound)
+    stale_inbound['traceability_evidence']['result'] = deepcopy(base['traceability_evidence']['result'])
+    dual = with_traceability(git, derive(replace(evidence, lookups=evidence.lookups + tuple(
+        replace(lookup, direction=Direction.INBOUND, status=CollectionStatus.FAILED,
+                capability=TraceabilityCapability.UNKNOWN) for lookup in evidence.lookups if lookup.population))))
+    scoped = with_traceability(git, derive(replace(evidence, diagnostics=(
+        TraceDiagnostic(GapReason.INCOMPATIBLE_BOUNDARY, relationship=TraceLinkType.PATH_COMPONENT),))))
+    stale_scoped = deepcopy(scoped)
+    for metric in stale_scoped['traceability_evidence']['result']['metrics']:
+        metric.update(status='UNAVAILABLE', value=None, reason='CAPABILITY_UNAVAILABLE')
+    return {
+        'invalid': {'RP-R11': configuration(base, 129), 'RP-R12': stale_inbound, 'RP-R13': stale_scoped},
+        'valid': {'RP-R11': configuration(base, 128), 'RP-R12': inbound, 'RP-R12-DUAL': dual, 'RP-R13': scoped},
+    }

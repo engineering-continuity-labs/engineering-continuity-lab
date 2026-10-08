@@ -155,7 +155,7 @@ function validateTraceability(section,fail){
  if(!publicTraceValues(section)||!exact(section,['schema_version','collection','result'])||section.schema_version!=='1.0')fail();
  const collection=section.collection,result=section.result;
  if(!exact(collection,['status','component_strategy','boundaries','work_items','populations','observed_links','lookups','diagnostics'])||!statuses.includes(collection.status))fail();
- if(!exact(collection.component_strategy,['name','configuration'])||collection.component_strategy.name!=='directory'||!/^depth-[1-9][0-9]*$/.test(collection.component_strategy.configuration))fail();
+ if(!exact(collection.component_strategy,['name','configuration'])||collection.component_strategy.name!=='directory'||!safeToken(collection.component_strategy.configuration)||!/^depth-[1-9][0-9]*$/.test(collection.component_strategy.configuration))fail();
  const boundaries=new Map(), refs=new Map();
  const addRef=ref=>{const key=refKey(ref);refs.set(key,ref);return key;};
  const validRef=ref=>{
@@ -166,7 +166,7 @@ function validateTraceability(section,fail){
   if(ref.kind==='COMMIT')return ref.provider==='source'&&ref.instance==='offline'&&ref.scope==='git'&&new RegExp(`^[0-9a-f]{${ref.algorithm==='sha1'?40:64}}$`).test(ref.identifier)&&!ref.context&&!ref.configuration;
   if(ref.kind==='CHANGED_PATH')return ref.provider==='source'&&ref.instance==='offline'&&ref.scope==='git'&&safePath(ref.identifier)&&new RegExp(`^[0-9a-f]{${ref.algorithm==='sha1'?40:64}}$`).test(ref.context)&&!ref.configuration;
   if(ref.kind==='PR_PATH')return safePath(ref.identifier)&&safeToken(ref.context)&&!ref.configuration&&ref.algorithm==='sha1';
-  return ref.provider==='source'&&ref.instance==='offline'&&ref.scope==='components'&&(ref.identifier==='(root)'||safePath(ref.identifier))&&ref.context==='directory'&&ref.configuration===collection.component_strategy.configuration&&ref.algorithm==='sha1';
+  return ref.provider==='source'&&ref.instance==='offline'&&ref.scope==='components'&&(ref.identifier==='(root)'||safePath(ref.identifier))&&ref.context==='directory'&&safeToken(ref.configuration)&&ref.configuration===collection.component_strategy.configuration&&ref.algorithm==='sha1';
  };
  if(!Array.isArray(collection.boundaries)||!Array.isArray(collection.work_items)||!exact(collection.populations,['pull_requests','merged_pull_requests','commits','changed_paths'])||!Array.isArray(collection.observed_links)||!Array.isArray(collection.lookups)||!Array.isArray(collection.diagnostics))fail();
  const boundaryFields=['identifier','provider','instance','project','repository','collected_at','snapshot','query','identity_mapping','filter_policy','revision','time_field','start','end','normalization_version','join_contract'];
@@ -477,9 +477,9 @@ for(const link of collection.observed_links){
   work_item_implementation:[['WORK_ITEMS','COMMITS','CHANGES','PULL_REQUESTS'],['WI_PR','WI_COMMIT','PR_COMMIT','COMMIT_PATH']],
  };
  function stateFor(populations,relations){
-  const selected=populations.map(population=>collection.lookups.find(lookup=>lookup.population===population));
+  const selected=populations.map(population=>collection.lookups.find(lookup=>lookup.population===population&&lookup.direction==='OUTBOUND'));
   selected.push(...collection.lookups.filter(lookup=>relations.includes(lookup.relationship)));
-  let available=!result.diagnostics.some(diagnostic=>diagnostic.reason==='INCOMPATIBLE_BOUNDARY')&&selected.every(lookup=>lookup&&lookup.capability==='SUPPORTED'&&lookup.status!=='FAILED');
+  let available=!incompatibleCollection&&selected.every(lookup=>lookup&&lookup.capability==='SUPPORTED'&&lookup.status!=='FAILED');
   let complete=collection.status==='COMPLETE'&&selected.every(lookup=>lookup&&lookup.status==='COMPLETE');
   for(const relation of relations){
    const [sourceKinds,targetKind]=endpoints[relation];

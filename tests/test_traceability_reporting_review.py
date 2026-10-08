@@ -129,3 +129,26 @@ class IndependentReviewRegressionTests(unittest.TestCase):
                 covered, total = component_counts.get(component, (0,0))
                 component_counts[component] = (covered+int(link.source in intent_commits),total+1)
         self.assertEqual(component_counts, {'src/payments':(2,2),'tests/payments':(1,1),'src/catalog':(1,1)})
+
+    def test_closure_configuration_token_length_boundary(self):
+        from traceability_report_adversaries import closure_review_reports
+        reports = closure_review_reports()
+        traceability_from_dict(reports['valid']['RP-R11']['traceability_evidence'])
+        with self.assertRaisesRegex(ValueError, '^invalid traceability report$'):
+            traceability_from_dict(reports['invalid']['RP-R11']['traceability_evidence'])
+
+    def test_closure_population_direction_preserves_unavailable_and_dual_states(self):
+        from traceability_report_adversaries import closure_review_reports
+        reports = closure_review_reports()
+        for name in ('RP-R12', 'RP-R12-DUAL'):
+            report = traceability_from_dict(reports['valid'][name]['traceability_evidence'])
+            self.assertEqual(traceability_to_dict(report), reports['valid'][name]['traceability_evidence'])
+        with self.assertRaisesRegex(ValueError, '^invalid traceability report$'):
+            traceability_from_dict(reports['invalid']['RP-R12']['traceability_evidence'])
+
+    def test_closure_scoped_incompatibility_does_not_invent_global_unavailability(self):
+        from traceability_report_adversaries import closure_review_reports
+        reports = closure_review_reports()
+        traceability_from_dict(reports['valid']['RP-R13']['traceability_evidence'])
+        with self.assertRaisesRegex(ValueError, '^invalid traceability report$'):
+            traceability_from_dict(reports['invalid']['RP-R13']['traceability_evidence'])
