@@ -137,3 +137,17 @@ ECL-FR-302/323 remain the provider boundary; the following refines its first liv
 | ECL-NFR-318 | Stdlib-only transport verifies TLS, bounds time/response bytes, strictly decodes JSON, blocks redirects and credential-bearing URLs, persists no cookies, and sanitizes failures. Optional PAT is supplied only at runtime. Plain HTTP is restricted to explicit loopback test mode. |
 
 Scope: library provider and synthetic validation, no connection UI/CLI, OAuth, NTLM, Kerberos, writes, releases or people analytics. Live Server compatibility requires a separate dedicated non-sensitive environment; synthetic success cannot certify it. The caller approves scope, artifact aliases and repository paths for publication.
+
+## Local Azure connection increment (Product Owner)
+
+Authorized after merged closure PR #21. This increment supersedes the prior library-only exclusion of CLI acquisition; all provider/report privacy and completeness semantics remain normative.
+
+| ID | Requirement |
+| --- | --- |
+| ECL-FR-340 | A local CLI acquires Azure traceability using an explicit non-secret TOML connection file containing deployment/scope, exact revision, approved aliases/mapping, snapshot, timezone-aware collection instant and component depth. Existing Git commands remain compatible. |
+| ECL-FR-341 | Require explicit approval that exported aliases, commit hashes and repository-relative paths may be published before acquisition. Reject unknown/malformed configuration before network activity; never infer public aliases from native identities. |
+| ECL-FR-342 | PAT authentication uses a hidden interactive terminal prompt only; no PAT option, environment-variable lookup or persisted credential. Explicit anonymous mode supports non-interactive execution. Non-interactive PAT invocation fails without network access. |
+| ECL-FR-343 | Emit standalone report-v3 traceability-section JSON (not a Git report envelope) to stdout with acquisition completeness preserved. Return 0 for COMPLETE, 3 for PARTIAL, 4 for FAILED, and 2 for configuration/authentication/processing errors. Diagnostics are fixed sanitized categories on stderr, with no private config/path or credential values. |
+| ECL-NFR-319 | Connection parsing is bounded and strict, rejects duplicate/unknown fields and credential-shaped fields, exposes no HTTP/TLS bypass, and never echoes configuration contents or terminal secrets. |
+
+Non-goals: explorer/UI integration, credential storage, name resolution, live compatibility certification, new scoring/schema/derivation, OAuth/NTLM/Kerberos, version bump or release.

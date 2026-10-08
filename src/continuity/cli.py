@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import sys
 import tomllib
+from typing import NoReturn
 
 from continuity.analysis.filtering import FilterConfig, filter_history
 from continuity.reporting.text import render
@@ -33,7 +34,16 @@ def resolve_repository_input(explicit_source: str | None) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Experimental Git activity proxy for continuity risk")
+    arguments = sys.argv[1:] if argv is None else argv
+    azure_mode = bool(arguments and arguments[0] == "azure-acquire")
+
+    class CommandParser(argparse.ArgumentParser):
+        def error(self, message: str) -> NoReturn:
+            if azure_mode:
+                raise ValueError("invalid Azure command arguments")
+            super().error(message)
+
+    parser = CommandParser(description="Experimental Git activity proxy for continuity risk")
     commands = parser.add_subparsers(dest="command", required=True)
     for name in ("analyze", "person", "simulate-departure"):
         cmd = commands.add_parser(name)
@@ -52,7 +62,18 @@ def main(argv: list[str] | None = None) -> int:
     explorer.add_argument("--port", type=int, default=8765, help="loopback port (default: 8765)")
     explorer.add_argument("--repo", help="local Git repository path or public HTTPS clone URL to analyze at startup")
     explorer.add_argument("--no-browser", action="store_true", help="do not open the default browser")
-    args = parser.parse_args(argv)
+    azure = commands.add_parser("azure-acquire", help="acquire an Azure report-v3 traceability section")
+    azure.add_argument("--config", type=Path, required=True, help="non-secret TOML connection file")
+    azure.add_argument("--approve-publication", action="store_true", help="approve export of aliases, commit hashes and repository paths")
+    azure.add_argument("--anonymous", action="store_true", help="do not prompt for a PAT")
+    try:
+        args = parser.parse_args(arguments)
+    except ValueError:
+        print("continuity: invalid Azure command arguments", file=sys.stderr)
+        return 2
+    if args.command == "azure-acquire":
+        from continuity.azure_connection import run
+        return run(args)
     try:
         if args.command == "explorer":
             from continuity.explorer import serve

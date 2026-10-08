@@ -43,7 +43,7 @@ All observed links have DIRECT_PROVIDER_LINK origin, including REST changes. Onl
 
 ## Runtime usage
 
-The library requires explicit config and publication approval; no persisted connection flow is added. For a project-owned SYNTHETIC example:
+The library requires explicit config and publication approval. A separate [local connection CLI](azure-local-connection.md) loads non-secret TOML with private native scope and prompts for a runtime PAT; it never persists credentials. For a project-owned SYNTHETIC example:
 
 ```python
 from datetime import datetime, timezone
@@ -91,7 +91,7 @@ Valid pages/records remain after late failure, with partial lookups; first faile
 
 `tests/azure_rest_fixture.py` owns all REST-shaped synthetic IDs/DTOs and never imports offline BASE. Tests cover every target profile, deterministic ordering, alias quarantine, direct artifacts, multi-WI/multi-commit membership, changes, pagination/continuation, 200-item batching, empty/zero populations, duplicates, malformed/cross-scope records, unavailable/partial evidence, transport sentinels, TLS, redirects and full loopback HTTP acquisition. BASE reproduces PR 3/4, commits 4/4, WI 2/3; src/payments 2/2, tests/payments 1/1 and src/catalog 1/1 through provider → derive → report v3, including browser round trip.
 
-Live Server current/2022.1/2022 and Services REST behavior, proxy/certificate/auth deployment, continuation-header behavior and WIQL ASOF/field expansion compatibility remain MANUAL. Cross-service acquisition is not atomic; PR references/commit memberships lack historical ASOF support. Large histories can stop on finite bounds and require a separately designed selection flow. No OAuth/Entra, NTLM/Kerberos, name resolution, custom-process mappings, connection CLI/UI, arbitrary title export, PR_PATH acquisition, write operations or people scoring. Independent Code Reviewer approval and green applicable PR CI remain separate merge gates; AGENTS.md does not prescribe a human reviewer.
+Live Server current/2022.1/2022 and Services REST behavior, proxy/certificate/auth deployment, continuation-header behavior and WIQL ASOF/field expansion compatibility remain MANUAL. Cross-service acquisition is not atomic; PR references/commit memberships lack historical ASOF support. Large histories can stop on finite bounds and require a separately designed selection flow. No OAuth/Entra, NTLM/Kerberos, name resolution, custom-process mappings, connection UI, arbitrary title export, PR_PATH acquisition, write operations or people scoring. Independent Code Reviewer approval and green applicable PR CI remain separate merge gates; AGENTS.md does not prescribe a human reviewer.
 
 ## Closure corrections
 

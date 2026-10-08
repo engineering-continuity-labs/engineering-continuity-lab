@@ -131,3 +131,14 @@ QA strategy: test positive associations, independent empty populations and absen
 ## Closure review corrective QA plan
 
 No acceptance criterion is weakened or added by this closure. Independent post-merge findings AZ-R01–04 refine verification of existing contracts: AC315/353 require quarantine rather than representative selection for contradictory same-ID WI records; AC320/353 require preserving valid WIQL IDs around malformed/nonprogress refs; AC353 bounds both inline and fallback PR references; AC331/354 reject recognizable credential-shaped paths before normalized evidence. Planned synthetic regressions are in `tests/test_azure_closure_review.py`; exact review/verification outcomes remain in the closure and Azure review records. Full regression must pass and corrections must be independently re-reviewed before approval. Live compatibility remains MANUAL.
+
+## Local Azure connection QA plan (before development)
+
+| ID | Observable criterion | Planned verification |
+| --- | --- | --- |
+| ECL-AC-357 | A valid Server/Services TOML file maps exact profile, approved identities and boundaries into the existing pipeline and emits an accepted report-v3 traceability section. | All four profiles; injected synthetic REST fixture pipeline and traceability round-trip validator; existing Git CLI regressions. |
+| ECL-AC-358 | Missing publication approval, unknown/duplicate keys, wrong types, invalid boundaries/maps, oversize files, secret fields and HTTP profiles fail before acquisition with fixed diagnostics. | Negative parser/CLI tests, secret and private-path sentinels. |
+| ECL-AC-359 | Interactive PAT is hidden and runtime-only; anonymous mode does not prompt; noninteractive PAT and interrupted/empty prompts fail safely without acquiring. | Mock terminal/getpass, warning fallback, EOF and interrupt checks. |
+| ECL-AC-360 | COMPLETE/PARTIAL/FAILED reports remain valid and map to exit 0/3/4; fatal errors produce no JSON and exit 2 without leaking raw exception text. | Synthetic positive, late failure and first failure, report round trip, stderr sentinel assertions. |
+
+Live deployment compatibility remains MANUAL. Developer must preserve all prior report/provider/CLI tests. Independent review and green CI remain merge gates.

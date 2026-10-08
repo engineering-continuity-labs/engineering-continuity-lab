@@ -81,7 +81,7 @@ The independent takeover run passed 160 Python tests, strict mypy for 25 source 
 
 The complete independent initial review found two BLOCKER, seven MAJOR and one MINOR findings; corrections and QA evidence are preserved in `docs/validation/v0.3-report-v3-review.md`. The report-v3 historical corrections retain a separate pending independent re-review gate. The Azure closure reviewed report interactions but did not silently approve the complete prior report diff. Automated VERIFIED criteria above do not constitute reviewer approval. The historical report record decision is REQUEST CHANGES pending that separate gate; no known implementation BLOCKER/MAJOR is left uncorrected. That historical delivery record predates manually opened/merged PR #19. The Azure branch starts from its green merge commit `96c519a8c10b53d14e110d2e76b27171171fddc2`; it does not import post-merge commits from the old feature branch.
 
-The Services/Server acquisition library is now implemented below. Actual deployment/API/auth/TLS compatibility, traceability presentation, CLI acquisition and v0.4 remain deferred. Synthetic profiles cannot establish live Server support or certify arbitrary private aliases for publication. The earlier offline implementation review remains in `docs/validation/v0.3-offline-review.md`. PRs #17–20 are merged; no v0.3 release/tag exists, and this closure does not merge or release anything.
+The Services/Server acquisition library is now implemented below. Actual deployment/API/auth/TLS compatibility, traceability presentation, explorer acquisition integration and v0.4 remain deferred. Synthetic profiles cannot establish live Server support or certify arbitrary private aliases for publication. The earlier offline implementation review remains in `docs/validation/v0.3-offline-review.md`. PRs #17–21 are merged; no v0.3 release/tag exists, and this closure does not merge or release anything.
 
 ## First Azure provider increment
 
@@ -109,6 +109,17 @@ Base `5f4d66715cd765751ebf57da565925211fd6e79f` is the green PR #20 merge. Initi
 | AZ-R03 → AC353 | `azure_devops.py`: same reference limit on dedicated fallback | `test_az_r03_*` overlimit/exactlimit/malformed positives | VERIFIED (synthetic regression); independently re-reviewed CLOSED |
 | AZ-R04 → AC331/354 | `azure_dto.py`: pre-domain recognizable-private-path rejection | `test_az_r04_*` credential sentinel families and safe paths | VERIFIED (synthetic regression); independently re-reviewed CLOSED |
 
-Synthetic/runtime criteria cannot certify live Azure Server/Services API, TLS or authentication. Those remain MANUAL/PARTIAL. Package 0.2.0 is unchanged; local Azure connection/config flow and visual traceability presentation remain deferred. Next feature branch: `feat/v0.3-azure-local-connection`.
+Synthetic/runtime criteria cannot certify live Azure Server/Services API, TLS or authentication. Those remain MANUAL/PARTIAL. Package 0.2.0 is unchanged; the separate local Azure connection increment is recorded below; visual traceability presentation remains deferred.
 
 Final Azure closure decision is APPROVE from independent reviewer `/root/azure_independent_review`; AZ-R01–04 are CLOSED and no BLOCKER/MAJOR/MINOR remains in that inspected scope. This does not close the separate historical report-v3 whole-diff gate or certify a live deployment. Closure remote PR CI remains required; fresh local evidence is recorded in the closure verification, not inferred from prior totals.
+
+## Local connection increment
+
+| Requirements | Acceptance | Architecture / Implementation | Evidence | Status |
+| --- | --- | --- | --- | --- |
+| ECL-FR-340 | ECL-AC-357 | docs/azure-local-connection.md → azure_connection.py + cli.py | tests/test_azure_connection.py all-profile config projection, synthetic acquisition and section round trip | VERIFIED — synthetic automation; independent APPROVE |
+| ECL-FR-341 / ECL-NFR-319 | ECL-AC-358 | strict bounded private TOML + existing profile/map validation | missing approval, unknown/duplicate/secret keys, invalid types/bounds/identity, oversize, HTTP rejection and no acquisition | VERIFIED — synthetic automation; independent APPROVE |
+| ECL-FR-342 | ECL-AC-359 | hidden runtime-only prompt; anonymous opt-in | TTY checks, empty/EOF/interrupt, getpass fallback refusal, runtime transport input and sentinel exclusion | VERIFIED — synthetic automation; independent APPROVE |
+| ECL-FR-343 | ECL-AC-360 | existing provider → derive → section serializer; fixed diagnostics/status exits | COMPLETE/PARTIAL/FAILED round trips and raw error sanitization | VERIFIED — synthetic automation; independent APPROVE |
+
+No CLI synthetic result certifies a live Azure deployment, publication rights or PAT scopes; these remain MANUAL. Independent review decision and exact gate results are recorded in docs/validation/v0.3-azure-local-connection-verification.md.
