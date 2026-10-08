@@ -37,3 +37,12 @@ First implementation scope is offline, provider-neutral normalized evidence and 
 | ECL-NFR-406 | Verification observations are historical declared outcomes, not a live execution claim. Reproducibility retains artifact versions, selected populations, target snapshots, source boundaries, mapping and rule versions. |
 
 Non-goals: requirement/document NLP ingestion, inferred matching, test execution/orchestration, signing/certification, business correctness, architectural quality scoring, approval automation, live Azure/test-system adapters, v0.5 handover scoring, package/release change in this design PR.
+
+## Authorized offline implementation and demo increment
+
+The user requested a working v0.4 demo. Implement the first offline core plus an isolated synthetic presentation artifact, with no changes to existing Git envelope versions or generic report import.
+
+| ID | Requirement |
+| --- | --- |
+| ECL-FR-413 | Provide a clearly SYNTHETIC v0.4 demo with BASE, partial collection, stale target, conflicting observation and empty scenarios. Show original evidence identities/versions/snapshot, four coverage dimensions, separate historical outcomes, requirement code-chain evidence and gap/qualification explanations. Scenario choice changes only demo data, not the currently loaded Git report. |
+| ECL-FR-414 | Export the selected demo using its explicit v0.4-demo-1 artifact contract; do not present it as a browser-importable v1/v2/v3 Git report or claim it was acquired from a real source. |

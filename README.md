@@ -139,7 +139,7 @@ node --check ui/dist/model.js
 - **v0.1** Git engineering-continuity baseline
 - **v0.2** Provider-independent merged PR and review evidence: review coverage, reviewer concentration, and separate authorship-versus-review comparison
 - **v0.3** Artifact traceability is implemented: [offline paths/gaps/coverage](docs/offline-traceability.md), [report v3](docs/report-schema-v3.md), and a read-only [Azure DevOps provider](docs/azure-devops-provider.md) with Server current/7.2, Server2022.1/7.1, Server2022/7.0 and Services/7.2 target profiles. Synthetic REST validation and runtime-only PAT transport are implemented. A [local acquisition CLI](docs/azure-local-connection.md) accepts explicit non-secret TOML configuration and a hidden runtime PAT. Real deployment compatibility certification, Azure explorer integration and OAuth/NTLM/Kerberos remain deferred; validated reports can now be inspected in the [Traceability Explorer](docs/traceability-explorer.md); the package stays at 0.2.0 until v0.3 release preparation.
-- **v0.4** [Requirements, test and architecture evidence design](specs/v0.4/product-spec.md): explicit versioned associations and qualified historical verification outcomes; first runtime increment planned offline. No implementation/release claimed.
+- **v0.4** [Requirements, test and architecture evidence design](specs/v0.4/product-spec.md): implemented offline versioned associations, exact snapshot joins and qualified historical verification observations, with an isolated [synthetic browser demo](docs/v0.4-offline-demo.md). General v0.4 import/CLI and live acquisition remain deferred; no release claimed.
 - **v0.5** Technical handover verification
 
 ## Spec-driven development
