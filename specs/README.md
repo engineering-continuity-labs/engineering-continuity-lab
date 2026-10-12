@@ -37,3 +37,7 @@ v0.2 specification and design work is in [v0.2](v0.2/). It defines implemented p
 v0.3 [specifications](v0.3/product-spec.md) now cover implemented offline traceability, report v3, read-only Azure library/local CLI and the Traceability Explorer. [Traceability](v0.3/traceability.md) scopes automated evidence and remaining MANUAL live/visual checks; no v0.3 release is claimed. Trace status, collection status and governance verification are separate concepts.
 
 v0.4 [product design](v0.4/product-spec.md), [QA plan](v0.4/acceptance-criteria.md), [planned traceability](v0.4/traceability.md) and [architecture](../docs/v0.4-evidence-design.md) define the next requirements/test/architecture increment. No v0.4 runtime verification is claimed. v0.5 remains roadmap-only.
+
+## Proposed v0.5 roadmap decision
+
+The [v0.5 PO contract](v0.5/product-spec.md) explicitly proposes Engineering System Review (Delivery Flow + Quality/Defects + manager composition) and moves Technical Handover Verification to proposedv0.6. Historical v0.1–v0.4 text is preserved. v0.4 now includes portable reports/offline attachment, with verification recorded in its later increment artifacts. v0.5 [acceptance plan](v0.5/acceptance-criteria.md), [design traceability](v0.5/traceability.md) and [composition architecture](../docs/v0.5-engineering-system-review.md) are design only; they supersede the earlier roadmap-only v0.5 proposal prospectively, not historical runtime evidence. No v0.5 implementation/release claim.
