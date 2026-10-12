@@ -1,0 +1,466 @@
+# SYNTHETIC example. Replace all aliases/snapshot/lookups with approved project evidence.
+# Empty optional fields denote absence. Complete lookup declarations are source assertions.
+manifest_version = "1.0"
+publication_approved = true
+
+[collection]
+snapshot = { alias = "approved-code-baseline-v1", fingerprint = "b26229c267c1b00259d68713c0016536c292c975ed98b0f805cb6bfe7ba71678", repository = "demo-system", revision = "dddddddddddddddddddddddddddddddddddddddd" }
+boundary = "synthetic-evidence-v04"
+collected_at = "2026-01-01T00:00:00+00:00"
+status = "COMPLETE"
+limits = { artifacts = 1000, associations = 4000, paths = 10000, runs = 2000 }
+
+[[collection.artifacts]]
+document_kind = ""
+identifier = "Q1"
+instance = "synthetic-v04"
+kind = "REQUIREMENT"
+scope = "demo-project"
+version = "v1"
+
+[[collection.artifacts]]
+document_kind = ""
+identifier = "Q2"
+instance = "synthetic-v04"
+kind = "REQUIREMENT"
+scope = "demo-project"
+version = "v1"
+
+[[collection.artifacts]]
+document_kind = ""
+identifier = "Q3"
+instance = "synthetic-v04"
+kind = "REQUIREMENT"
+scope = "demo-project"
+version = "v1"
+
+[[collection.artifacts]]
+document_kind = ""
+identifier = "Q4"
+instance = "synthetic-v04"
+kind = "REQUIREMENT"
+scope = "demo-project"
+version = "v1"
+
+[[collection.artifacts]]
+document_kind = ""
+identifier = "T1"
+instance = "synthetic-v04"
+kind = "TEST"
+scope = "demo-project"
+version = "v1"
+
+[[collection.artifacts]]
+document_kind = ""
+identifier = "T2"
+instance = "synthetic-v04"
+kind = "TEST"
+scope = "demo-project"
+version = "v1"
+
+[[collection.artifacts]]
+document_kind = ""
+identifier = "T3"
+instance = "synthetic-v04"
+kind = "TEST"
+scope = "demo-project"
+version = "v1"
+
+[[collection.artifacts]]
+document_kind = ""
+identifier = "T4"
+instance = "synthetic-v04"
+kind = "TEST"
+scope = "demo-project"
+version = "v1"
+
+[[collection.artifacts]]
+document_kind = "ADR"
+identifier = "ADR1"
+instance = "synthetic-v04"
+kind = "ARCHITECTURE_DOCUMENT"
+scope = "demo-project"
+version = "v1"
+
+[[collection.artifacts]]
+document_kind = "ICD"
+identifier = "ICD1"
+instance = "synthetic-v04"
+kind = "ARCHITECTURE_DOCUMENT"
+scope = "demo-project"
+version = "v1"
+
+[[collection.associations]]
+boundary = "synthetic-evidence-v04"
+origin = "DIRECT_PROVIDER_LINK"
+relation = "DOCUMENT_COMPONENT"
+source = { document_kind = "ADR", identifier = "ADR1", instance = "synthetic-v04", kind = "ARCHITECTURE_DOCUMENT", scope = "demo-project", version = "v1" }
+target = { algorithm = "sha1", configuration = "depth-2", context = "directory", identifier = "src/catalog", instance = "offline", kind = "COMPONENT", provider = "source", repository = "demo-system", scope = "components" }
+
+[[collection.associations]]
+boundary = "synthetic-evidence-v04"
+origin = "DIRECT_PROVIDER_LINK"
+relation = "DOCUMENT_REQUIREMENT"
+source = { document_kind = "ADR", identifier = "ADR1", instance = "synthetic-v04", kind = "ARCHITECTURE_DOCUMENT", scope = "demo-project", version = "v1" }
+target = { document_kind = "", identifier = "Q1", instance = "synthetic-v04", kind = "REQUIREMENT", scope = "demo-project", version = "v1" }
+
+[[collection.associations]]
+boundary = "synthetic-evidence-v04"
+origin = "DIRECT_PROVIDER_LINK"
+relation = "DOCUMENT_REQUIREMENT"
+source = { document_kind = "ICD", identifier = "ICD1", instance = "synthetic-v04", kind = "ARCHITECTURE_DOCUMENT", scope = "demo-project", version = "v1" }
+target = { document_kind = "", identifier = "Q2", instance = "synthetic-v04", kind = "REQUIREMENT", scope = "demo-project", version = "v1" }
+
+[[collection.associations]]
+boundary = "synthetic-evidence-v04"
+origin = "DIRECT_PROVIDER_LINK"
+relation = "REQUIREMENT_WORK_ITEM"
+source = { document_kind = "", identifier = "Q1", instance = "synthetic-v04", kind = "REQUIREMENT", scope = "demo-project", version = "v1" }
+target = { algorithm = "sha1", configuration = "", context = "", identifier = "1001", instance = "ecl-traceability-demo", kind = "WORK_ITEM", provider = "synthetic", repository = "", scope = "demo-project" }
+
+[[collection.associations]]
+boundary = "synthetic-evidence-v04"
+origin = "DIRECT_PROVIDER_LINK"
+relation = "REQUIREMENT_WORK_ITEM"
+source = { document_kind = "", identifier = "Q2", instance = "synthetic-v04", kind = "REQUIREMENT", scope = "demo-project", version = "v1" }
+target = { algorithm = "sha1", configuration = "", context = "", identifier = "1002", instance = "ecl-traceability-demo", kind = "WORK_ITEM", provider = "synthetic", repository = "", scope = "demo-project" }
+
+[[collection.associations]]
+boundary = "synthetic-evidence-v04"
+origin = "DIRECT_PROVIDER_LINK"
+relation = "REQUIREMENT_WORK_ITEM"
+source = { document_kind = "", identifier = "Q3", instance = "synthetic-v04", kind = "REQUIREMENT", scope = "demo-project", version = "v1" }
+target = { algorithm = "sha1", configuration = "", context = "", identifier = "1003", instance = "ecl-traceability-demo", kind = "WORK_ITEM", provider = "synthetic", repository = "", scope = "demo-project" }
+
+[[collection.associations]]
+boundary = "synthetic-evidence-v04"
+origin = "DIRECT_PROVIDER_LINK"
+relation = "TEST_REQUIREMENT"
+source = { document_kind = "", identifier = "T1", instance = "synthetic-v04", kind = "TEST", scope = "demo-project", version = "v1" }
+target = { document_kind = "", identifier = "Q1", instance = "synthetic-v04", kind = "REQUIREMENT", scope = "demo-project", version = "v1" }
+
+[[collection.associations]]
+boundary = "synthetic-evidence-v04"
+origin = "DIRECT_PROVIDER_LINK"
+relation = "TEST_REQUIREMENT"
+source = { document_kind = "", identifier = "T2", instance = "synthetic-v04", kind = "TEST", scope = "demo-project", version = "v1" }
+target = { document_kind = "", identifier = "Q2", instance = "synthetic-v04", kind = "REQUIREMENT", scope = "demo-project", version = "v1" }
+
+[[collection.associations]]
+boundary = "synthetic-evidence-v04"
+origin = "DIRECT_PROVIDER_LINK"
+relation = "TEST_REQUIREMENT"
+source = { document_kind = "", identifier = "T3", instance = "synthetic-v04", kind = "TEST", scope = "demo-project", version = "v1" }
+target = { document_kind = "", identifier = "Q1", instance = "synthetic-v04", kind = "REQUIREMENT", scope = "demo-project", version = "v1" }
+
+[[collection.associations]]
+boundary = "synthetic-evidence-v04"
+origin = "DIRECT_PROVIDER_LINK"
+relation = "VERIFICATION_TEST"
+source = { document_kind = "", identifier = "V1", instance = "synthetic-v04", kind = "VERIFICATION", scope = "demo-project", version = "v1" }
+target = { document_kind = "", identifier = "T1", instance = "synthetic-v04", kind = "TEST", scope = "demo-project", version = "v1" }
+
+[[collection.associations]]
+boundary = "synthetic-evidence-v04"
+origin = "DIRECT_PROVIDER_LINK"
+relation = "VERIFICATION_TEST"
+source = { document_kind = "", identifier = "V2", instance = "synthetic-v04", kind = "VERIFICATION", scope = "demo-project", version = "v1" }
+target = { document_kind = "", identifier = "T2", instance = "synthetic-v04", kind = "TEST", scope = "demo-project", version = "v1" }
+
+[[collection.associations]]
+boundary = "synthetic-evidence-v04"
+origin = "DIRECT_PROVIDER_LINK"
+relation = "VERIFICATION_TEST"
+source = { document_kind = "", identifier = "V3", instance = "synthetic-v04", kind = "VERIFICATION", scope = "demo-project", version = "v1" }
+target = { document_kind = "", identifier = "T3", instance = "synthetic-v04", kind = "TEST", scope = "demo-project", version = "v1" }
+
+[[collection.associations]]
+boundary = "synthetic-evidence-v04"
+origin = "DIRECT_PROVIDER_LINK"
+relation = "VERIFICATION_TEST"
+source = { document_kind = "", identifier = "V4", instance = "synthetic-v04", kind = "VERIFICATION", scope = "demo-project", version = "v1" }
+target = { document_kind = "", identifier = "T4", instance = "synthetic-v04", kind = "TEST", scope = "demo-project", version = "v1" }
+
+[[collection.runs]]
+boundary = "synthetic-evidence-v04"
+group = ""
+observed_at = "2026-01-01T00:00:00+00:00"
+outcome = "FAIL"
+reference = { document_kind = "", identifier = "V2", instance = "synthetic-v04", kind = "VERIFICATION", scope = "demo-project", version = "v1" }
+target = { alias = "approved-code-baseline-v1", fingerprint = "b26229c267c1b00259d68713c0016536c292c975ed98b0f805cb6bfe7ba71678", repository = "demo-system", revision = "dddddddddddddddddddddddddddddddddddddddd" }
+test = { document_kind = "", identifier = "T2", instance = "synthetic-v04", kind = "TEST", scope = "demo-project", version = "v1" }
+
+[[collection.runs]]
+boundary = "synthetic-evidence-v04"
+group = ""
+observed_at = "2026-01-01T00:00:00+00:00"
+outcome = "PASS"
+reference = { document_kind = "", identifier = "V1", instance = "synthetic-v04", kind = "VERIFICATION", scope = "demo-project", version = "v1" }
+target = { alias = "approved-code-baseline-v1", fingerprint = "b26229c267c1b00259d68713c0016536c292c975ed98b0f805cb6bfe7ba71678", repository = "demo-system", revision = "dddddddddddddddddddddddddddddddddddddddd" }
+test = { document_kind = "", identifier = "T1", instance = "synthetic-v04", kind = "TEST", scope = "demo-project", version = "v1" }
+
+[[collection.runs]]
+boundary = "synthetic-evidence-v04"
+group = ""
+observed_at = "2026-01-01T00:00:00+00:00"
+outcome = "SKIPPED"
+reference = { document_kind = "", identifier = "V3", instance = "synthetic-v04", kind = "VERIFICATION", scope = "demo-project", version = "v1" }
+target = { alias = "approved-code-baseline-v1", fingerprint = "b26229c267c1b00259d68713c0016536c292c975ed98b0f805cb6bfe7ba71678", repository = "demo-system", revision = "dddddddddddddddddddddddddddddddddddddddd" }
+test = { document_kind = "", identifier = "T3", instance = "synthetic-v04", kind = "TEST", scope = "demo-project", version = "v1" }
+
+[[collection.runs]]
+boundary = "synthetic-evidence-v04"
+group = ""
+observed_at = "2026-01-01T00:00:00+00:00"
+outcome = "UNKNOWN"
+reference = { document_kind = "", identifier = "V4", instance = "synthetic-v04", kind = "VERIFICATION", scope = "demo-project", version = "v1" }
+target = { alias = "approved-code-baseline-v1", fingerprint = "b26229c267c1b00259d68713c0016536c292c975ed98b0f805cb6bfe7ba71678", repository = "demo-system", revision = "dddddddddddddddddddddddddddddddddddddddd" }
+test = { document_kind = "", identifier = "T4", instance = "synthetic-v04", kind = "TEST", scope = "demo-project", version = "v1" }
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "INBOUND"
+endpoint = { document_kind = "", identifier = "Q1", instance = "synthetic-v04", kind = "REQUIREMENT", scope = "demo-project", version = "v1" }
+population = ""
+relation = "DOCUMENT_REQUIREMENT"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "INBOUND"
+endpoint = { document_kind = "", identifier = "Q1", instance = "synthetic-v04", kind = "REQUIREMENT", scope = "demo-project", version = "v1" }
+population = ""
+relation = "TEST_REQUIREMENT"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "INBOUND"
+endpoint = { document_kind = "", identifier = "Q2", instance = "synthetic-v04", kind = "REQUIREMENT", scope = "demo-project", version = "v1" }
+population = ""
+relation = "DOCUMENT_REQUIREMENT"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "INBOUND"
+endpoint = { document_kind = "", identifier = "Q2", instance = "synthetic-v04", kind = "REQUIREMENT", scope = "demo-project", version = "v1" }
+population = ""
+relation = "TEST_REQUIREMENT"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "INBOUND"
+endpoint = { document_kind = "", identifier = "Q3", instance = "synthetic-v04", kind = "REQUIREMENT", scope = "demo-project", version = "v1" }
+population = ""
+relation = "DOCUMENT_REQUIREMENT"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "INBOUND"
+endpoint = { document_kind = "", identifier = "Q3", instance = "synthetic-v04", kind = "REQUIREMENT", scope = "demo-project", version = "v1" }
+population = ""
+relation = "TEST_REQUIREMENT"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "INBOUND"
+endpoint = { document_kind = "", identifier = "Q4", instance = "synthetic-v04", kind = "REQUIREMENT", scope = "demo-project", version = "v1" }
+population = ""
+relation = "DOCUMENT_REQUIREMENT"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "INBOUND"
+endpoint = { document_kind = "", identifier = "Q4", instance = "synthetic-v04", kind = "REQUIREMENT", scope = "demo-project", version = "v1" }
+population = ""
+relation = "TEST_REQUIREMENT"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "INBOUND"
+endpoint = { document_kind = "", identifier = "T1", instance = "synthetic-v04", kind = "TEST", scope = "demo-project", version = "v1" }
+population = ""
+relation = "VERIFICATION_TEST"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "INBOUND"
+endpoint = { document_kind = "", identifier = "T2", instance = "synthetic-v04", kind = "TEST", scope = "demo-project", version = "v1" }
+population = ""
+relation = "VERIFICATION_TEST"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "INBOUND"
+endpoint = { document_kind = "", identifier = "T3", instance = "synthetic-v04", kind = "TEST", scope = "demo-project", version = "v1" }
+population = ""
+relation = "VERIFICATION_TEST"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "INBOUND"
+endpoint = { document_kind = "", identifier = "T4", instance = "synthetic-v04", kind = "TEST", scope = "demo-project", version = "v1" }
+population = ""
+relation = "VERIFICATION_TEST"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "OUTBOUND"
+endpoint = ""
+population = "ARCHITECTURE_DOCUMENT"
+relation = ""
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "OUTBOUND"
+endpoint = ""
+population = "REQUIREMENT"
+relation = ""
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "OUTBOUND"
+endpoint = ""
+population = "TEST"
+relation = ""
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "OUTBOUND"
+endpoint = { document_kind = "", identifier = "Q1", instance = "synthetic-v04", kind = "REQUIREMENT", scope = "demo-project", version = "v1" }
+population = ""
+relation = "REQUIREMENT_WORK_ITEM"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "OUTBOUND"
+endpoint = { document_kind = "", identifier = "Q2", instance = "synthetic-v04", kind = "REQUIREMENT", scope = "demo-project", version = "v1" }
+population = ""
+relation = "REQUIREMENT_WORK_ITEM"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "OUTBOUND"
+endpoint = { document_kind = "", identifier = "Q3", instance = "synthetic-v04", kind = "REQUIREMENT", scope = "demo-project", version = "v1" }
+population = ""
+relation = "REQUIREMENT_WORK_ITEM"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "OUTBOUND"
+endpoint = { document_kind = "", identifier = "Q4", instance = "synthetic-v04", kind = "REQUIREMENT", scope = "demo-project", version = "v1" }
+population = ""
+relation = "REQUIREMENT_WORK_ITEM"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "OUTBOUND"
+endpoint = { document_kind = "", identifier = "T1", instance = "synthetic-v04", kind = "TEST", scope = "demo-project", version = "v1" }
+population = ""
+relation = "TEST_REQUIREMENT"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "OUTBOUND"
+endpoint = { document_kind = "", identifier = "T2", instance = "synthetic-v04", kind = "TEST", scope = "demo-project", version = "v1" }
+population = ""
+relation = "TEST_REQUIREMENT"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "OUTBOUND"
+endpoint = { document_kind = "", identifier = "T3", instance = "synthetic-v04", kind = "TEST", scope = "demo-project", version = "v1" }
+population = ""
+relation = "TEST_REQUIREMENT"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "OUTBOUND"
+endpoint = { document_kind = "", identifier = "T4", instance = "synthetic-v04", kind = "TEST", scope = "demo-project", version = "v1" }
+population = ""
+relation = "TEST_REQUIREMENT"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "OUTBOUND"
+endpoint = { document_kind = "", identifier = "V1", instance = "synthetic-v04", kind = "VERIFICATION", scope = "demo-project", version = "v1" }
+population = ""
+relation = "VERIFICATION_TEST"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "OUTBOUND"
+endpoint = { document_kind = "", identifier = "V2", instance = "synthetic-v04", kind = "VERIFICATION", scope = "demo-project", version = "v1" }
+population = ""
+relation = "VERIFICATION_TEST"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "OUTBOUND"
+endpoint = { document_kind = "", identifier = "V3", instance = "synthetic-v04", kind = "VERIFICATION", scope = "demo-project", version = "v1" }
+population = ""
+relation = "VERIFICATION_TEST"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "OUTBOUND"
+endpoint = { document_kind = "", identifier = "V4", instance = "synthetic-v04", kind = "VERIFICATION", scope = "demo-project", version = "v1" }
+population = ""
+relation = "VERIFICATION_TEST"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "OUTBOUND"
+endpoint = { document_kind = "ADR", identifier = "ADR1", instance = "synthetic-v04", kind = "ARCHITECTURE_DOCUMENT", scope = "demo-project", version = "v1" }
+population = ""
+relation = "DOCUMENT_COMPONENT"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "OUTBOUND"
+endpoint = { document_kind = "ADR", identifier = "ADR1", instance = "synthetic-v04", kind = "ARCHITECTURE_DOCUMENT", scope = "demo-project", version = "v1" }
+population = ""
+relation = "DOCUMENT_REQUIREMENT"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "OUTBOUND"
+endpoint = { document_kind = "ICD", identifier = "ICD1", instance = "synthetic-v04", kind = "ARCHITECTURE_DOCUMENT", scope = "demo-project", version = "v1" }
+population = ""
+relation = "DOCUMENT_COMPONENT"
+status = "COMPLETE"
+
+[[collection.lookups]]
+capability = "SUPPORTED"
+direction = "OUTBOUND"
+endpoint = { document_kind = "ICD", identifier = "ICD1", instance = "synthetic-v04", kind = "ARCHITECTURE_DOCUMENT", scope = "demo-project", version = "v1" }
+population = ""
+relation = "DOCUMENT_REQUIREMENT"
+status = "COMPLETE"

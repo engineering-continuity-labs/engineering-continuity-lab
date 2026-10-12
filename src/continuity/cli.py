@@ -36,11 +36,12 @@ def resolve_repository_input(explicit_source: str | None) -> str:
 def main(argv: list[str] | None = None) -> int:
     arguments = sys.argv[1:] if argv is None else argv
     azure_mode = bool(arguments and arguments[0] == "azure-acquire")
+    evidence_mode = bool(arguments and arguments[0] == "evidence-attach")
 
     class CommandParser(argparse.ArgumentParser):
         def error(self, message: str) -> NoReturn:
-            if azure_mode:
-                raise ValueError("invalid Azure command arguments")
+            if azure_mode or evidence_mode:
+                raise ValueError("invalid command arguments")
             super().error(message)
 
     parser = CommandParser(description="Experimental Git activity proxy for continuity risk")
@@ -66,11 +67,18 @@ def main(argv: list[str] | None = None) -> int:
     azure.add_argument("--config", type=Path, required=True, help="non-secret TOML connection file")
     azure.add_argument("--approve-publication", action="store_true", help="approve export of aliases, commit hashes and repository paths")
     azure.add_argument("--anonymous", action="store_true", help="do not prompt for a PAT")
+    attach = commands.add_parser("evidence-attach", help="attach explicitly approved offline evidence to a report-v3 snapshot")
+    attach.add_argument("--report", type=Path, required=True, help="existing report-v3 JSON")
+    attach.add_argument("--manifest", type=Path, required=True, help="approved offline TOML manifest (or normalized JSON)")
+    attach.add_argument("--output", type=Path, help="new output file; omit for stdout; existing files never overwritten")
     try:
         args = parser.parse_args(arguments)
     except ValueError:
-        print("continuity: invalid Azure command arguments", file=sys.stderr)
+        print("continuity: invalid offline evidence command arguments" if evidence_mode else "continuity: invalid Azure command arguments", file=sys.stderr)
         return 2
+    if args.command == "evidence-attach":
+        from continuity.offline_evidence import run as attach_run
+        return attach_run(args)
     if args.command == "azure-acquire":
         from continuity.azure_connection import run
         return run(args)

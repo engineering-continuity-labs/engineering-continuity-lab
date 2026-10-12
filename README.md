@@ -169,3 +169,13 @@ The read-only Azure provider independently acquires completed PRs, project work 
 Project-owned SYNTHETIC Azure-shaped responses validate this pipeline, including loopback HTTP. **Real Azure Server/Services compatibility remains MANUAL until tested in a dedicated non-sensitive live environment.** The normal Git explorer does not acquire Azure evidence automatically. The [local connection CLI](docs/azure-local-connection.md) emits a standalone report-v3 traceability section; browser/explorer connection integration, OAuth/NTLM/Kerberos remain deferred; validated reports can now be inspected in the [Traceability Explorer](docs/traceability-explorer.md). Package version 0.2.0 and releases v0.1.0/v0.2.0 remain unchanged; v0.3 is implemented in increments and has not been released.
 
 See [provider usage and limits](docs/azure-devops-provider.md), [offline traceability](docs/offline-traceability.md), [report-v3 schema](docs/report-schema-v3.md), [traceability matrix](specs/v0.3/traceability.md), [independent provider review](docs/validation/v0.3-azure-provider-review.md) and [closure verification](docs/validation/v0.3-closure-verification.md).
+
+### Portable offline requirement evidence (v0.4 feature, package0.2.0)
+
+Attach an explicitly approved TOML manifest to a public traceability report:
+
+```sh
+continuity evidence-attach --report traceability-v3.json --manifest evidence.toml --output report-v4.json
+```
+
+Open the report4.0 output in the existing four-area Explorer; Overview, Traceability and Reviews & Verification display report-owned requirement/architecture/test/historical observations. [Offline guide](docs/v0.4-offline-evidence.md), [example manifest](examples/v0.4-evidence.toml), [schema](docs/report-schema-v4.md). No inference/network/test execution; aliases require source-owner approval. Existing v1/v2/v3 and Atlas/eShop separation remain; no release/tag/version bump.
