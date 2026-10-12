@@ -55,3 +55,12 @@ test('TOML CLI → actual four-area UI → browser export → Python import and 
   element('showcase-demo').onclick();assert.equal(element('source-type').textContent,'SYNTHETIC');assert.match(element('overview-content').innerHTML,/2 \/ 4/);
  }finally{globalThis.document=previous.document;globalThis.location=previous.location;URL.createObjectURL=previous.create;URL.revokeObjectURL=previous.revoke;}
 });
+
+
+test('in-bound dense v4 export stays compact/importable and preserves legacy formatting',()=>{
+ const report={model:'experimental-v0.1',report_version:'4.0',revision:'synthetic',as_of:'2026-01-01T00:00:00+00:00',commit_count:0,components:[],filters:{authors:Array(850000).fill('a')}};
+ const raw=JSON.stringify(report);assert.ok(Buffer.byteLength(raw)<8*1024*1024);
+ const exported=exportReport(importReport(raw));assert.ok(Buffer.byteLength(exported)<8*1024*1024);assert.doesNotMatch(exported,/\n/);assert.deepEqual(importReport(exported),report);
+ const result=JSON.parse(execFileSync(python,['-c',"import sys;from continuity.reporting.portable import report_from_json;v=report_from_json(sys.stdin.read());import json;print(json.dumps({'version':v['report_version'],'aliases':len(v['filters']['authors'])}))"],{cwd:root,input:exported,encoding:'utf8',maxBuffer:16*1024*1024}));assert.deepEqual(result,{version:'4.0',aliases:850000});
+ const legacy={...report,report_version:'3.0',filters:{authors:['approved']}};assert.match(exportReport(legacy),/\n/);
+});

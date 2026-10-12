@@ -563,7 +563,7 @@ function uniqueJsonObjects(json){
  };
  value(0);space();if(index!==json.length)throw reportError();
 }
-export function exportReport(report){try{const validated=validateReport(report);const output=JSON.stringify(validated.report_version==='4.0'?canonicalPortable(validated):validated,null,2);if(validated.report_version==='4.0'&&new TextEncoder().encode(output).length>8*1024*1024)throw reportError();return output;}catch{throw reportError();}}
+export function exportReport(report){try{const validated=validateReport(report);const output=JSON.stringify(validated.report_version==='4.0'?canonicalPortable(validated):validated,null,validated.report_version==='4.0'?0:2);if(validated.report_version==='4.0'&&new TextEncoder().encode(output).length>8*1024*1024)throw reportError();return output;}catch{throw reportError();}}
 export function importReport(json){try{uniqueJsonObjects(json);const parsed=JSON.parse(json);if(parsed?.report_version==='4.0'&&new TextEncoder().encode(json).length>8*1024*1024)throw reportError();return validateReport(parsed);}catch{throw reportError();}}
 export function validateReport(r){try{return validateReportValue(r);}catch{throw reportError();}}
 function validateReportValue(r){
