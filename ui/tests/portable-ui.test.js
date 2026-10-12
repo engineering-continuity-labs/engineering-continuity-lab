@@ -50,6 +50,7 @@ test('TOML CLI → actual four-area UI → browser export → Python import and 
   element('export').onclick();const exported=await blob.text();assert.deepEqual(importReport(exported),portable);
   const reopened=JSON.parse(execFileSync(python,['-c',"import sys;from continuity.reporting.portable import report_from_json,report_to_json;print(report_to_json(report_from_json(sys.stdin.read())))"],{cwd:root,input:exported,encoding:'utf8',maxBuffer:16*1024*1024}));assert.deepEqual(reopened,portable);
   await upload(raw.replace('"report_version":"4.0"','"report_version":"99.0"'));assert.equal(element('overview-content').innerHTML,overview);assert.doesNotMatch(element('message').textContent,/99\.0/);
+  await element('upload').onchange({target:{files:[{size:1,name:'bad-utf8.json',arrayBuffer:async()=>new Uint8Array([255]).buffer}],value:'x'}});assert.equal(element('overview-content').innerHTML,overview);assert.equal(element('message').textContent,'Select a valid continuity analyze JSON report. Person and departure exports are not supported here.');
   element('demo').onclick();assert.match(element('requirements-content').innerHTML,/Unavailable/i);assert.match(element('portable-verification-content').innerHTML,/No attached/);
   element('showcase-demo').onclick();assert.equal(element('source-type').textContent,'SYNTHETIC');assert.match(element('overview-content').innerHTML,/2 \/ 4/);
  }finally{globalThis.document=previous.document;globalThis.location=previous.location;URL.createObjectURL=previous.create;URL.revokeObjectURL=previous.revoke;}

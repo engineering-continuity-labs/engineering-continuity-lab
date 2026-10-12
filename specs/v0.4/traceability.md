@@ -35,7 +35,7 @@ Implementation paths are under `src/continuity/`. Automated Python evidence is `
 
 Final evidence and independent review: docs/validation/v0.4-product-experience-verification.md. No portable backend, version bump/release/tag or v0.5 work is claimed. FR415–420/AC419–424 are reserved by the separate unfinished portable branch and are not reused.
 
-## Portable offline increment (independent review and CI pending)
+## Portable offline increment (independent APPROVE; final-head CI required)
 
 | Requirement | Acceptance | Design | Implementation | Planned/actual evidence |
 | --- | --- | --- | --- | --- |
@@ -46,4 +46,4 @@ Final evidence and independent review: docs/validation/v0.4-product-experience-v
 | FR432 | AC432,436 | whole public boundary | portable_public.py; portable-public.js | private/unknown/Unicode/input/output/error negatives |
 | FR433 | AC437 | preserve four-area presenters | app/experience/verification.js | actual TOML CLI→UI→export→Python plus sample isolation |
 
-Verification and read-only review artifacts: docs/validation/v0.4-portable-evidence-verification.md and v0.4-portable-evidence-review.md. No VERIFIED final status until actual final evidence; source approval/live/OS checks remain MANUAL. Earlier draft-reserved IDs remain unclaimed.
+Verification and read-only review artifacts: docs/validation/v0.4-portable-evidence-verification.md and v0.4-portable-evidence-review.md. Automated scope VERIFIED by258 Python/50 Node and fresh type/syntax/generator/wheel checks; independent APPROVE with PE-R01–06 closed. Final pushed-head CI required before merge; source approval/live/OS checks remain MANUAL. Earlier draft-reserved IDs remain unclaimed.
