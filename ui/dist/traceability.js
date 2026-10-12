@@ -3,7 +3,7 @@ const esc=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>
 const refKey=ref=>JSON.stringify(['kind','provider','instance','scope','repository','identifier','context','configuration','algorithm'].map(key=>ref[key]));
 const refText=ref=>`${ref.kind} ${ref.identifier} · ${ref.provider}/${ref.instance}/${ref.scope}${ref.repository?' · repository '+ref.repository:''}${ref.context?' · context '+ref.context:''}${ref.configuration?' · configuration '+ref.configuration:''} · algorithm ${ref.algorithm}`;
 const ref=artifact=>`<span class="trace-reference">${esc(refText(artifact))}</span>`;
-const label=value=>`<span class="trace-status">${esc(value)}</span>`;
+const label=value=>`<span class="trace-status ${esc(value)}">${esc(value)}</span>`;
 const empty=text=>`<p class="empty">${esc(text)}</p>`;
 export function traceComponents(section){return [...new Set(section.result.paths.flatMap(path=>path.nodes.filter(node=>node.kind==='COMPONENT').map(node=>node.identifier)))].sort();}
 export function filteredPaths(section,{component='',status='',query=''}={}){

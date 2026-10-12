@@ -46,3 +46,17 @@ The user requested a working v0.4 demo. Implement the first offline core plus an
 | --- | --- |
 | ECL-FR-413 | Provide a clearly SYNTHETIC v0.4 demo with BASE, partial collection, stale target, conflicting observation and empty scenarios. Show original evidence identities/versions/snapshot, four coverage dimensions, separate historical outcomes, requirement code-chain evidence and gap/qualification explanations. Scenario choice changes only demo data, not the currently loaded Git report. |
 | ECL-FR-414 | Export the selected demo using its explicit v0.4-demo-1 artifact contract; do not present it as a browser-importable v1/v2/v3 Git report or claim it was acquired from a real source. |
+
+## Product experience increment
+
+FR415–420 are reserved by a separate unfinished portable-report branch and are not implemented/claimed here. No prior IDs are renumbered.
+
+| ID | Observable requirement |
+| --- | --- |
+| ECL-FR-421 | Organize the first-time experience around Overview, Continuity, Traceability and Reviews & Verification; component-first exploration and secondary historical people/scenario details replace eight competing primary tabs. |
+| ECL-FR-422 | Default to a clearly SYNTHETIC coherent Atlas Commerce showcase; offer the unchanged public eShop validation sample separately. Explicit source switching replaces the displayed report without mutating prior reports; imports never silently acquire showcase facts. |
+| ECL-FR-423 | Bundle meaningful review source events spanning merged PRs/components/authors/reviewers, approved/changes-requested/commented/repeated events, self/bot exclusions, unreviewed and multi-component PRs, coverage below100% and different concentration patterns; use existing derivation, never hand-authored aggregates. |
+| ECL-FR-424 | Overview exposes separate truthful available component/concentration/review/implementation/requirement/test dimensions and gaps, with counts/status; unavailable is not zero and overlapping component PR counts never inflate global coverage. |
+| ECL-FR-425 | Present implementation/requirement/architecture/test connections as one traceability story and distinguish PR reviews from exact-version/target historical observations; retain complete provenance, exclusions and status behind accessible inspectors. |
+| ECL-FR-426 | Missing evidence provides informative unavailable states and collection guidance; synthetic samples cannot be mistaken for user/public evidence. Version/schema terms belong in advanced metadata, and header makes no unverified release claim. |
+| ECL-FR-427 | Preserve native keyboard-operable controls, clear focus and status/source distinction, wrapping primary navigation and contained table overflow; user report upload/export, legacy contracts and existing synthetic scenario semantics remain intact. |

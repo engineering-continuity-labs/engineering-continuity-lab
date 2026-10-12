@@ -58,7 +58,7 @@ test('actual app sample/tab/filter/upload/export handlers preserve evidence and 
  const oldDocument=globalThis.document,oldLocation=globalThis.location,oldURL=URL.createObjectURL,oldRevoke=URL.revokeObjectURL;let blob;
  globalThis.document={getElementById:element,querySelectorAll:()=>[],createElement:()=>({click(){}})};globalThis.location={hostname:'engineering-continuity-labs.github.io'};URL.createObjectURL=value=>{blob=value;return'blob:test';};URL.revokeObjectURL=()=>{};
  try{
-  await import('../dist/app.js');assert.match(element('trace-content').innerHTML,/Traceability unavailable/);
+  await import('../dist/app.js');element('demo').onclick();assert.match(element('trace-content').innerHTML,/Traceability unavailable/);
   element('trace-demo').onclick();assert.equal(element('traceability').hidden,false);assert.match(element('trace-content').innerHTML,/3 \/ 4/);
   element('trace-component').value='src/payments';element('trace-component').onchange();element('trace-state').value='VERIFIED';element('trace-state').onchange();element('trace-search').value='missing-artifact';element('trace-search').oninput();assert.match(element('trace-content').innerHTML,/Paths · 0 of/);
   element('export').onclick();const saved=await blob.text();assert.deepEqual(importReport(saved).traceability_evidence,sample.traceability_evidence);

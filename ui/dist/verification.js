@@ -1,7 +1,7 @@
 /** Render only bundled, Python-derived SYNTHETIC v0.4 artifacts. No import API. */
 const esc=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const ref=value=>`${esc(value.document_kind||value.kind)} ${esc(value.identifier)}${value.version?' @ '+esc(value.version):''} · ${esc(value.instance)}/${esc(value.scope)}${value.repository?' · repository '+esc(value.repository):''}${value.provider?' · provider '+esc(value.provider):''}${value.context?' · context '+esc(value.context):''}${value.configuration?' · mapping '+esc(value.configuration):''}${value.algorithm?' · algorithm '+esc(value.algorithm):''}`;
-const badge=value=>`<span class="trace-status">${esc(value)}</span>`;
+const badge=value=>`<span class="trace-status ${esc(value)}">${esc(value)}</span>`;
 export function renderVerification(report){
  if(report?.schema_version!=='v0.4-demo-1'||report.synthetic!==true)throw Error('Select a bundled synthetic v0.4 evidence scenario.');
  return `<h2>Requirements, tests and architecture evidence</h2><p>${badge('SYNTHETIC')} Collection ${badge(report.collection_status)} · Rule ${esc(report.rule_version)}</p><p class="privacy">${esc(report.warning)}</p>

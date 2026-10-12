@@ -19,3 +19,18 @@ Accepted design is implemented for the offline increment below. Generic report-e
 | NFR406 | AC403,405–406,416 | Historical provenance | typed snapshots/runs + serializer | version/target/time/outcome tests | VERIFIED synthetic / MANUAL live |
 
 Implementation paths are under `src/continuity/`. Automated Python evidence is `tests/test_verification_evidence.py`; browser evidence is `ui/tests/verification-ui.test.js` plus legacy tests. Exact validation and review: `docs/validation/v0.4-offline-demo-verification.md`. VERIFIED refers to the named automated scope, not live correctness or unperformed manual browser interaction. Package remains 0.2.0; no release/tag created.
+
+
+## Product experience increment (independent APPROVE; final-head CI required)
+
+| Requirement | Acceptance | Design | Implementation | Verification |
+| --- | --- | --- | --- | --- |
+| FR421 | AC425,431 | product-experience-v0.4 PO journey | app.js/index.html/pages.css | product-experience.test.js navigation/native structure |
+| FR422 | AC426,430 | explicit selected source/context | generator/showcase.js + app.js | actual source/upload/export/context tests |
+| FR423 | AC427 | existing review derivation | scripts/generate_showcase.py | test_product_showcase.py exact oracle; browser validator |
+| FR424 | AC428 | distinct selected PR units/full metrics | experience.js | full-source4/6, requirement2/4, null/absent tests |
+| FR425 | AC429 | concise story + full inspectors | experience.js + original renderers | path/review/observation/safe text tests |
+| FR426 | AC430 | unavailable/source/version terminology | app/index/presenters | missing states, sample isolation, no stale header |
+| FR427 | AC431 | native controls/wrapped UI | app/index/pages.css | actual handlers/keyboard hooks/full legacy regression; OS visual MANUAL |
+
+Final evidence and independent review: docs/validation/v0.4-product-experience-verification.md. No portable backend, version bump/release/tag or v0.5 work is claimed. FR415–420/AC419–424 are reserved by the separate unfinished portable branch and are not reused.

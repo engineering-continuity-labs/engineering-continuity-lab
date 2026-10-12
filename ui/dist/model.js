@@ -599,3 +599,6 @@ export function demoReport(){
  });
  return{model:'experimental-v0.1',revision:'synthetic-demo',as_of:'2026-09-01T00:00:00+00:00',commit_count:240,shallow:false,components,configuration:{component_depth:2},filters:{exclude_bots:false,exclude_generated:false}};
 }
+
+// Presentation-only reuse of the unchanged effective-review rules.
+export {qualifyingEvidence};
