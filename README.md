@@ -8,7 +8,7 @@ Engineering Continuity Lab analyzes local Git history. It makes evidence, assump
 
 <https://engineering-continuity-labs.github.io/engineering-continuity-lab/>
 
-The public demo opens with a static analysis report for [dotnet/eShop](https://github.com/dotnet/eShop) at the documented validation revision. It is historical Git evidence only, packaged with this site; it does not clone or contact eShop. You can load a compatible local JSON report, which remains only in browser memory and is never uploaded or persisted. The source and methodology are available in this repository. Maintainers can find deployment details in [GitHub Pages demo](docs/github-pages.md).
+The public demo starts with **Atlas Commerce · SYNTHETIC**, a fictional software system with derived component, review, implementation and declared requirement/test evidence. Four areas—Overview, Continuity, Traceability, and Reviews & Verification—follow the engineering questions. The **Public eShop Validation Sample** remains separately available at its documented revision with explicitly PARTIAL review collection. Both are bundled; the site does not clone or contact eShop. You can load a compatible local JSON report, which remains only in browser memory and is never uploaded or persisted. The source and methodology are available in this repository. Maintainers can find deployment details in [GitHub Pages demo](docs/github-pages.md).
 
 ```mermaid
 flowchart LR
@@ -139,7 +139,7 @@ node --check ui/dist/model.js
 - **v0.1** Git engineering-continuity baseline
 - **v0.2** Provider-independent merged PR and review evidence: review coverage, reviewer concentration, and separate authorship-versus-review comparison
 - **v0.3** Artifact traceability is implemented: [offline paths/gaps/coverage](docs/offline-traceability.md), [report v3](docs/report-schema-v3.md), and a read-only [Azure DevOps provider](docs/azure-devops-provider.md) with Server current/7.2, Server2022.1/7.1, Server2022/7.0 and Services/7.2 target profiles. Synthetic REST validation and runtime-only PAT transport are implemented. A [local acquisition CLI](docs/azure-local-connection.md) accepts explicit non-secret TOML configuration and a hidden runtime PAT. Real deployment compatibility certification, Azure explorer integration and OAuth/NTLM/Kerberos remain deferred; validated reports can now be inspected in the [Traceability Explorer](docs/traceability-explorer.md); the package stays at 0.2.0 until v0.3 release preparation.
-- **v0.4** [Requirements, test and architecture evidence design](specs/v0.4/product-spec.md): implemented offline versioned associations, exact snapshot joins and qualified historical verification observations, with an isolated [synthetic browser demo](docs/v0.4-offline-demo.md). General v0.4 import/CLI and live acquisition remain deferred; no release claimed.
+- **v0.4** [Requirements, test and architecture evidence design](specs/v0.4/product-spec.md): implemented offline versioned associations, exact snapshot joins and qualified historical verification observations, with a coherent [product showcase and isolated synthetic scenario inspector](docs/v0.4-offline-demo.md). General v0.4 import/CLI and live acquisition remain deferred; no release claimed.
 - **v0.5** Technical handover verification
 
 ## Spec-driven development
@@ -158,7 +158,7 @@ The local explorer optionally collects public GitHub review evidence, separately
 
 Review-capable reports add `report_version: "2.0"`; `model: "experimental-v0.1"` continues to identify unchanged Git scoring. Existing Git-only JSON remains valid. Export Analysis Report downloads the entire validated report; reopening it retains review provenance, completeness, events, coverage and concentration. Invalid review structures are rejected.
 
-The [static demo](https://engineering-continuity-labs.github.io/engineering-continuity-lab/) bundles a normalized, explicitly PARTIAL eShop snapshot and makes no GitHub API requests. Its Git baseline remains at the documented fixed revision; review evidence has a separate collection time/boundary. See [collection results](docs/validation/eshop-v0.2-summary.json), [design](docs/review-evidence.md), and [completion evidence](docs/validation/v0.2-completion.md). To repeat the manual public run from a source checkout: `python scripts/validate_eshop_reviews.py`. That command refreshes the bundled normalized snapshot and summary; public rate limits may prevent completion.
+The [static demo](https://engineering-continuity-labs.github.io/engineering-continuity-lab/) defaults to a project-owned synthetic product showcase and keeps the normalized, explicitly PARTIAL eShop snapshot as a separate validation sample. It makes no GitHub API requests. Its Git baseline remains at the documented fixed revision; review evidence has a separate collection time/boundary. See [collection results](docs/validation/eshop-v0.2-summary.json), [design](docs/review-evidence.md), and [completion evidence](docs/validation/v0.2-completion.md). To repeat the manual public run from a source checkout: `python scripts/validate_eshop_reviews.py`. That command refreshes the bundled normalized snapshot and summary; public rate limits may prevent completion.
 
 ## v0.3 Traceability, Report v3 and Azure Provider
 

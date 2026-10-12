@@ -15,6 +15,7 @@ test('static Reviews render, export and reopen retain the exact rows and provena
  URL.createObjectURL=value=>{blob=value;return'blob:test';};URL.revokeObjectURL=()=>{};
  try{
   await import('../dist/app.js');
+  element('demo').onclick(); // Explicit public validation sample; showcase is now default.
   assert.ok(element('review-rows').innerHTML.includes('PARTIAL'));
   assert.ok(element('review-summary').textContent.includes(sample.provenance.provenance.evidence_boundary));
   assert.ok(element('review-summary').textContent.includes(sample.provenance.provenance.retrieved_at));

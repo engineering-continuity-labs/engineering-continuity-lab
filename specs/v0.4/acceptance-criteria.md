@@ -44,3 +44,15 @@ AC401–416 now target the offline core in this increment. Exact/hard/soft limit
 | ECL-AC-418 | Actual tab/scenario/export handlers preserve the loaded Git report, label SYNTHETIC and artifact format, escape text and provide labelled native controls; old import rejects v0.4-demo-1 while existing v1/v2/v3 imports remain compatible. |
 
 Manual: actual source publication/version authenticity, real adapters/test execution and OS visual/keyboard checks remain MANUAL. Demo is historical synthetic evidence only. CI must regenerate/compare bundled artifact and test actual handlers; independent review and green final-head CI required before authorized merge.
+
+## Product experience acceptance (PO, before design)
+
+| ID | Observable criterion |
+| --- | --- |
+| ECL-AC-425 | Exactly four user-level primary areas and Overview default; component-first Continuity contains secondary contributors/files/scenario controls. |
+| ECL-AC-426 | Initial Atlas Commerce is visibly SYNTHETIC, validates as existing report-v3; eShop remains explicit public/PARTIAL sample; upload switches to only report-owned evidence and sample switching preserves input objects. |
+| ECL-AC-427 | Generated review source includes required states/authors/reviewers/exclusions/unreviewed/multi-component/repeated events; existing review derivation produces nonempty rows, coverage<100% and correct distinct PR coverage/HHI/risk. |
+| ECL-AC-428 | Overview uses distinct-source PR numerator/denominator and existing qualified requirement metrics only for the selected matching showcase; absent/null evidence renders Unavailable, not0%, without combined readiness score. |
+| ECL-AC-429 | Concise code/requirement/test summaries and drilldowns retain exact supports/bounds/versions/qualification/gaps; PR review and historical test observations stay separate with understandable limits. |
+| ECL-AC-430 | Absent review/trace/requirement evidence explains unavailable and acquisition limits; no stale released-version claim; changing isolated scenarios leaves current report/overview unchanged. |
+| ECL-AC-431 | Actual DOM handlers support primary/secondary navigation, native keyboard activation and upload/export/error-state preservation; strings escaped, responsive wrapping/table containment, full legacy and v0.4 regression plus independent review/CI. OS visual/keyboard/mobile remains MANUAL until actually exercised. |
