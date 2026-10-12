@@ -11,7 +11,7 @@ const timestamp=v=>text(v)&&/(Z|[+-]\d{2}:\d{2})$/.test(v)&&Number.isFinite(Date
 const statuses=['COMPLETE','PARTIAL','FAILED'];
 function qualifyingEvidence(pr,portable=false){
  const fold=portable?casefold:value=>value.toLowerCase();
- const time=value=>portable?traceInstant(value):Date.parse(value);
+ const time=value=>{if(!portable)return Date.parse(value);const instant=traceInstant(value),fraction=(instant%1000000n+1000000n)%1000000n;return Number((instant-fraction)/1000000n)+Number(fraction)/1000000;};
  const newest=new Map(),missing=[];
  const compare=(a,b)=>{const ta=a.submitted_at===null?null:time(a.submitted_at),tb=b.submitted_at===null?null:time(b.submitted_at);return ta!==tb?(ta===null?-1:tb===null?1:ta<tb?-1:1):((a.provider_order??-1)-(b.provider_order??-1))||(portable?compareText(a.identifier,b.identifier):(a.identifier<b.identifier?-1:a.identifier>b.identifier?1:0));};
  for(const event of pr.reviews){
@@ -563,7 +563,7 @@ function uniqueJsonObjects(json){
  };
  value(0);space();if(index!==json.length)throw reportError();
 }
-export function exportReport(report){try{const validated=validateReport(report);return JSON.stringify(validated.report_version==='4.0'?canonicalPortable(validated):validated,null,2);}catch{throw reportError();}}
+export function exportReport(report){try{const validated=validateReport(report);const output=JSON.stringify(validated.report_version==='4.0'?canonicalPortable(validated):validated,null,2);if(validated.report_version==='4.0'&&new TextEncoder().encode(output).length>8*1024*1024)throw reportError();return output;}catch{throw reportError();}}
 export function importReport(json){try{uniqueJsonObjects(json);const parsed=JSON.parse(json);if(parsed?.report_version==='4.0'&&new TextEncoder().encode(json).length>8*1024*1024)throw reportError();return validateReport(parsed);}catch{throw reportError();}}
 export function validateReport(r){try{return validateReportValue(r);}catch{throw reportError();}}
 function validateReportValue(r){

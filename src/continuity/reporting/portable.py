@@ -159,7 +159,7 @@ def verification_to_dict(collection: Collection) -> dict[str, Any]:
     return {'schema_version':'1.0','collection':raw,'result':result_to_dict(derive(parsed))}
 
 
-def verification_from_dict(value: Any, code: TraceabilityReport) -> Collection:
+def _verification_from_dict(value: Any, code: TraceabilityReport) -> Collection:
     safe_json(value)
     data = exact(value, {'schema_version','collection','result'})
     if data['schema_version'] != '1.0':
@@ -197,6 +197,7 @@ def validate_v4(value: Any) -> dict[str, Any]:
         validate_public(value)
         legacy = {k:v for k,v in value.items() if k != 'verification_evidence'}
         legacy['report_version'] = '3.0'
+        legacy['commit_count'] = integral(legacy['commit_count'])
         validate_report_envelope(legacy)
         from continuity.reporting.portable_git import validate_git
         validate_git(legacy)
@@ -217,7 +218,7 @@ def with_verification_evidence(value: dict[str, Any], collection: Collection) ->
     validate_report_envelope(value)
     if value.get('report_version') != '3.0' or 'traceability_evidence' not in value:
         raise ValueError('a compatible report-v3 snapshot is required')
-    if canonical(traceability_to_dict(collection.code)) != canonical(value['traceability_evidence']):
+    if canonical(traceability_to_dict(collection.code)) != canonical(traceability_to_dict(traceability_from_dict(value['traceability_evidence']))):
         raise ValueError('invalid code snapshot input')
     return validate_v4({**value,'report_version':'4.0','verification_evidence':verification_to_dict(collection)})
 
@@ -236,11 +237,17 @@ def report_to_json(value: dict[str, Any]) -> str:
     if 'verification_evidence' in normalized:
         collection = verification_from_dict(normalized['verification_evidence'], code)
         normalized['verification_evidence'] = verification_to_dict(collection)
-    return canonical(normalized)
+    public = wire_numbers({k:v for k,v in normalized.items() if k != 'traceability_evidence'})
+    if 'traceability_evidence' in normalized:
+        public['traceability_evidence'] = normalized['traceability_evidence']
+    output = canonical(public)
+    if len(output.encode('utf-8')) > MAX_BYTES:
+        raise ValueError('invalid portable evidence report')
+    return output
 
 
 def verification_to_json(collection: Collection) -> str:
-    return canonical(verification_to_dict(collection))
+    return canonical(wire_numbers(verification_to_dict(collection)))
 
 
 def verification_from_json(value: str | bytes, code: TraceabilityReport) -> Collection:
@@ -280,12 +287,34 @@ def manifest_from_toml(value: str | bytes, code: TraceabilityReport) -> Collecti
         data = tomllib.loads(raw.decode('utf-8',errors='strict'))
         safe_json(data)
         # TOML has no null; empty optional field strings explicitly map to absent.
-        c = data.get('collection', {})
-        for r in c.get('runs', []):
+        exact(data, {'manifest_version','publication_approved','collection'})
+        c = exact(data['collection'], COLLECTION_KEYS)
+        for name in ('artifacts','associations','runs','lookups'):
+            if not isinstance(c[name],list):
+                raise ValueError('invalid evidence manifest population')
+        for r in c['runs']:
+            exact(r, {'reference','test','target','observed_at','outcome','boundary','group'})
             if r.get('group') == '': r['group'] = None
-        for l in c.get('lookups', []):
+        for l in c['lookups']:
+            exact(l, {'endpoint','relation','population','direction','status','capability'})
             for key in ('endpoint','relation','population'):
                 if l.get(key) == '': l[key] = None
         return manifest_from_json(canonical(data),code)
     except (ValueError,TypeError,KeyError,UnicodeError,OverflowError,RecursionError):
         raise ValueError('invalid or unapproved evidence manifest') from None
+
+
+def verification_from_dict(value: Any, code: TraceabilityReport) -> Collection:
+    try:
+        return _verification_from_dict(value,code)
+    except (ValueError,TypeError,KeyError,OverflowError,UnicodeError,RecursionError):
+        raise ValueError('invalid portable evidence section') from None
+
+
+def wire_numbers(value: Any) -> Any:
+    if isinstance(value,float) and value.is_integer(): return int(value)
+    if isinstance(value,list): return [wire_numbers(v) for v in value]
+    if isinstance(value,dict):
+        times={'as_of','retrieved_at','merged_at','submitted_at','first_activity','last_activity','collected_at','observed_at','start','end'}
+        return {k:instant(v).isoformat() if k in times and isinstance(v,str) else wire_numbers(v) for k,v in value.items()}
+    return value

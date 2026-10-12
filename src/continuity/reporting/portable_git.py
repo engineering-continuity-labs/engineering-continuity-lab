@@ -71,7 +71,7 @@ def validate_git(value: dict[str, Any]) -> None:
 
 
 def validate_reviews(review: Any) -> None:
-    from continuity.reporting.portable import instant
+    from continuity.reporting.portable import instant, semantic_equal
     from continuity.domain.reviews import (ReviewIdentity, ReviewEvent, ReviewState, PullRequestEvidence,
                                            ProviderProvenance, ReviewEvidenceCollection, CollectionStatus)
     from continuity.domain.models import DirectoryComponents
@@ -104,6 +104,9 @@ def validate_reviews(review: Any) -> None:
     depth=review.get('component_depth')
     if depth is not None and (not count(depth) or depth < 1):
         raise ValueError('invalid review depth')
+    for row in review['components']:
+        if not isinstance(row,dict) or any(not count(row.get(k)) for k in ('mapped_pull_requests','covered_pull_requests')) or not isinstance(row.get('reviewer_units'),dict) or any(not text(k) or not count(n) or n < 1 for k,n in row['reviewer_units'].items()) or not isinstance(row.get('excluded_reasons'),dict) or any(not text(k) or not count(n) for k,n in row['excluded_reasons'].items()):
+            raise ValueError('invalid review aggregate counts')
     if depth is not None:
         expected=asdict(analyze_reviews(evidence,DirectoryComponents(int(depth))))['components']
         rows={c['component']:c for c in expected}
@@ -123,7 +126,7 @@ def validate_reviews(review: Any) -> None:
                 elif isinstance(v,tuple):
                     if sorted(v)!=sorted(given):
                         raise ValueError('invalid review aggregate')
-                elif v != given:
+                elif not semantic_equal(v,given):
                     raise ValueError('invalid review aggregate')
     else:
         # Unknown historic mapping cannot be reconstructed; verify bounded counts.

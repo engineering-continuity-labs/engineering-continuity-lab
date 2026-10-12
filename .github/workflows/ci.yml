@@ -44,6 +44,7 @@ jobs:
           python scripts/generate_v04_demo.py --check
           python scripts/generate_showcase.py --check
           python scripts/generate_portable_example.py --check
+          python scripts/generate_portable_public.py --check
           test -f ui/dist/index.html
           test -f ui/dist/styles.css
           test -f ui/dist/pages.css

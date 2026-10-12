@@ -90,7 +90,8 @@ export function validateVerification(section,code,fail){
 export function portablePresentation(section,code){const c=section.collection,r=section.result;return{...r,schema_version:'v0.4-public-1',synthetic:false,warning:'PASS is a historical declared observation for that exact test version and target snapshot. It does not establish requirement correctness, sufficient coverage or acceptance readiness.',boundary:c.boundary,collected_at:c.collected_at,snapshot:c.snapshot,artifacts:c.artifacts,lookups:c.lookups,code_traceability:code};}
 
 export function canonicalPortable(report){
- const out=stable(report);
+ const normalize=v=>Array.isArray(v)?v.map(normalize):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,item])=>[k,['as_of','retrieved_at','merged_at','submitted_at','first_activity','last_activity','collected_at','observed_at','start','end'].includes(k)&&typeof item==='string'?canonicalTraceTime(item):normalize(item)])):v;
+ const out=stable(normalize(report));
  if(out.verification_evidence){for(const k of ['artifacts','associations','runs','lookups'])out.verification_evidence.collection[k].sort(compareCanonical);for(const [k,v] of Object.entries(out.verification_evidence.result))if(Array.isArray(v))v.sort(compareCanonical);}
  return out;
 }

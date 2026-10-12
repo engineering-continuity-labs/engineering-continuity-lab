@@ -250,3 +250,114 @@ class PortableContractRegressionTests(unittest.TestCase):
         review=asdict(analyze_reviews(collection(pull('unicode',('src/a.py',),(first,second))),DirectoryComponents()))
         r['review_evidence']=json.loads(json.dumps(review,default=lambda v:v.isoformat() if hasattr(v,'isoformat') else list(v)))
         proc=self.browser(r);self.assertEqual(proc.returncode,0,proc.stderr);self.assertEqual(report_from_json(proc.stdout),r)
+
+
+    def test_pe_r01_malformed_toml_shapes_have_fixed_cli_errors(self):
+        from continuity.reporting.portable import manifest_from_toml
+        malformed=['manifest_version="1.0"\npublication_approved=true\ncollection=1\n',
+                   'manifest_version="1.0"\npublication_approved=true\n[collection]\nruns=[1]\n']
+        valid=Path('examples/v0.4-evidence.toml').read_text()
+        import tomllib
+        collection=tomllib.loads(valid)['collection']
+        for name in ('runs','lookups','artifacts','associations'):
+            broken=json.loads(canonical(collection));broken[name]=[1]
+            # API shape checking through TOML with full required collection fields.
+            import sys
+            sys.path.insert(0,'scripts')
+            from generate_portable_example import toml_value
+            malformed.append('manifest_version="1.0"\npublication_approved=true\ncollection='+toml_value(broken))
+        with tempfile.TemporaryDirectory() as directory:
+            manifest=Path(directory)/'PRIVATE_SENTINEL.toml'
+            for raw in malformed:
+                with self.assertRaisesRegex(ValueError,'^invalid or unapproved evidence manifest$'):
+                    manifest_from_toml(raw,fixture().code)
+                manifest.write_text(raw)
+                proc=subprocess.run([sys.executable,'-m','continuity','evidence-attach','--report','examples/v0.4-traceability-v3.json','--manifest',str(manifest)],text=True,capture_output=True)
+                self.assertEqual(proc.returncode,2);self.assertEqual(proc.stdout,'')
+                self.assertEqual(proc.stderr,'continuity: invalid or unapproved offline evidence inputs\n')
+
+
+    def test_pe_r02_extreme_review_float_order_and_boolean_counts(self):
+        from dataclasses import asdict
+        from datetime import datetime,timezone,timedelta
+        from continuity.domain.reviews import ReviewIdentity,ReviewState
+        from continuity.domain.models import DirectoryComponents
+        from continuity.analysis.reviews import analyze_reviews
+        from test_review_evidence import collection,pull,event
+        reviewer=ReviewIdentity('reviewer')
+        for year in (1,2026,9999):
+            time=datetime(year,1,1,tzinfo=timezone.utc)
+            first=replace(event('z-old',ReviewState.APPROVED,reviewer),submitted_at=time,provider_order=1)
+            second=replace(event('a-new',ReviewState.COMMENTED,reviewer),submitted_at=time+timedelta(microseconds=1),provider_order=0)
+            r,_,_=portable()
+            review=asdict(analyze_reviews(collection(pull('rounded',('src/a.py',),(first,second))),DirectoryComponents()))
+            r['review_evidence']=json.loads(json.dumps(review,default=lambda v:v.isoformat() if hasattr(v,'isoformat') else list(v)))
+            proc=self.browser(r);self.assertEqual(proc.returncode,0,proc.stderr);self.assertEqual(report_from_json(proc.stdout),r)
+        for field in ('mapped_pull_requests','covered_pull_requests'):
+            bad=json.loads(canonical(r));bad['review_evidence']['components'][0][field]=True
+            with self.assertRaises(ValueError):report_from_json(canonical(bad))
+            self.assertNotEqual(self.browser(bad).returncode,0)
+
+
+    def test_pe_r01_direct_section_errors_and_legacy_container_shapes_sanitized(self):
+        from continuity.reporting.portable import verification_from_dict
+        r,_,_=portable();r['verification_evidence']['collection']['runs'][0]['outcome']='TOKEN_SENTINEL'
+        with self.assertRaisesRegex(ValueError,'^invalid portable evidence section$'):
+            verification_from_dict(r['verification_evidence'],fixture().code)
+        report=json.loads(Path('examples/v0.4-traceability-v3.json').read_text())
+        report['components'][0]['contributors'][0]['file_activity']=[]
+        with tempfile.TemporaryDirectory() as directory:
+            source=Path(directory)/'PRIVATE_SENTINEL.json';source.write_text(canonical(report))
+            proc=subprocess.run([sys.executable,'-m','continuity','evidence-attach','--report',str(source),'--manifest','examples/v0.4-evidence.toml'],text=True,capture_output=True)
+            self.assertEqual(proc.returncode,2);self.assertEqual(proc.stdout,'');self.assertEqual(proc.stderr,'continuity: invalid or unapproved offline evidence inputs\n')
+        report['report_version']='4.0'
+        with self.assertRaisesRegex(ValueError,'^invalid portable evidence report$'):report_from_json(canonical(report))
+        self.assertNotEqual(self.browser(report).returncode,0)
+
+    def test_pe_r03_complete_unicode_folding_and_pe_r04_boolean_maps(self):
+        from dataclasses import asdict
+        from continuity.domain.reviews import ReviewIdentity,ReviewState
+        from continuity.domain.models import DirectoryComponents
+        from continuity.analysis.reviews import analyze_reviews
+        from test_review_evidence import collection,pull,event
+        r,_,_=portable()
+        reviewer=ReviewIdentity('\u1c89')
+        review=asdict(analyze_reviews(collection(pull('unicode-version',('src/a.py',),(event('approved',ReviewState.APPROVED,reviewer),))),DirectoryComponents()))
+        r['review_evidence']=json.loads(json.dumps(review,default=lambda v:v.isoformat() if hasattr(v,'isoformat') else list(v)))
+        proc=self.browser(r);self.assertEqual(proc.returncode,0,proc.stderr);self.assertEqual(report_from_json(proc.stdout),r)
+        for field in ('reviewer_units','reviewer_shares','excluded_reasons'):
+            bad=json.loads(canonical(r));bad['review_evidence']['components'][0][field]={reviewer.identifier:True}
+            with self.assertRaises(ValueError):report_from_json(canonical(bad))
+            self.assertNotEqual(self.browser(bad).returncode,0)
+
+
+    def test_pe_r05_integral_git_numbers_and_numeric_canonical_spelling(self):
+        r,_,_=portable();r['commit_count']=0.0
+        proc=self.browser(r);self.assertEqual(proc.returncode,0,proc.stderr);self.assertEqual(report_from_json(proc.stdout),r)
+        a=json.loads(canonical(r));b=json.loads(canonical(r));a['configuration']={'weights':{'recency':1}};b['configuration']={'weights':{'recency':1.0}}
+        self.assertEqual(report_to_json(a),report_to_json(b))
+        r['commit_count']=False
+        with self.assertRaises(ValueError):report_from_json(canonical(r))
+        self.assertNotEqual(self.browser(r).returncode,0)
+
+
+    def test_pe_r06_equivalent_code_timestamp_spellings_attach(self):
+        from continuity.reporting.traceability import traceability_from_dict
+        r,m,legacy=portable()
+        def rewire(value,suffix):
+            if isinstance(value,str) and value.endswith('+00:00'):return value[:-6]+suffix
+            if isinstance(value,list):return [rewire(v,suffix) for v in value]
+            if isinstance(value,dict):return {k:rewire(v,suffix) for k,v in value.items()}
+            return value
+        for suffix in ('Z','.000000+00:00'):
+            other=rewire(legacy,suffix);code=traceability_from_dict(other['traceability_evidence'])
+            parsed=manifest_from_json(canonical(m),code)
+            attached=with_verification_evidence(other,parsed)
+            self.assertEqual(report_to_json(attached),report_to_json(r))
+            proc=self.browser(attached);self.assertEqual(proc.returncode,0,proc.stderr);self.assertEqual(report_to_json(report_from_json(proc.stdout)),report_to_json(attached))
+            with tempfile.TemporaryDirectory() as d:
+                source=Path(d)/'v3.json';source.write_text(canonical(other))
+                command=[sys.executable,'-m','continuity','evidence-attach','--report',str(source),'--manifest','examples/v0.4-evidence.toml']
+                proc=subprocess.run(command,text=True,capture_output=True)
+                self.assertEqual(proc.returncode,0,proc.stderr)
+                self.assertEqual(report_to_json(report_from_json(proc.stdout)),report_to_json(r))

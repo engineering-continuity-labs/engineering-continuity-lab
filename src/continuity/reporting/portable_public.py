@@ -39,7 +39,9 @@ def validate_public(value: dict[str, Any]) -> None:
         for p in c['contributors']:
             allowed(p, SCHEMAS['person'])
             allowed(p['signals'], SIGNALS)
-            for activity in p.get('file_activity', {}).values():
+            activities=p.get('file_activity', {})
+            if not isinstance(activities,dict): raise ValueError('invalid public activity map')
+            for activity in activities.values():
                 allowed(activity, SCHEMAS['activity'])
     if 'review_evidence' not in value:
         return
