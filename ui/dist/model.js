@@ -1,3 +1,5 @@
+import {casefold} from './portable-public.js';
+import {validateVerification,canonicalPortable,boundedPortable,validatePublicEnvelope,absentCode} from './verification-model.js';
 export const signalNames={change_ownership:'Change ownership',recency:'Recency',change_frequency:'Change frequency',code_area_breadth:'Code-area breadth',unique_contribution:'Unique contribution',historical_persistence:'Historical persistence'};
 export const riskOf=x=>x>=.8?'CRITICAL':x>=.6?'HIGH':x>=.4?'MEDIUM':'LOW';
 const finite=(v,min=0,max=1)=>typeof v==='number'&&Number.isFinite(v)&&v>=min&&v<=max;
@@ -7,25 +9,27 @@ const count=v=>Number.isSafeInteger(v)&&v>=0;
 const strings=v=>Array.isArray(v)&&v.every(text)&&new Set(v).size===v.length;
 const timestamp=v=>text(v)&&/(Z|[+-]\d{2}:\d{2})$/.test(v)&&Number.isFinite(Date.parse(v));
 const statuses=['COMPLETE','PARTIAL','FAILED'];
-function qualifyingEvidence(pr){
+function qualifyingEvidence(pr,portable=false){
+ const fold=portable?casefold:value=>value.toLowerCase();
+ const time=value=>portable?traceInstant(value):Date.parse(value);
  const newest=new Map(),missing=[];
- const compare=(a,b)=>(a.submitted_at===null?-Infinity:Date.parse(a.submitted_at))-(b.submitted_at===null?-Infinity:Date.parse(b.submitted_at))||((a.provider_order??-1)-(b.provider_order??-1))||(a.identifier<b.identifier?-1:a.identifier>b.identifier?1:0);
+ const compare=(a,b)=>{const ta=a.submitted_at===null?null:time(a.submitted_at),tb=b.submitted_at===null?null:time(b.submitted_at);return ta!==tb?(ta===null?-1:tb===null?1:ta<tb?-1:1):((a.provider_order??-1)-(b.provider_order??-1))||(portable?compareText(a.identifier,b.identifier):(a.identifier<b.identifier?-1:a.identifier>b.identifier?1:0));};
  for(const event of pr.reviews){
   if(event.reviewer===null){missing.push(event);continue;}
-  const key=event.reviewer.identifier.toLowerCase(),previous=newest.get(key);
+  const key=fold(event.reviewer.identifier),previous=newest.get(key);
   if(!previous||compare(event,previous)>0)newest.set(key,event);
  }
  const units=[],exclusions={};
  const exclude=reason=>exclusions[reason]=(exclusions[reason]??0)+1;
  for(const [key,event] of newest){
-  const reason=event.dismissed||event.state==='DISMISSED'?'dismissed':key===pr.author.identifier.toLowerCase()?'self_review':event.reviewer.is_bot?'provider_declared_bot':event.state==='COMMENTED'?'commented':!['APPROVED','CHANGES_REQUESTED'].includes(event.state)?'unsupported_state':null;
+  const reason=event.dismissed||event.state==='DISMISSED'?'dismissed':key===fold(pr.author.identifier)?'self_review':event.reviewer.is_bot?'provider_declared_bot':event.state==='COMMENTED'?'commented':!['APPROVED','CHANGES_REQUESTED'].includes(event.state)?'unsupported_state':null;
   if(reason)exclude(reason);else units.push(key);
  }
  for(const event of missing)exclude('missing_reviewer');
  return {units,exclusions};
 }
-function reconcileReviews(review,fail){
- const evidence=new Map(review.provenance.pull_requests.map(pr=>[pr.identifier,{pr,...qualifyingEvidence(pr)}]));
+function reconcileReviews(review,fail,portable=false){
+ const evidence=new Map(review.provenance.pull_requests.map(pr=>[pr.identifier,{pr,...qualifyingEvidence(pr,portable)}]));
  const globalUnits=new Map();let covered=0;
  for(const {units} of evidence.values()){if(units.length)covered++;for(const id of units)globalUnits.set(id,(globalUnits.get(id)??0)+1);}
  const sameCounts=(a,b)=>Object.keys(a).length===Object.keys(b).length&&Object.entries(a).every(([key,n])=>b[key]===n);
@@ -50,7 +54,8 @@ function reconcileReviews(review,fail){
   if(!e||e.mapped!==c.mapped_pull_requests||e.covered!==c.covered_pull_requests||!sameCounts(e.units,c.reviewer_units)||!sameCounts(e.excluded,c.excluded_reasons)||!sameIds(e.unreviewed,c.unreviewed_pull_requests))fail();
  }
 }
-function validateReviews(review,fail){
+function validateReviews(review,fail,portable=false){
+ const timestamp=portable?traceTimestamp:value=>text(value)&&/(Z|[+-]\d{2}:\d{2})$/.test(value)&&Number.isFinite(Date.parse(value));
  if(!object(review)||!object(review.provenance)||!Array.isArray(review.components))fail();
  if(review.component_depth!==undefined&&review.component_depth!==null&&(!Number.isSafeInteger(review.component_depth)||review.component_depth<1))fail();
  const collection=review.provenance,p=collection.provenance;
@@ -85,7 +90,7 @@ function validateReviews(review,fail){
   if(total===0){if(c.concentration!==null||c.risk!==null)fail();}
   else{const hhi=entries.reduce((s,[,n])=>s+(n/total)**2,0);if(!finite(c.concentration)||Math.abs(c.concentration-hhi)>1e-6||c.risk!==riskOf(c.concentration))fail();}
  }
- reconcileReviews(review,fail);
+ reconcileReviews(review,fail,portable);
 }
 const traceStates=['VERIFIED','PARTIAL','MISSING','UNAVAILABLE'];
 const traceCapabilities=['SUPPORTED','UNSUPPORTED','UNKNOWN'];
@@ -558,10 +563,17 @@ function uniqueJsonObjects(json){
  };
  value(0);space();if(index!==json.length)throw reportError();
 }
-export function exportReport(report){try{return JSON.stringify(validateReport(report),null,2);}catch{throw reportError();}}
-export function importReport(json){try{uniqueJsonObjects(json);return validateReport(JSON.parse(json));}catch{throw reportError();}}
+export function exportReport(report){try{const validated=validateReport(report);return JSON.stringify(validated.report_version==='4.0'?canonicalPortable(validated):validated,null,2);}catch{throw reportError();}}
+export function importReport(json){try{uniqueJsonObjects(json);const parsed=JSON.parse(json);if(parsed?.report_version==='4.0'&&new TextEncoder().encode(json).length>8*1024*1024)throw reportError();return validateReport(parsed);}catch{throw reportError();}}
 export function validateReport(r){try{return validateReportValue(r);}catch{throw reportError();}}
 function validateReportValue(r){
+ if(r?.report_version==='4.0'){
+  boundedPortable(r);validatePublicEnvelope(r,()=>{throw reportError();});
+  const legacy={...r,report_version:'3.0'};delete legacy.verification_evidence;delete legacy.review_evidence;validateReportValue(legacy);
+  if(r.review_evidence!==undefined)validateReviews(r.review_evidence,()=>{throw reportError();},true);
+  if(r.verification_evidence!==undefined){const code=r.traceability_evidence??absentCode(),depth=r.configuration?.component_depth;if(code.collection.boundaries.some(b=>b.revision!==r.revision)||(depth!==undefined&&code.collection.boundaries.length&&(!Number.isSafeInteger(depth)||code.collection.component_strategy.configuration!==`depth-${depth}`)))throw reportError();validateVerification(r.verification_evidence,code,()=>{throw reportError();});}return r;
+ }
+ if(r?.verification_evidence!==undefined)throw reportError();
  const fail=()=>{throw Error('Select a valid continuity analyze JSON report. Person and departure exports are not supported here.');};
  if(!r||!['experimental-v0.1','experimental-v0.2'].includes(r.model)||!Array.isArray(r.components)||typeof r.revision!=='string'||typeof r.as_of!=='string'||!Number.isFinite(Date.parse(r.as_of))||!Number.isInteger(r.commit_count)||r.commit_count<0)fail();
  if(r.filters!==undefined&&(!r.filters||typeof r.filters!=='object'||['paths','authors'].some(k=>r.filters[k]!==undefined&&(!Array.isArray(r.filters[k])||r.filters[k].some(v=>typeof v!=='string')))))fail();
@@ -602,3 +614,5 @@ export function demoReport(){
 
 // Presentation-only reuse of the unchanged effective-review rules.
 export {qualifyingEvidence};
+
+export {exact,safeToken,publicTraceValues,traceTimestamp,traceInstant,canonicalTraceTime,domainRefKey,compareTuple,compareCanonical,same,stable,safePath,refFields};

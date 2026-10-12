@@ -43,7 +43,7 @@ test('empty successful review collection is valid and unavailable, not zero cove
 test('optional reviewer shares may be omitted without changing concentration',()=>{const r=reviewReport();delete r.review_evidence.components[0].reviewer_shares;assert.doesNotThrow(()=>validateReport(r));});
 test('rejects malformed review provenance, status, identities and numerical contradictions',()=>{
  const mutations=[
- r=>delete r.report_version,r=>r.report_version='4.0',r=>r.review_evidence=null,
+ r=>delete r.report_version,r=>r.report_version='5.0',r=>r.review_evidence=null,
  r=>r.review_evidence.provenance.provenance=null,r=>r.review_evidence.provenance.provenance.retrieved_at='bad',
  r=>r.review_evidence.provenance.provenance.repository='https://secret@github.com/org/repo',
  r=>r.review_evidence.provenance.provenance.evidence_boundary='',r=>r.review_evidence.provenance.status='UNKNOWN',
@@ -136,7 +136,7 @@ test('browser rejects malformed v3 paths, links, gaps, metrics, provenance and f
     r=>{const gap=r.traceability_evidence.result.gaps.find(g=>g.status==='MISSING'),lookups=r.traceability_evidence.collection.lookups;const index=lookups.findIndex(l=>l.endpoint&&JSON.stringify(l.endpoint)===JSON.stringify(gap.endpoint)&&l.relationship===gap.relationship&&l.direction===gap.direction);lookups.splice(index,1);},
  ];
  for(const mutate of mutations){const report=pythonReport();mutate(report);assert.throws(()=>validateReport(report));}
- for(const version of ['4.0',null]){const future={...pythonReport(),report_version:version};assert.throws(()=>validateReport(future));}
+ for(const version of ['5.0',null]){const future={...pythonReport(),report_version:version};assert.throws(()=>validateReport(future));}
 });
 
 const reviewCorpus=JSON.parse(execFileSync(python,['-c',`import json,sys;sys.path[:0]=['src','tests'];from traceability_report_adversaries import adversarial_reports,normalization_adversaries,additional_valid_reports;print(json.dumps({'invalid':{**adversarial_reports(),**normalization_adversaries()},'valid':additional_valid_reports()}))`],{cwd:repositoryRoot,encoding:'utf8',maxBuffer:16*1024*1024}));

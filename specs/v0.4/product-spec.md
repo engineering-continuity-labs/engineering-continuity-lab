@@ -60,3 +60,16 @@ FR415–420 are reserved by a separate unfinished portable-report branch and are
 | ECL-FR-425 | Present implementation/requirement/architecture/test connections as one traceability story and distinguish PR reviews from exact-version/target historical observations; retain complete provenance, exclusions and status behind accessible inspectors. |
 | ECL-FR-426 | Missing evidence provides informative unavailable states and collection guidance; synthetic samples cannot be mistaken for user/public evidence. Version/schema terms belong in advanced metadata, and header makes no unverified release claim. |
 | ECL-FR-427 | Preserve native keyboard-operable controls, clear focus and status/source distinction, wrapping primary navigation and contained table overflow; user report upload/export, legacy contracts and existing synthetic scenario semantics remain intact. |
+
+## Portable offline evidence increment (PO)
+
+This increment enables a lead/architect to attach their own explicit approved offline aliases to a report without proprietary source scanning. Preserve the four-area product experience. No inference, live acquisition, execution, scoring change or release.
+
+| ID | Observable requirement |
+| --- | --- |
+| ECL-FR-428 | Accept a bounded strict offline evidence manifest with explicit source-owner publication approval and attach it to an existing valid report; perform no network/authentication/scanning. Provide evidence-attach with named report/manifest inputs, optional output and stdout otherwise. |
+| ECL-FR-429 | Portable report4.0 keeps experimental-v0.1 and optional existing review/traceability plus verification_evidence; import/export roundtrips exact normalized source and derived semantics in Python and Explorer. Preserve v1/v2/v3 and fail closed on future versions/unknown fields. |
+| ECL-FR-430 | Bind attached evidence to exact immutable traceability identity/scope/revision/configuration; stale joins are explicit unavailable, unknown WI/components unresolved, never manufactured. Requirement implementation needs an existing valid code path; exact test-version/target and existing conflict/coverage rules remain authoritative. |
+| ECL-FR-431 | Deterministic output preserves distinct units, semantic hop order, conflict quarantine and all historical outcomes; Python/browser acceptance materially agrees across malformed/partial/unsupported/duplicate/conflict/limit inputs. |
+| ECL-FR-432 | Public output is allowlisted approved aliases and historical metadata only; reject secret/private/raw/local-path fields and malformed Unicode/duplicate keys/nonfinite/deep input, with sanitized fixed errors and explicit exit codes. Syntax never establishes publication permission. |
+| ECL-FR-433 | Loaded real v4 evidence appears in existing Overview, Traceability and Reviews & Verification; synthetic scenarios remain isolated, Atlas remains labelled working, eShop never inherits synthetic facts, failed import retains previous report. |

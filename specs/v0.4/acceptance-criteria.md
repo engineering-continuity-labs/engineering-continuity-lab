@@ -56,3 +56,18 @@ Manual: actual source publication/version authenticity, real adapters/test execu
 | ECL-AC-429 | Concise code/requirement/test summaries and drilldowns retain exact supports/bounds/versions/qualification/gaps; PR review and historical test observations stay separate with understandable limits. |
 | ECL-AC-430 | Absent review/trace/requirement evidence explains unavailable and acquisition limits; no stale released-version claim; changing isolated scenarios leaves current report/overview unchanged. |
 | ECL-AC-431 | Actual DOM handlers support primary/secondary navigation, native keyboard activation and upload/export/error-state preservation; strings escaped, responsive wrapping/table containment, full legacy and v0.4 regression plus independent review/CI. OS visual/keyboard/mobile remains MANUAL until actually exercised. |
+
+## Portable evidence acceptance and pre-development QA
+
+| ID | Observable criterion |
+| --- | --- |
+| ECL-AC-432 | Explicit v3 report + TOML manifest passes offline CLI to v4 file/stdout; no credentials/network/crawling; bounded regular UTF-8 inputs, publication approval required, output written only after validation. Error exit2 is fixed/nonreflecting, I/O exit3 separately sanitized; success0. |
+| ECL-AC-433 | Optional review/trace/verification envelopes validate and roundtrip in Python/browser; v4 Git+verification without trace is valid only with unavailable code/target qualification; old versions remain unchanged and cannot silently accept verification fields. |
+| ECL-AC-434 | Exact fingerprint/repository/revision/config joins qualify BASE, stale/wrong scope excluded; unknown WI/component unresolved; association alone never implementation, original support/path order retained. |
+| ECL-AC-435 | Exact version/target joins, selected independent populations, duplicate normalization, same-run conflicts and distinct PASS/FAIL runs preserve four BASE2/4 metrics and outcomes1each; exhaustive named user matrix has actual Python/browser parity checks. |
+| ECL-AC-436 | Canonical output independent of all set input order/timestamp offset spellings; unknown keys/enums/versions, malformed Unicode/JSON/TOML/depth/size, secret/local/raw sentinels and forged result reject safely in both consumers. |
+| ECL-AC-437 | Mandatory CLI→Python→browser actual Overview/Traceability/observations→browser export→Python reimport preserves exact evidence; valid state survives invalid import. Atlas and eShop isolation, four navigation areas and old scenarios regress. |
+
+QA plan before development: reuse old draft only as candidate boundary/pure derivation, reject its outdated UI/JSON-only docs. Parameterized named matrix BASE/EMPTY/NO_LINKS/PARTIAL/FAILED/UNSUPPORTED/WRONG_SCOPE/STALE_REVISION/WRONG_TEST_VERSION/WRONG_TEST_TARGET/UNLINKED_POPULATIONS/LINKED_ONLY/DUPLICATES/CONFLICTING_RUN/MULTIPLE_RUNS/PASS_AND_FAIL_DISTINCT_RUNS/SHORT_CODE_PATH/UNKNOWN_WORK_ITEM/UNKNOWN_COMPONENT/DOCUMENT_COMPONENT_ONLY/DOCUMENT_WITHOUT_REQUIREMENT/TEST_LINK_WITHOUT_RUN/RUN_WITHOUT_SELECTED_TEST/ZERO_DENOMINATOR/MALFORMED/PRIVACY/LIMIT/REORDERED. Challenge float/timestamp/set/hop canonicalization, unknown fields throughout new section, snapshot aliases and report-boundary joins, lookup completeness and limits. Fresh full Python/type/Node/allJS/generators/wheel/diff plus independent read-only review and pushed-head CI. Source identity/publication authenticity and OS visual/mobile checks remain MANUAL, never implied by syntax/tests.
+
+QA rollout refinement: historical tests that used4.0 merely as an unsupported future version now use5.0; every v1/v2/v3 invalid-path/review/count assertion is retained. This is the deliberate envelope rollout, not weakened legacy semantics.

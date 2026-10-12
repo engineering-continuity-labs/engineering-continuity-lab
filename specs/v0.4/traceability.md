@@ -34,3 +34,16 @@ Implementation paths are under `src/continuity/`. Automated Python evidence is `
 | FR427 | AC431 | native controls/wrapped UI | app/index/pages.css | actual handlers/keyboard hooks/full legacy regression; OS visual MANUAL |
 
 Final evidence and independent review: docs/validation/v0.4-product-experience-verification.md. No portable backend, version bump/release/tag or v0.5 work is claimed. FR415–420/AC419–424 are reserved by the separate unfinished portable branch and are not reused.
+
+## Portable offline increment (independent review and CI pending)
+
+| Requirement | Acceptance | Design | Implementation | Planned/actual evidence |
+| --- | --- | --- | --- | --- |
+| FR428 | AC432 | report-schema-v4 CLI/manifest | offline_evidence.py; cli.py | TOML CLI exclusive-output/error tests |
+| FR429 | AC433 | deliberate v4 optional sections | reporting/portable.py; verification-model.js | legacy/full/no-code Python/browser roundtrips |
+| FR430 | AC434 | immutable join contract | reporting/portable.py; existing analysis | stale/scope/unknown/short-path matrix |
+| FR431 | AC435–436 | normalization/recompute/parity | portable.py; verification-model.js | named cross-runtime matrix, numeric/microsecond/order regressions |
+| FR432 | AC432,436 | whole public boundary | portable_public.py; portable-public.js | private/unknown/Unicode/input/output/error negatives |
+| FR433 | AC437 | preserve four-area presenters | app/experience/verification.js | actual TOML CLI→UI→export→Python plus sample isolation |
+
+Verification and read-only review artifacts: docs/validation/v0.4-portable-evidence-verification.md and v0.4-portable-evidence-review.md. No VERIFIED final status until actual final evidence; source approval/live/OS checks remain MANUAL. Earlier draft-reserved IDs remain unclaimed.

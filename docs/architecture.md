@@ -64,3 +64,7 @@ The browser accepts this normalized report contract and renders it in a Traceabi
 ## Local Azure acquisition CLI
 
 [Connection design](azure-local-connection.md) defines the strict private TOML → hidden runtime PAT → existing provider → derive → standalone report-v3 traceability section flow. `azure_connection.py` owns validation, explicit publication approval, terminal input and exit statuses. `cli.py` dispatches `azure-acquire` without changing Git commands. The section does not manufacture a Git envelope or claim browser importability by itself. Native connection settings are never exported; TLS/transport/provider/derivation/report boundaries remain unchanged.
+
+## Portable offline evidence report
+
+Accepted portable increment FR428–433 / AC432–437 uses a strict offline manifest adapter, deliberate public reporting boundary and synchronized Python/browser derivation validation. CLI evidence-attach owns two bounded regular inputs and optional exclusive atomic output. Report4.0 adds optional verification_evidence schema1.0; original model/legacy semantics remain. Whole-envelope public allowlists protect preserved fields too. Exact immutable joins, independent metrics, quarantined conflicts and historical outcome semantics remain existing analysis authority. Loaded v4 uses the existing four-area presenters; scenario/showcase contexts remain separate. Focused design: docs/report-schema-v4.md. No live adapter/release capability.
