@@ -2,7 +2,6 @@
 from html import escape
 from fractions import Fraction
 from base64 import b64encode
-import json
 from typing import Any
 
 from continuity.reporting.engineering_review import import_package
@@ -26,21 +25,17 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem;background:#f5f8
 th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}.table{overflow-x:auto}
 .finding-list{padding:0;list-style:none}.finding-list li{margin:6px 0}.attention{border-left:4px solid #bd752b;padding:10px 16px;background:#fff8ed}footer{color:var(--muted);font-size:.85rem;margin:30px 0}
 @media(max-width:600px){main{padding:16px}section{padding:16px}h1{font-size:2.2rem}.cards{grid-template-columns:1fr}header,.card,h2{overflow-wrap:anywhere}}
-@media print{body{background:white}main{max-width:none;padding:0}nav,button{display:none}section{break-inside:avoid;border-radius:0}details{break-inside:avoid}details> :not(summary){display:block!important}a{color:inherit}h2{break-after:avoid}}
+@media print{.technical{display:none!important}body{background:white}main{max-width:none;padding:0}nav,button,script{display:none!important}section{break-inside:avoid;border-radius:0}details{break-inside:avoid}details> :not(summary){display:block!important}a{color:inherit}h2{break-after:avoid}}
 '''
 
 PRINT_SCRIPT = '''(()=>{let states=[];window.addEventListener('beforeprint',()=>{
-states=Array.from(document.querySelectorAll('details'),d=>[d,d.open]);
+states=Array.from(document.querySelectorAll('details:not(.technical)'),d=>[d,d.open]);
 for(const[d]of states)d.open=true;});window.addEventListener('afterprint',()=>{
 for(const[d,open]of states)d.open=open;states=[];});})();'''
 
 
 def text(value: Any) -> str:
     return escape(str(value), quote=True)
-
-
-def inspector(title: str, value: Any) -> str:
-    return f'<details><summary>{text(title)}</summary><pre>{text(json.dumps(value, sort_keys=True, ensure_ascii=False, indent=2))}</pre></details>'
 
 
 def number(value: Any) -> str:
@@ -223,18 +218,13 @@ def render(package: dict[str, Any], *, synthetic: bool = False) -> str:
     details += '<details><summary>Reviews</summary>' + table([(name, 'Unavailable' if c.get('coverage') is None else f'{c["coverage"] * 100:.1f}% · {c.get("coverage_status")}') for name, c in review_rows.items()]) + '<p>Independent review source; original component depth: ' + number(review_depth) + '. Qualifying review interaction, not review quality. Concentration, unreviewed PRs and exclusions remain inspectable.</p></details>'
     details += '<details><summary>Traceability &amp; Verification</summary><p>' + text(coverage('traceability_evidence')) + ' / ' + text(coverage('verification_evidence')) + '</p>' + table([(m['dimension'], 'Unavailable' if m['value'] is None else str(m['value']) + ' · ' + m['status']) for m in legacy.get('verification_evidence', {}).get('result', {}).get('metrics', [])]) + '<a href="#legacy-evidence">Inspect paths, linkage, gaps and qualified verification observations</a></details>'
 
-    methodology = '<p>Observations support investigation; they do not establish cause, readiness or employee performance.</p><div id="all-findings"><h3>All findings and recommended investigation</h3>'
-    for f in findings:
-        methodology += f'<details id="finding-{text(f["id"])}"><summary>{text(f["severity"])} · {text(NAMES[f["rule_id"]])}</summary><p>Suggested investigation: {text(investigations.get(f["id"], "Inspect evidence and limitations."))}</p><p>Method: {text(f["rule_id"])} · {text(f["rule_version"])}</p>' + inspector('Exact supporting evidence, scope, sample and thresholds', f) + '</details>'
-    methodology += '</div>' + inspector('Evidence sources and source boundaries', a['evidence_sources']) + inspector('Collection completeness, capabilities and selected evidence', a['completeness']) + inspector('Assessment windows and policy', {'windows': a['windows'], 'policy': a['policy']}) + inspector('Current/previous dimensions, trends, mappings and exclusions', dims)
-    for index, name in enumerate(component_names):
-        methodology += f'<div id="component-evidence-{index}">' + inspector('Exact component evidence: ' + name, {'historical': historical.get(name), 'review': review_rows.get(name), 'qualified_mapping': mapped_groups.get(name)}) + '</div>'
-    methodology += '<div id="legacy-evidence">' + inspector('Original continuity, reviews, traceability and verification evidence', legacy) + '</div>' + inspector('Limitations', a['limitations']) + inspector('Canonical package and schema metadata', validated)
+    from continuity.reporting.engineering_evidence_html import render_evidence
+    methodology = render_evidence(validated, NAMES, findings, investigations, source_summary, component_names, historical, review_rows, reviews, mapped_groups)
     content = [snapshot, components, details, methodology]
     data = canonical(validated).replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026')
     download = b64encode(canonical(validated).encode('utf-8')).decode('ascii')
     output = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Engineering System Review · ' + text(a['system']) + '</title><style>' + CSS + '</style></head><body><main>'
-    output += '<header><p class="eyebrow">ENGINEERING SYSTEM REVIEW</p><h1>' + text(a['system']) + '</h1><button type="button" onclick="window.print()">Print / Save as PDF</button> <a download="engineering-review.json" href="data:application/json;base64,' + download + '">Download review JSON</a></header>'
+    output += '<header><p class="eyebrow">ENGINEERING SYSTEM REVIEW</p><h1>' + text(a['system']) + '</h1><button type="button" onclick="window.print()">Print / Save as PDF</button> <a download="engineering-review.json" href="data:application/json;base64,' + download + '">Download evidence package (.json)</a><p class="muted">Machine-readable evidence used to reproduce and audit this review.</p></header>'
     output += '<nav aria-label="Manager report">' + ''.join(f'<a href="#section-{i}">{text(title)}</a>' for i, title in enumerate(SECTIONS)) + '</nav>'
     output += ''.join(f'<section id="section-{i}" aria-labelledby="title-{i}"><h2 id="title-{i}">{text(title)}</h2>{body}</section>' for i, (title, body) in enumerate(zip(SECTIONS, content)))
     output += '<footer>Offline evidence. No network access or execution is performed by this document.</footer></main><script id="engineering-package" type="application/json">' + data + '</script><script>' + PRINT_SCRIPT + '</script></body></html>'

@@ -59,3 +59,7 @@ Paths refer to `docs/v0.5-*.md`. Independent design APPROVE, V05-R01 MINOR VERIF
 ## Manager comprehension increment
 
 FR514–517 / AC523–539 → docs/v0.5-manager-report-experience.md (PO then Architect then QA) → src/continuity/reporting/engineering_html.py → tests/test_engineering_html.py / generated standalone HTML / headless desktop+narrow screenshots. Independent review APPROVE, ME-R01–06 CLOSED; 294 Python tests (14 HTML), mypy44, Node51, JS12, generators5, wheel and whitespace PASS. Final-head CI required before merge. Two-minute user comprehension, actual keyboard/screen reader and physical print remain MANUAL. Source mathematics, providers and Explorer unchanged.
+
+## Human evidence presentation increment
+
+FR518–521 / AC540–554 → docs/v0.5-evidence-presentation.md (PO then Architect then QA) → engineering_html.py / engineering_evidence_html.py →16 rendered HTML checks, package/download/digest parity, existing full regression and headless evidence screenshots. Independent HE-R01/02 corrected and closed; final APPROVE and296Python/45mypy/51Node/12JS/5generators/wheel/whitespace PASS recorded in docs/validation/v0.5-human-evidence-verification.md. Actual human comprehension/keyboard/screen reader/mobile/physical print MANUAL. Final-head CI required before merge. No canonical package, assessment, provider or metric change.
