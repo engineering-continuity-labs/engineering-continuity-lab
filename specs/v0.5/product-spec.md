@@ -62,3 +62,14 @@ At this PO handoff, proposed **v0.5 becomes Engineering System Review**, compris
 Non-goals: runtime metrics/acquisition/UI in this PR, relationship inference/title similarity, document/test/build-log scanning, live execution, native PDF, deployment portability, causal/LLM advice, defect density without a denominator, team/person/health scores, performance evaluation, handover readiness certification.
 
 PO exit: target user, journey, observable dimensions, time/sampling/claim policies, acceptance intent and non-goals are explicit. Architect/QA may proceed; no implementation or verification approval is claimed.
+
+## Manager comprehension increment
+
+The twelve accepted technical areas remain audit structure; normal navigation uses four layers defined in docs/v0.5-manager-report-experience.md.
+
+| ID | Requirement |
+| --- | --- |
+| ECL-FR-514 | Compact Executive Summary answers attention, affected components, observed dimensions and source sufficiency without technical identifiers. |
+| ECL-FR-515 | Exact-bound component table/detail separates dimensions and orders explicit attention first; unbound evidence is Unavailable. |
+| ECL-FR-516 | Human labels and qualified readable trends preserve original values, findings, independent dimensions and observation-only wording. |
+| ECL-FR-517 | Four-layer progressive disclosure preserves complete methodology, exact evidence, normative package and accessible offline/print export. |

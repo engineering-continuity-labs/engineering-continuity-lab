@@ -55,3 +55,7 @@ Status: design chain only, runtime PLANNED. PO requirements/AC precede Architect
 | NFR504–505 | AC502,521–522 | governance, roadmap decision and legacy boundaries | docs only | independent design review + unchanged baseline CI required |
 
 Paths refer to `docs/v0.5-*.md`. Independent design APPROVE, V05-R01 MINOR VERIFIED CLOSED, no unresolved findings. This approves specification, not runtime implementation. Recorded findings and actual documentation/CI gates: `docs/validation/v0.5-engineering-system-review-design.md` (local baseline passed; final pushed-head CI required). Historical v0.1–v0.4 specs remain unmodified. Proposed roadmap moves handover to v0.6 explicitly in the PO decision; package remains0.2.0, no tag/release/runtime implementation.
+
+## Manager comprehension increment
+
+FR514–517 / AC523–539 → docs/v0.5-manager-report-experience.md (PO then Architect then QA) → src/continuity/reporting/engineering_html.py → tests/test_engineering_html.py / generated standalone HTML / headless desktop+narrow screenshots. Independent review APPROVE, ME-R01–06 CLOSED; 294 Python tests (14 HTML), mypy44, Node51, JS12, generators5, wheel and whitespace PASS. Final-head CI required before merge. Two-minute user comprehension, actual keyboard/screen reader and physical print remain MANUAL. Source mathematics, providers and Explorer unchanged.

@@ -8,10 +8,7 @@ from typing import Any
 from continuity.reporting.engineering_review import import_package
 from continuity.reporting.portable import canonical
 
-SECTIONS = ('Executive Engineering Snapshot', 'System / Component Landscape', 'Engineering Continuity',
-            'Change Traceability', 'Review Health', 'Requirements & Verification', 'Delivery Flow',
-            'Quality / Defect Evidence', 'Build Health', 'Engineering Risks / Findings',
-            'Evidence Completeness & Limitations', 'Recommended Investigation / Management Actions')
+SECTIONS = ('Executive Summary', 'Components', 'Engineering Details', 'Evidence & Methodology')
 
 CSS = '''
 :root{color-scheme:light;--ink:#142f3a;--muted:#526871;--line:#d3e0e3;--accent:#147a74}
@@ -27,7 +24,7 @@ section{background:white;border:1px solid var(--line);border-radius:12px;margin:
 details{border:1px solid var(--line);border-radius:8px;padding:12px;margin:12px 0}summary{cursor:pointer;font-weight:600}
 pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem;background:#f5f8f8;padding:14px}table{width:100%;border-collapse:collapse}
 th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}.table{overflow-x:auto}
-.attention{border-left:4px solid #bd752b;padding:10px 16px;background:#fff8ed}footer{color:var(--muted);font-size:.85rem;margin:30px 0}
+.finding-list{padding:0;list-style:none}.finding-list li{margin:6px 0}.attention{border-left:4px solid #bd752b;padding:10px 16px;background:#fff8ed}footer{color:var(--muted);font-size:.85rem;margin:30px 0}
 @media(max-width:600px){main{padding:16px}section{padding:16px}h1{font-size:2.2rem}.cards{grid-template-columns:1fr}header,.card,h2{overflow-wrap:anywhere}}
 @media print{body{background:white}main{max-width:none;padding:0}nav,button{display:none}section{break-inside:avoid;border-radius:0}details{break-inside:avoid}details> :not(summary){display:block!important}a{color:inherit}h2{break-after:avoid}}
 '''
@@ -55,106 +52,192 @@ def table(rows: list[tuple[str, Any]]) -> str:
         f'<tr><th scope="row">{text(k)}</th><td>{number(v)}</td></tr>' for k, v in rows) + '</tbody></table></div>'
 
 
+NAMES = {'ER01': 'Continuity concentration requires attention', 'ER02': 'Low review coverage',
+         'ER03': 'Traceability gaps detected', 'ER04': 'Verification evidence gap',
+         'ER05': 'Aging delivery items detected', 'ER06': 'Delivery duration increased',
+         'ER07': 'Aged defect detected', 'ER08': 'Defect inflow exceeded resolutions',
+         'ER09': 'Build failures require attention'}
+
+
+def display_fraction(value: Any, divisor: int = 1, suffix: str = '', signed: bool = False) -> str:
+    if value is None:
+        return 'Unavailable'
+    fraction = Fraction(value['numerator'], value['denominator']) / divisor
+    formatted = f'{float(fraction):+,.1f}' if signed else f'{float(fraction):,.1f}'
+    if fraction != 0 and formatted.lstrip('+-') == '0.0':
+        sign = '-' if fraction < 0 else '+' if signed else ''
+        return sign + '<0.1' + suffix
+    return formatted + suffix
+
+
 def render(package: dict[str, Any], *, synthetic: bool = False) -> str:
-    """Render only accepted, recomputed evidence; raw errors stay sanitized."""
+    """Present the accepted assessment; conversions never replace normative values."""
     if type(synthetic) is not bool:
         raise ValueError('invalid presentation provenance')
     validated = import_package(canonical(package))
     a, evidence = validated['assessment'], validated['evidence']
     legacy = evidence.get('ecl_report', {})
     dims = a['dimension_results']
-    window = a['windows']['current']
-    def current(name: str) -> dict[str, Any]:
-        value = dims.get(name, {}).get('current', {})
-        return dict(value)
-    def duration(sample: dict[str, Any], divisor: int, unit: str) -> str:
-        value = sample.get('median')
-        if value is None:
+    delivery = dims.get('delivery', {})
+    quality = dims.get('quality', {})
+    dc, qc = delivery.get('current', {}), quality.get('current', {})
+    wi, pr, bugs, builds = dc.get('work_items', {}), dc.get('pull_requests', {}), qc.get('work_items', {}), dc.get('builds', {})
+    findings = sorted(a['findings'], key=lambda f: (0 if f['severity'] == 'HIGH' else 1, f['rule_id'], f['id']))
+    investigations = {i['finding_id']: i['text'] for i in a['investigations']}
+
+    def median(sample: dict[str, Any], unit: str = 'days') -> str:
+        return display_fraction(sample.get('median'), 86400000000 if unit == 'days' else 60000000, ' ' + unit)
+
+    def percent(value: Any) -> str:
+        return display_fraction(value, suffix='%') if value is None else display_fraction({'numerator': value['numerator'] * 100, 'denominator': value['denominator']}, suffix='%')
+
+    def trend(dimension: dict[str, Any], population: str, sample: str, unit: str = 'days') -> str:
+        now = dimension.get('current', {}).get(population, {}).get(sample, {})
+        previous = dimension.get('previous', {}).get(population, {}).get(sample, {})
+        comparison = dimension.get('duration_trends', {}).get(population, {})
+        result = f'<p>Current: {median(now, unit)} · Previous: {median(previous, unit)}</p>'
+        if comparison.get('absolute') is not None and comparison.get('reason') in (None, 'BASELINE_ZERO'):
+            divisor = 86400000000 if unit == 'days' else 60000000
+            absolute = display_fraction(comparison['absolute'], divisor, ' ' + unit, True)
+            relative = comparison.get('relative')
+            change = display_fraction({'numerator': relative['numerator'] * 100, 'denominator': relative['denominator']}, suffix='%', signed=True) if relative is not None else 'Relative change unavailable'
+            result += f'<p>Observed change: {absolute} / {change}</p>'
+        else:
+            result += '<details><summary>Trend unavailable</summary><p>Comparable complete samples are required. Inspect the exact reason in Evidence &amp; Methodology.</p></details>'
+        return result
+
+    def card(label: str, value: str) -> str:
+        return f'<div class="card"><h3>{text(label)}</h3>{value}</div>'
+
+    def coverage(name: str) -> str:
+        if name in ('delivery', 'quality'):
+            current = dims.get(name, {}).get('current', {})
+            if current.get('capability') != 'SUPPORTED' or current.get('collection_status') == 'FAILED':
+                return 'Unavailable'
+            statuses = [v.get('status') for v in current.get('population_coverage', {}).values() if v.get('capability') == 'SUPPORTED']
+            if not statuses:
+                return 'Unavailable'
+            return 'Complete' if current.get('collection_status') == 'COMPLETE' and all(v == 'COMPLETE' for v in statuses) else 'Partial'
+        if name not in legacy:
             return 'Unavailable'
-        result = Fraction(value['numerator'], value['denominator']) / divisor
-        return f'{result} {unit} · n={sample["count"]}'
-    delivery, quality = current('delivery'), current('quality')
-    wi, bugs, builds = delivery.get('work_items', {}), quality.get('work_items', {}), delivery.get('builds', {})
-    cards = [('Completed work items', wi.get('completed'), wi.get('availability', 'UNAVAILABLE')),
-             ('Open defects', bugs.get('open_inventory'), bugs.get('availability', 'UNAVAILABLE')),
-             ('Aged defects', bugs.get('aged'), bugs.get('availability', 'UNAVAILABLE')),
-             ('Known terminal builds', builds.get('known_terminal'), builds.get('availability', 'UNAVAILABLE'))]
-    cards += [('Continuity component rows', len(legacy['components']) if 'components' in legacy else None,
-               'SOURCE_BOUNDARY' if 'components' in legacy else 'UNAVAILABLE'),
-              ('Review component rows', len(legacy['review_evidence']['components']) if 'review_evidence' in legacy else None,
-               legacy.get('review_evidence', {}).get('provenance', {}).get('status', 'UNAVAILABLE')),
-              ('Change traceability', legacy.get('traceability_evidence', {}).get('result', {}).get('summary'),
-               'SOURCE_BOUNDARY' if 'traceability_evidence' in legacy else 'UNAVAILABLE'),
-              ('Historical test observations', len(legacy['verification_evidence']['result']['runs']) if 'verification_evidence' in legacy else None,
-               legacy.get('verification_evidence', {}).get('result', {}).get('collection_status', 'UNAVAILABLE'))]
-    for metric in legacy.get('verification_evidence', {}).get('result', {}).get('metrics', []):
-        cards.append((metric['dimension'], metric['value'], metric['status']))
-    provenance = 'SYNTHETIC · explicitly declared demo evidence' if synthetic else 'OFFLINE DECLARED · source owner assertions'
-    snapshot = f'<p class="badge">{text(provenance)}</p><p>Current UTC interval: {text(window["start"])} → {text(window["end"])} (end excluded).</p>'
-    snapshot += '<div class="cards">' + ''.join(f'<div class="card"><div class="label">{text(label)}</div><div class="value">{number(value)}</div><span class="badge">{text(status)}</span></div>' for label, value, status in cards) + '</div>'
-    snapshot += f'<p>{len(a["findings"])} evidence-backed attention findings. Finding counts are not a health score.</p>'
-    names = {'ER01': 'Continuity concentration', 'ER02': 'Low review coverage', 'ER03': 'Traceability gap',
-             'ER04': 'Verification gap', 'ER05': 'Aging delivery work', 'ER06': 'Increased delivery duration',
-             'ER07': 'Aged defects', 'ER08': 'Defect inflow exceeds resolution', 'ER09': 'Build failure concentration'}
-    snapshot += '<h3>Attention and affected scope</h3><ul>' + ''.join(
-        f'<li><a href="#section-9">{text(f["severity"])} · {text(names[f["rule_id"]])}</a> · {text(f["scope"].get("legacy", f["scope"].get("dimension", a["system"])))}</li>'
-        for f in a['findings'][:8]) + '</ul>'
-    snapshot += f'<p class="muted">Showing {min(8, len(a["findings"]))} of {len(a["findings"])} findings. Full supporting evidence is in Engineering Risks / Findings.</p>'
-    snapshot += '<h3>Historical component context</h3>'
-    snapshot += table([(c['component'], f'{c["risk"]} · concentration {c["concentration"]}') for c in legacy.get('components', [])[:8]])
-    snapshot += f'<p class="muted">Showing up to eight of {len(legacy.get("components", []))} historical component rows; source time {text(legacy.get("as_of", "Unavailable"))}. Full rows remain in Engineering Continuity. Delivery/defect component membership is separate.</p>'
-    if not a['component_results'] or not any(d.get('mapping', {}).get('mapped', 0) for d in dims.values()):
-        snapshot += '<p>Delivery/defect component mapping unavailable. Global findings do not establish component membership.</p>'
-    snapshot += '<h3>Source boundaries</h3><ul>' + ''.join(f'<li>{text(s["role"])} · {text(s["alias"])} · {text(s["retrieved_at"])}</li>' for s in a['evidence_sources']) + '</ul>'
-    snapshot += '<p>Unavailable dimensions: ' + text(', '.join(k for k, v in dims.items() if v.get('availability') == 'UNAVAILABLE') or 'inspect field and mapping completeness below') + '.</p>'
-    snapshot += '<p class="muted">Missing evidence does not establish absence of problems. Historical observations do not establish cause or readiness.</p>'
-    snapshot += inspector('Assessment sources and observation boundaries', a['evidence_sources'])
-    landscape = '<p>Component rows overlap; do not sum their populations into a global total.</p>'
-    if a['component_results']:
-        for row in a['component_results']:
-            component_dimensions = row['dimensions']
-            cwi = component_dimensions.get('delivery', {}).get('current', {}).get('work_items', {})
-            cq = component_dimensions.get('quality', {}).get('current', {}).get('work_items', {})
-            landscape += '<h3>' + text(row['component_ref']['identifier']) + '</h3>'
-            landscape += table([('Completed work items', cwi.get('completed')), ('Open defects', cq.get('open_inventory')),
-                                ('Aged defects', cq.get('aged'))]) + inspector('Exact component scope, memberships and limitations', row)
-    else:
-        landscape += '<p>Component membership unavailable: no qualified explicit component mapping is present.</p>'
-    landscape += inspector('Mapping coverage and unmapped populations', {k: v.get('mapping', {'availability': 'UNAVAILABLE'}) for k, v in dims.items() if k != 'legacy'})
-    def old(title: str, key: str) -> str:
-        if key not in legacy:
-            return '<p>Unavailable for this source. No substitute or synthetic evidence was loaded.</p>'
-        return '<p>Preserved historical evidence; source boundary: ' + text(legacy.get('as_of')) + '.</p>' + inspector(title, legacy[key])
-    flow = table([('Completed work items', wi.get('completed')), ('Open work items', wi.get('open_inventory')),
-                  ('Aged work items', wi.get('aged')), ('Merged PRs', delivery.get('pull_requests', {}).get('merged')),
-                  ('Open PRs at boundary', delivery.get('pull_requests', {}).get('open_inventory')),
-                  ('Work-item cycle median', duration(wi.get('durations', {}), 86400000000, 'days')),
-                  ('PR lead median', duration(delivery.get('pull_requests', {}).get('lead', {}), 86400000000, 'days'))])
-    flow += '<p>Duration samples exclude unfinished work. Units are exact microseconds; medians retain rational precision.</p>' + inspector('Delivery current/previous samples, comparisons and exclusions', dims.get('delivery'))
-    defects = table([('Created defects', bugs.get('opened')), ('Distinct completed defects', bugs.get('completed')),
-                     ('Open defects at boundary', bugs.get('open_inventory')), ('Aged defects', bugs.get('aged')), ('Reopened defects', bugs.get('reopened')),
-                     ('Resolution median', duration(bugs.get('durations', {}), 86400000000, 'days'))])
-    defects += '<p>Opened minus resolved is not backlog growth: reopens and removals remain separate evidence.</p>' + inspector('Defect histories, category boundaries and resolution samples', dims.get('quality'))
-    build_section = table([('Known terminal runs', builds.get('known_terminal')), ('Unfinished runs', builds.get('unfinished')),
-                           ('Undated terminal runs', builds.get('undated')),
-                           ('Build duration median', duration(builds.get('durations', {}), 60000000, 'minutes'))]) + inspector('Build categories, fractions and qualified duration samples', builds)
-    build_section += '<p>Build success is not product quality. Deployments are unsupported by this assessment scope.</p>'
-    findings = ''.join(f'<details class="attention"><summary>{text(f["severity"])} · {text(f["rule_id"])}</summary>'
-                       + inspector('Exact source support, threshold, scope and observed value', f) + '</details>' for f in a['findings']) or '<p>No eligible threshold finding. This does not prove absence of issues.</p>'
-    limitations = inspector('Completeness, capability and acquisition state', a['completeness']) + inspector('Assessment limitations', a['limitations'])
-    investigations = ''.join(f'<p><strong>{text(i["template_id"])}</strong> — {text(i["text"])}</p>' for i in a['investigations']) or '<p>No supported investigation template.</p>'
-    content = [snapshot, landscape, old('Original component concentration and supports', 'components'), old('Validated paths, gaps and lookup provenance', 'traceability_evidence'),
-               old('Historical qualifying review interactions', 'review_evidence'), old('Exact-version/target historical observations', 'verification_evidence'),
-               flow, defects, build_section, findings, limitations, investigations]
+        value = legacy[name]
+        if name == 'components':
+            return 'Available · historical'
+        status = value.get('provenance', {}).get('status') if name == 'review_evidence' else value.get('result', {}).get('collection_status', value.get('collection', {}).get('status'))
+        if name == 'traceability_evidence':
+            status = value.get('collection', {}).get('status')
+        return {'COMPLETE': 'Complete · historical', 'PARTIAL': 'Partial · historical', 'FAILED': 'Unavailable'}.get(status, 'Uncertain · historical')
+
+    source_summary = [('Continuity', coverage('components')), ('Reviews', coverage('review_evidence')),
+                      ('Traceability', coverage('traceability_evidence')), ('Verification', coverage('verification_evidence')),
+                      ('Delivery', coverage('delivery')), ('Quality', coverage('quality')),
+                      ('Builds', {'OBSERVED': 'Available', 'PARTIAL': 'Partial'}.get(builds.get('availability'), 'Unavailable')),
+                      ('Deployment', 'Unavailable')]
+    provenance = 'SYNTHETIC MANAGER EXAMPLE' if synthetic else 'OFFLINE DECLARED · source owner assertions'
+    window = a['windows']['current']
+    snapshot = f'<p class="badge">{text(provenance)}</p><p>Assessment UTC: {text(window["start"])} to {text(window["end"])} (end excluded).</p>'
+    snapshot += '<p class="muted">Historical continuity, reviews, traceability and verification are from ' + text(legacy.get('as_of', 'Unavailable')) + '; they are not observations of the assessment period.</p>'
+    snapshot += '<h3>What needs attention?</h3><ul class="finding-list">'
+    groups: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    for finding in findings:
+        groups.setdefault((finding['severity'], finding['rule_id']), []).append(finding)
+    for (severity, rule), group in list(groups.items())[:8]:
+        label = NAMES[rule]
+        detail = f'{len(group)} component observations' if rule == 'ER01' else f'{len(group)} supported observation(s)'
+        if rule == 'ER03':
+            detail = f'{group[0]["value"]} explicit evidence gaps'
+        elif rule == 'ER05':
+            detail = f'{group[0]["value"]} aged work items and PRs'
+        elif rule == 'ER06':
+            changes = []
+            for population, population_label, sample in (('work_items', 'Work-item median', 'durations'), ('pull_requests', 'PR median', 'lead')):
+                comparison = group[0]['value'].get(population, {})
+                relative = comparison.get('relative')
+                if relative is not None and Fraction(relative['numerator'], relative['denominator']) >= Fraction(1, 4):
+                    changes.append(population_label + ': ' + median(delivery.get('previous', {}).get(population, {}).get(sample, {})) + ' → ' + median(dc.get(population, {}).get(sample, {})))
+            detail = '; '.join(changes)
+        elif rule == 'ER07':
+            detail = f'{group[0]["value"]} aged unresolved defects'
+        elif rule == 'ER08':
+            detail = f'{bugs.get("opened")} opened; {bugs.get("completed")} resolved'
+        elif rule == 'ER09':
+            detail = percent(group[0]['value']) + ' of qualified builds failed'
+        snapshot += f'<li class="attention"><strong>{text(severity)} · {text(label)}</strong> — {text(detail)} <a href="#finding-{text(group[0]["id"])}">Why?</a></li>'
+    snapshot += '</ul>'
+    if not findings:
+        snapshot += '<p>No eligible attention finding. Missing evidence does not establish absence of issues.</p>'
+    snapshot += f'<a href="#all-findings">View all findings ({len(findings)})</a><h3>Engineering snapshot</h3><div class="cards">'
+    continuity_count = len([f for f in findings if f['rule_id'] == 'ER01']) if 'components' in legacy else None
+    snapshot += card('Continuity', f'<p>{number(continuity_count)} attention areas · historical</p>')
+    snapshot += card('Delivery', trend(delivery, 'work_items', 'durations'))
+    snapshot += card('PR Flow', trend(delivery, 'pull_requests', 'lead'))
+    snapshot += card('Quality / Defect Evidence', f'<p>Opened: {number(bugs.get("opened"))} · Resolved: {number(bugs.get("completed"))}<br>Open: {number(bugs.get("open_inventory"))} · Aged ≥30d: {number(bugs.get("aged"))} · Reopened: {number(bugs.get("reopened"))}</p>')
+    snapshot += card('Build Evidence', f'<p>{number(builds.get("known_terminal"))} qualified terminal builds<br>Success: {percent(builds.get("success_fraction"))} · Failure: {percent(builds.get("failure_fraction"))}</p>')
+    trace_findings = [f for f in findings if f['rule_id'] == 'ER03']
+    snapshot += card('Traceability', '<p>' + (number(trace_findings[0]['value']) + ' explicit evidence gaps · historical' if trace_findings else 'No eligible gap finding · inspect evidence' if 'traceability_evidence' in legacy else 'Unavailable') + '</p>')
+    snapshot += card('Reviews', '<p>' + text(coverage('review_evidence')) + '</p>')
+    snapshot += card('Verification', '<p>' + text(coverage('verification_evidence')) + '</p>')
+    snapshot += '</div><h3>Evidence coverage</h3><p>' + ' · '.join(text(k) + ': ' + text(v) for k, v in source_summary) + '</p>'
+    snapshot += '<p>Major unavailable evidence: ' + text(', '.join(k for k, v in source_summary if v == 'Unavailable') or 'None at source level; field limits remain inspectable') + '.</p>'
+
+    historical = {c['component']: c for c in legacy.get('components', [])}
+    review_rows = {c['component']: c for c in legacy.get('review_evidence', {}).get('components', [])}
+    depth = legacy.get('configuration', {}).get('component_depth')
+    review_depth = legacy.get('review_evidence', {}).get('component_depth')
+    reviews = review_rows if type(depth) is int and depth == review_depth else {}
+    mapped_groups: dict[str, list[dict[str, Any]]] = {}
+    for row in a['component_results']:
+        mapped_groups.setdefault(row['component_ref']['identifier'], []).append(row)
+    # Ambiguous short identifiers cannot merge distinct typed component scopes.
+    mapped = {name: rows[0] for name, rows in mapped_groups.items() if len(rows) == 1 and type(depth) is int and rows[0]['component_ref'].get('configuration') == f'depth-{depth}'}
+    component_names = sorted(set(historical) | set(reviews) | set(mapped_groups))
+    def scoped(name: str) -> list[dict[str, Any]]:
+        return [f for f in findings if (f['rule_id'] == 'ER01' or f['rule_id'] == 'ER02' and name in reviews) and f['scope'].get('legacy') == name]
+    component_names.sort(key=lambda name: (min((0 if f['severity'] == 'HIGH' else 1 for f in scoped(name)), default=2), name))
+    snapshot += '<h3>Components requiring attention</h3><ul>' + ''.join(f'<li><a href="#component-{component_names.index(name)}">{text(name)}</a> · ' + ' / '.join(text(NAMES[f['rule_id']]) for f in scoped(name)) + '</li>' for name in [n for n in component_names if scoped(n)][:10]) + '</ul>'
+    snapshot += '<p class="muted">Global delivery, defect and build findings stay global. Component observations require explicit scope. No finding does not mean Normal.</p>'
+
+    components = '<p>Historical measures keep their source date. Unbound or mismatched component strategies are Unavailable; component counts overlap and must not be summed.</p><div class="table"><table><thead><tr><th>Component</th><th>Continuity</th><th>Review</th><th>Delivery</th><th>Quality</th><th>Traceability</th><th>Verification</th></tr></thead><tbody>'
+    component_details = ''
+    for index, name in enumerate(component_names):
+        old = historical.get(name, {})
+        review = reviews.get(name, {})
+        row = mapped.get(name, {})
+        cd = row.get('dimensions', {}).get('delivery', {}).get('current', {}).get('work_items', {})
+        cq = row.get('dimensions', {}).get('quality', {}).get('current', {}).get('work_items', {})
+        review_value = 'Unavailable' if review.get('coverage') is None else f'{review["coverage"] * 100:.1f}% · {text(review.get("coverage_status"))}'
+        values = [old.get('risk', 'Unavailable'), review_value, 'Completed: ' + number(cd.get('completed')) if cd.get('availability') in ('OBSERVED', 'PARTIAL') else 'Unavailable', 'Open: ' + number(cq.get('open_inventory')) if cq.get('availability') in ('OBSERVED', 'PARTIAL') else 'Unavailable', 'Unavailable', 'Unavailable']
+        components += f'<tr><th scope="row"><a href="#component-{index}">{text(name)}</a></th>' + ''.join(f'<td>{text(v)}</td>' for v in values) + '</tr>'
+        component_details += f'<details id="component-{index}"><summary>{text(name)} · {len(scoped(name))} scoped attention observations</summary>'
+        component_details += table([('Continuity · historical', old.get('risk')), ('Review coverage · historical', review_value), ('Delivery completed', cd.get('completed')), ('Delivery median', median(cd.get('durations', {}))), ('Defects opened', cq.get('opened')), ('Defects resolved', cq.get('completed')), ('Defects open', cq.get('open_inventory')), ('Defects aged ≥30d', cq.get('aged')), ('Traceability component binding', None), ('Verification component binding', None)])
+        component_details += f'<a href="#component-evidence-{index}">Inspect evidence</a></details>'
+    components += '</tbody></table></div>' + component_details
+    if not component_names:
+        components += '<p>Component membership unavailable. No explicit binding exists.</p>'
+
+    details = '<details><summary>Continuity</summary>' + table([(name, c.get('risk')) for name, c in historical.items()]) + '<p>Historical concentration observations; inspect source support and any stress evidence in methodology.</p></details>'
+    details += '<details><summary>Delivery</summary>' + table([('Completed work items', wi.get('completed')), ('Open work items', wi.get('open_inventory')), ('Aged work items ≥30d', wi.get('aged')), ('Merged PRs', pr.get('merged')), ('Open PRs', pr.get('open_inventory'))]) + '<h3>Work-item cycle duration</h3>' + trend(delivery, 'work_items', 'durations') + '<h3>PR lead duration</h3>' + trend(delivery, 'pull_requests', 'lead') + '</details>'
+    details += '<details><summary>Quality / Defect Evidence</summary>' + table([('Opened', bugs.get('opened')), ('Resolved · distinct defects', bugs.get('completed')), ('Open', bugs.get('open_inventory')), ('Aged ≥30d', bugs.get('aged')), ('Reopened', bugs.get('reopened')), ('Resolution median', median(bugs.get('durations', {})))]) + '<p>Opened minus resolved does not establish backlog growth; reopens and removals are separate.</p></details>'
+    details += '<details><summary>Build Evidence</summary>' + table([('Qualified terminal builds', builds.get('known_terminal'))] + [(name.replace('_', ' ').title(), count) for name, count in (builds.get('categories') or [])] + [('Success fraction', percent(builds.get('success_fraction'))), ('Failure fraction', percent(builds.get('failure_fraction'))), ('Duration median', median(builds.get('durations', {}), 'minutes')), ('Unfinished', builds.get('unfinished')), ('Undated', builds.get('undated'))]) + '<p>Build success is not a software-quality score. Deployment evidence is unavailable.</p></details>'
+    details += trend(delivery, 'builds', 'durations', 'minutes')
+    details += '<details><summary>Reviews</summary>' + table([(name, 'Unavailable' if c.get('coverage') is None else f'{c["coverage"] * 100:.1f}% · {c.get("coverage_status")}') for name, c in review_rows.items()]) + '<p>Independent review source; original component depth: ' + number(review_depth) + '. Qualifying review interaction, not review quality. Concentration, unreviewed PRs and exclusions remain inspectable.</p></details>'
+    details += '<details><summary>Traceability &amp; Verification</summary><p>' + text(coverage('traceability_evidence')) + ' / ' + text(coverage('verification_evidence')) + '</p>' + table([(m['dimension'], 'Unavailable' if m['value'] is None else str(m['value']) + ' · ' + m['status']) for m in legacy.get('verification_evidence', {}).get('result', {}).get('metrics', [])]) + '<a href="#legacy-evidence">Inspect paths, linkage, gaps and qualified verification observations</a></details>'
+
+    methodology = '<p>Observations support investigation; they do not establish cause, readiness or employee performance.</p><div id="all-findings"><h3>All findings and recommended investigation</h3>'
+    for f in findings:
+        methodology += f'<details id="finding-{text(f["id"])}"><summary>{text(f["severity"])} · {text(NAMES[f["rule_id"]])}</summary><p>Suggested investigation: {text(investigations.get(f["id"], "Inspect evidence and limitations."))}</p><p>Method: {text(f["rule_id"])} · {text(f["rule_version"])}</p>' + inspector('Exact supporting evidence, scope, sample and thresholds', f) + '</details>'
+    methodology += '</div>' + inspector('Evidence sources and source boundaries', a['evidence_sources']) + inspector('Collection completeness, capabilities and selected evidence', a['completeness']) + inspector('Assessment windows and policy', {'windows': a['windows'], 'policy': a['policy']}) + inspector('Current/previous dimensions, trends, mappings and exclusions', dims)
+    for index, name in enumerate(component_names):
+        methodology += f'<div id="component-evidence-{index}">' + inspector('Exact component evidence: ' + name, {'historical': historical.get(name), 'review': review_rows.get(name), 'qualified_mapping': mapped_groups.get(name)}) + '</div>'
+    methodology += '<div id="legacy-evidence">' + inspector('Original continuity, reviews, traceability and verification evidence', legacy) + '</div>' + inspector('Limitations', a['limitations']) + inspector('Canonical package and schema metadata', validated)
+    content = [snapshot, components, details, methodology]
     data = canonical(validated).replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026')
     download = b64encode(canonical(validated).encode('utf-8')).decode('ascii')
-    output = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-    output += '<title>Engineering System Review · ' + text(a['system']) + '</title><style>' + CSS + '</style></head><body><main>'
-    output += '<header><p class="eyebrow">ENGINEERING CONTINUITY LAB · SYSTEM REVIEW</p><h1>' + text(a['system']) + '</h1><p class="muted">Independent evidence dimensions for a conservative engineering review.</p><button type="button" onclick="window.print()">Print / Save as PDF</button> <a download="engineering-review.json" href="data:application/json;base64,' + download + '">Download review JSON</a></header>'
-    output += '<details><summary>Jump to a review section</summary><nav aria-label="Review sections">' + ''.join(f'<a href="#section-{i}">{text(title)}</a>' for i, title in enumerate(SECTIONS)) + '</nav></details>'
+    output = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Engineering System Review · ' + text(a['system']) + '</title><style>' + CSS + '</style></head><body><main>'
+    output += '<header><p class="eyebrow">ENGINEERING SYSTEM REVIEW</p><h1>' + text(a['system']) + '</h1><button type="button" onclick="window.print()">Print / Save as PDF</button> <a download="engineering-review.json" href="data:application/json;base64,' + download + '">Download review JSON</a></header>'
+    output += '<nav aria-label="Manager report">' + ''.join(f'<a href="#section-{i}">{text(title)}</a>' for i, title in enumerate(SECTIONS)) + '</nav>'
     output += ''.join(f'<section id="section-{i}" aria-labelledby="title-{i}"><h2 id="title-{i}">{text(title)}</h2>{body}</section>' for i, (title, body) in enumerate(zip(SECTIONS, content)))
-    output += '<footer>Offline declared evidence. No network access or execution is performed by this document.</footer></main>'
-    output += '<script id="engineering-package" type="application/json">' + data + '</script><script>' + PRINT_SCRIPT + '</script></body></html>'
+    output += '<footer>Offline evidence. No network access or execution is performed by this document.</footer></main><script id="engineering-package" type="application/json">' + data + '</script><script>' + PRINT_SCRIPT + '</script></body></html>'
     if len(output.encode('utf-8')) > 32 * 1024 * 1024:
         raise ValueError('invalid engineering HTML size')
     return output
