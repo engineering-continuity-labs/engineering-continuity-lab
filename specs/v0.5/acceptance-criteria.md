@@ -116,3 +116,19 @@ Pre-development plan/design: docs/v0.5-evidence-presentation.md.
 | ECL-AC-552 | UNAVAILABLE_NOT_ZERO | Null/failed/unsupported remain Unavailable, measured complete zero stays zero and partial remains qualified. |
 | ECL-AC-553 | SOURCE_COMPLETENESS_VISIBLE | Source boundaries, collection/capability/mapping/sample/exclusion uncertainty visible and inspectable. |
 | ECL-AC-554 | MANAGER_AUDITOR_PROGRESSIVE_DISCLOSURE | Manager observes magnitude/scope/trust; auditor expands methods/refs and downloads reproducible package; real human usability MANUAL. |
+
+## Azure acquisition acceptance
+
+Design/pre-development QA: docs/v0.5-azure-engineering-review.md.
+
+| ID | Named criterion | Expected observation |
+| --- | --- | --- |
+| ECL-AC-555 | NATIVE_EVIDENCE_PROJECTION | Native WI revision transitions/PR merges/build outcomes project exact accepted observations without metric changes. |
+| ECL-AC-556 | PROFILE_ROUTE_COMPATIBILITY | Four explicit profiles preserve versions; new routes GET-only, WIQL POST-only, existing command compatible. |
+| ECL-AC-557 | INVALID_HISTORY_QUARANTINE | Gaps/conflicts/unknown states/type mutation/wrong scope/future events/unapproved IDs never create favourable observations. |
+| ECL-AC-558 | HONEST_LIVE_COMPLETENESS | Live enumeration PARTIAL, no historical PR inventory, unsupported categories/unmapped components remain unavailable. |
+| ECL-AC-559 | BOUNDED_ACQUISITION | Global request/page/item/transition bounds and malformed/nonprogress pagination stop safely, retaining valid positives. |
+| ECL-AC-560 | PRIVATE_RUNTIME_BOUNDARY | Approval precedes network, PAT prompt-only, regular bounded files, fixed sanitized parser/input/runtime errors. |
+| ECL-AC-561 | ONE_COMMAND_ROUNDTRIP | Emitted JSON reimports; HTML package equivalent and offline; optional genuine Git boundary retained, no demo fallback. |
+| ECL-AC-562 | CONFLICT_DETERMINISM | Equal duplicate/reordered records deterministic; conflicting native identities quarantined before projection. |
+| ECL-AC-563 | LIVE_DEPLOYMENT_MANUAL | Synthetic REST validation distinguished from actual live deployments/PAT permissions, which remain MANUAL. |

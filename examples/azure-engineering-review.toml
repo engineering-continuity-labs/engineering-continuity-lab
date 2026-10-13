@@ -1,0 +1,30 @@
+# SYNTHETIC CONFIGURATION ONLY. Copy both TOMLs to a private directory and edit.
+# No PAT, titles, descriptions or logs belong in either configuration.
+[review]
+connection_file = "azure-connection.toml"
+system = "demo-system"
+assessment = "azure-review-example"
+previous_start = "2025-11-02T00:00:00Z"
+current_start = "2025-12-02T00:00:00Z"
+current_end = "2026-01-01T00:00:00Z"
+assessment_as_of = "2026-01-01T00:00:00Z"
+
+[selection]
+project_name = "Synthetic Project"
+delivery_types = { Task = "delivery-task" }
+defect_types = { Bug = "defect" }
+# Explicit policy; creation is not automatically a cycle start.
+created_start = true
+build_definitions = [7]
+
+[states]
+New = "OPEN"
+Active = "OPEN"
+Closed = "COMPLETE"
+Removed = "REMOVED"
+
+[builds]
+71 = "build-71"
+72 = "build-72"
+73 = "build-73"
+74 = "build-74"
