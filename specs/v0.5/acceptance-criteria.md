@@ -94,3 +94,25 @@ Defined before development; test plan: docs/v0.5-manager-report-experience.md. T
 | ECL-AC-537 | SAFE_DYNAMIC_TEXT | Dynamic labels and source text escaped, inert JSON cannot break out; no remote assets/telemetry; size limit retained. |
 | ECL-AC-538 | SMALL_SCREEN | Desktop and narrow screenshots inspected; cards stack and tables scroll without losing evidence; real mobile usability MANUAL. |
 | ECL-AC-539 | SOURCE_PARITY | Validated input equals embedded/downloaded reimport; Atlas medians10/5d, defect4/2/2/1/1, build2/1/1 and fractions unchanged; no core math/source changes. |
+
+## Human evidence acceptance
+
+Pre-development plan/design: docs/v0.5-evidence-presentation.md.
+
+| ID | Named criterion | Expected observation |
+| --- | --- | --- |
+| ECL-AC-540 | HUMAN_READABLE_EVIDENCE | Human semantic source/period/completeness/finding/component/dimension tables replace object dumps. |
+| ECL-AC-541 | JSON_MACHINE_ARTIFACT | Unchanged validated canonical package is normative; package SHA256 explicitly fingerprints canonical UTF8 bytes. |
+| ECL-AC-542 | NO_JSON_PRIMARY_VIEW | No inline raw JSON viewer or giant object tree; normal evidence has no rule IDs outside technical disclosures. |
+| ECL-AC-543 | DOWNLOAD_EVIDENCE_PACKAGE | Download evidence package (.json) plus machine-readable reproduction/audit helper text. |
+| ECL-AC-544 | FINDING_EVIDENCE_SUMMARY | Each original finding shows observation, relevant accepted magnitude/sample/completeness/limitations and unchanged investigation. |
+| ECL-AC-545 | TECHNICAL_DETAILS_DISCLOSURE | Rule/version/policy/threshold/capability/mapping and exact raw values live in collapsed technical method details. |
+| ECL-AC-546 | EXACT_REFERENCE_ACCESS | Supporting normalized refs and trace/test/target identities remain reachable as readable tables without invented titles. |
+| ECL-AC-547 | NO_METRIC_DRIFT | No metric/rule/source changes; accepted Atlas/current/previous quantities remain identical. |
+| ECL-AC-548 | PRINT_EXCLUDES_RAW_JSON | Human print retains four-layer order and excludes raw JSON; full package script invisible. |
+| ECL-AC-549 | EMBEDDED_PACKAGE_INERT | Canonical package application/json script stays inert, escaped and invisible. |
+| ECL-AC-550 | PACKAGE_ROUNDTRIP | Embedded and downloadable package reimports equal validated input; download canonical bytes exact. |
+| ECL-AC-551 | PRIVACY_PRESERVED | Approved aliases only; dynamic text escaped, no raw DTO/descriptions/logs/secrets/new identities. |
+| ECL-AC-552 | UNAVAILABLE_NOT_ZERO | Null/failed/unsupported remain Unavailable, measured complete zero stays zero and partial remains qualified. |
+| ECL-AC-553 | SOURCE_COMPLETENESS_VISIBLE | Source boundaries, collection/capability/mapping/sample/exclusion uncertainty visible and inspectable. |
+| ECL-AC-554 | MANAGER_AUDITOR_PROGRESSIVE_DISCLOSURE | Manager observes magnitude/scope/trust; auditor expands methods/refs and downloads reproducible package; real human usability MANUAL. |

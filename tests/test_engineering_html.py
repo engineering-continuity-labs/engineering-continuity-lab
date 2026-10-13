@@ -103,7 +103,7 @@ class EngineeringHTMLTests(unittest.TestCase):
         self.assertIn('Delivery duration increased', document.snapshot)
         for finding in package['assessment']['findings']:
             self.assertIn('id="finding-' + finding['id'] + '"', html)
-        self.assertIn('Exact supporting evidence', html)
+        self.assertIn('View exact supporting evidence references', html)
         self.assertNotIn('Health =', html)
         self.assertIn('Quality / Defect Evidence', html)
         self.assertIn('Traceability component binding', html)
@@ -173,6 +173,13 @@ class EngineeringHTMLTests(unittest.TestCase):
         engineering_details = html.split('id="section-2"', 1)[1].split('id="section-3"', 1)[0]
         self.assertIn('75.0%', engineering_details)
         self.assertIn('original component depth: 2', engineering_details)
+        component_evidence = html.split('id="component-evidence-', 1)[1].split('Independent review evidence', 1)[0]
+        self.assertNotIn('75.0%', component_evidence)
+        self.assertIn('Review evidence unavailable for this component binding', component_evidence)
+        independent_reviews = html.split('Independent review evidence', 1)[1].split('id="legacy-evidence"', 1)[0]
+        self.assertIn('75.0%', independent_reviews)
+        self.assertIn('Excluded interactions', independent_reviews)
+        self.assertIn('Original review component depth: 2', independent_reviews)
         self.assertIn('Unavailable', components)
         self.assertIn('75.0%', render(compose(assessment_id='review', system='atlas', windows=windows, ecl_report=json.loads((Path(__file__).resolve().parents[1] / 'examples/v0.4-traceability-v3.json').read_text()))).split('id="section-1"', 1)[1].split('id="section-2"', 1)[0])
 
@@ -197,6 +204,62 @@ class EngineeringHTMLTests(unittest.TestCase):
         self.assertNotIn('Completed: 4', components)
         self.assertIn('Unavailable', components)
         self.assertNotIn('Normal', components)
+
+    def test_human_evidence_download_digest_and_no_inline_json(self):
+        from hashlib import sha256
+        from continuity.reporting.portable import canonical
+        package = json.loads((Path(__file__).resolve().parents[1] / 'examples/v0.5-engineering-review.json').read_text())
+        html = render(package, synthetic=True)
+        document = Document(); document.feed(html)
+        self.assertIn('Download evidence package (.json)', html)
+        self.assertIn('Machine-readable evidence used to reproduce and audit this review.', html)
+        self.assertFalse(any(t == 'pre' for t, _ in document.tags))
+        self.assertNotIn('Canonical package and schema metadata', html)
+        download = next(attrs['href'] for tag, attrs in document.tags if tag == 'a' and 'download' in attrs)
+        raw = b64decode(download.split(',', 1)[1])
+        self.assertEqual(raw, canonical(package).encode('utf-8'))
+        self.assertEqual(import_package(document.package), package)
+        self.assertIn(sha256(raw).hexdigest(), html)
+        self.assertIn('Technical method', html)
+        self.assertIn('.technical{display:none!important}', html)
+        self.assertIn("querySelectorAll('details:not(.technical)')", html)
+        for label in ('Evidence Sources', 'Assessment Period', 'Evidence Completeness', 'Historical contributors', 'Mapped PRs',
+                      'PRs with qualifying review evidence', 'Excluded interactions', 'Observed implementation paths', 'Historical test observations',
+                      'Qualified current samples', 'Qualified previous samples', 'Evidence package'):
+            self.assertIn(label, html)
+        human_method = html.split('id="section-3"', 1)[1].split('id="engineering-package"', 1)[0]
+        self.assertNotIn('&quot;assessment&quot;', human_method)
+        self.assertIn('Current median', human_method)
+        self.assertIn('Previous median', human_method)
+        self.assertIn('Work Item 1001', human_method)
+        self.assertIn('Test T1 @v1', human_method)
+        self.assertIn('Path uncertainty:', human_method)
+        self.assertIn('Exact requirement path qualification and support', human_method)
+
+    def test_evidence_rule_ids_only_within_technical_disclosure(self):
+        from continuity.reporting.engineering_html import NAMES
+        package = json.loads((Path(__file__).resolve().parents[1] / 'examples/v0.5-engineering-review.json').read_text())
+        class Visibility(HTMLParser):
+            def __init__(self):
+                super().__init__(); self.stack = []; self.technical = 0; self.in_script = False; self.normal = ''; self.audit = ''
+            def handle_starttag(self, tag, attrs):
+                if tag == 'details':
+                    technical = 'technical' in dict(attrs).get('class', '').split()
+                    self.stack.append(technical); self.technical += technical
+                if tag == 'script': self.in_script = True
+            def handle_endtag(self, tag):
+                if tag == 'details': self.technical -= self.stack.pop()
+                if tag == 'script': self.in_script = False
+            def handle_data(self, value):
+                if self.in_script: return
+                if self.technical: self.audit += value
+                else: self.normal += value
+        parsed = Visibility(); parsed.feed(render(package))
+        for finding in package['assessment']['findings']:
+            self.assertNotIn(finding['rule_id'], parsed.normal)
+            self.assertIn(finding['rule_id'], parsed.audit)
+            self.assertIn(NAMES[finding['rule_id']], parsed.normal)
+        self.assertNotIn('schema_version', parsed.normal)
 
     def test_missing_data_and_forgery_are_not_synthetic_fallback(self):
         windows, _, _ = sources()

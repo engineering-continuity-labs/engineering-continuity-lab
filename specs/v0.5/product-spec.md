@@ -73,3 +73,12 @@ The twelve accepted technical areas remain audit structure; normal navigation us
 | ECL-FR-515 | Exact-bound component table/detail separates dimensions and orders explicit attention first; unbound evidence is Unavailable. |
 | ECL-FR-516 | Human labels and qualified readable trends preserve original values, findings, independent dimensions and observation-only wording. |
 | ECL-FR-517 | Four-layer progressive disclosure preserves complete methodology, exact evidence, normative package and accessible offline/print export. |
+
+## Human evidence increment
+
+| ID | Requirement |
+| --- | --- |
+| ECL-FR-518 | Present observation, human evidence details and optional technical audit through progressive disclosure; no JSON parsing required. |
+| ECL-FR-519 | Canonical package remains unchanged normative machine artifact with clear download/helper and inert invisible embedding. |
+| ECL-FR-520 | Sources, completeness, periods, finding methods/support and independent dimension evidence remain readable, exact and scope-qualified. |
+| ECL-FR-521 | Print contains human evidence, excludes raw JSON; privacy, offline portability, validation and package parity remain intact. |
