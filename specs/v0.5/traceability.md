@@ -7,7 +7,7 @@ The original design-only matrix below is historical. Current core references:
 
 | Chain | Implementation | Verification / remaining scope |
 | --- | --- | --- |
-| FR503–506, FR510 / AC503–511,514,516 | `domain/engineering_review.py`, `analysis/engineering_review.py`, `analysis/delivery_runs.py` | `test_engineering_review.py` and package regressions; runtime core implemented, full criterion coverage PARTIAL pending final independent review/CI; Azure operation evidence PLANNED/MANUAL |
+| FR503–506, FR510 / AC503–511,514,516 | `domain/engineering_review.py`, `analysis/engineering_review.py`, `analysis/delivery_runs.py` | `test_engineering_review.py` and package regressions; runtime core implemented and independently APPROVED; full criterion coverage PARTIAL, final-head CI required; Azure operation evidence PLANNED/MANUAL |
 | FR502,507–509 / AC502,512–513,515–518 | `reporting/engineering_review.py`; exact declared mappings, immutable legacy report and ER01–09 | Source-backed legacy and Atlas tests in `test_engineering_review_package.py`; explicit mapping only, automatic projection of old validated paths remains PLANNED; UI presentations PLANNED |
 | FR511, NFR501–503 / AC519–520 | Strict collection validation, deterministic bounded package and recomputing import | JSON-only tests and forged/privacy/boundary cases; standalone HTML/browser parity and user CLI PLANNED, publication authenticity MANUAL |
 | FR513 / AC504,508,510,513,516,520 | `traceability_providers/engineering_synthetic.py`, `scripts/generate_engineering_review.py`, `examples/v0.5-engineering-review.json` | Executable SYNTHETIC source oracle; no live certification |

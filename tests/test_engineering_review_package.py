@@ -59,6 +59,11 @@ class EngineeringPackageTests(unittest.TestCase):
         partial = replace(missing, status=CollectionStatus.PARTIAL,
                           lookups=tuple(replace(l, status=CollectionStatus.PARTIAL) for l in missing.lookups))
         self.assertNotIn('ER04', rules(with_verification_evidence(base, partial)))
+        self.assertNotIn('ER04', rules(with_verification_evidence(base, fixture('CONFLICTING_RUN'))))
+        lookup = next(l for l in missing.lookups if l.relation == Relation.VERIFICATION_TEST)
+        conflicting_lookup = replace(missing, lookups=(*missing.lookups, replace(lookup, capability=TraceabilityCapability.UNKNOWN)))
+        self.assertNotIn('ER04', rules(with_verification_evidence(base, conflicting_lookup)))
+        self.assertNotIn('ER04', rules(with_verification_evidence(base, fixture('LIMIT'))))
 
     def test_findings_exact_bound_and_excess(self) -> None:
         windows, _, _ = sources()

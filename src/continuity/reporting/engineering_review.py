@@ -286,6 +286,13 @@ def _compose(*, assessment_id: str, system: str, windows: Windows,
         verification_section = ecl_report.get('verification_evidence', {})
         verification = verification_section.get('result', {})
         verification_source = verification_section.get('collection', {})
+        if verification_section:
+            from continuity.analysis.verification import derive as derive_verification
+            from continuity.reporting.portable import verification_from_dict, collection_to_dict, absent_code
+            from continuity.reporting.traceability import traceability_from_dict
+            code = traceability_from_dict(ecl_report['traceability_evidence']) if 'traceability_evidence' in ecl_report else absent_code()
+            effective = derive_verification(verification_from_dict(verification_section, code))
+            verification_source = collection_to_dict(effective.collection)
         lookups = verification_source.get('lookups', [])
         selected_tests_complete = any(l['population'] == 'TEST' and l['status'] == 'COMPLETE'
                                       and l['capability'] == 'SUPPORTED' for l in lookups)
