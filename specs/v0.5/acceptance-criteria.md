@@ -70,3 +70,27 @@ Full flow oracle: four distinct completed WI/window with complete selected start
 ## Gates and evidence classification
 
 Before development: independent design review attacks reproducibility, unavailable/zero, snapshots/windows/mapping, denominators, conflicts/precision, findings/privacy and completeness. No runtime tests created in this design-only PR. This PR CI must keep baseline regressions/type/syntax/generator/wheel checks green and prove diff only approved documentation. Future runtime requires new source-oracle and adversarial tests, full regression, Python/browser/package/export parity and independent review. Live Server/Services/custom process/PAT/certificate/history correctness, publication rights, real browser/mobile/print accessibility are MANUAL until performed. QA exit: each requirement has a testable acceptance and explicit evidence classification; no implementation VERIFIED claim.
+
+## Manager comprehension acceptance
+
+Defined before development; test plan: docs/v0.5-manager-report-experience.md. Two-minute comprehension is MANUAL, not inferred from markup.
+
+| ID | Named criterion | Expected observation |
+| --- | --- | --- |
+| ECL-AC-523 | MANAGER_TWO_MINUTE_SUMMARY | Executive Summary comes first: system/period/provenance, ≤8 finding groups, 6–9 cards, ≤10 attention components and compact coverage; two-minute human comprehension MANUAL. |
+| ECL-AC-524 | HUMAN_FINDING_LABELS | All ER01–09 findings use fixed observation labels in normal UI; original rule IDs preserved in audit. |
+| ECL-AC-525 | NO_RULE_ID_PRIMARY_VIEW | Primary summary contains no rule ID/version, raw ref, schema or fingerprint. |
+| ECL-AC-526 | COMPONENT_ATTENTION_TABLE | Semantic component table separates six dimensions, sorts explicit severity first, and leaves unbound evidence Unavailable. |
+| ECL-AC-527 | COMPONENT_DETAIL | Native component disclosure shows exact-bound measures and Inspect evidence anchor without raw refs initially. |
+| ECL-AC-528 | TREND_HUMANIZATION | Qualified median trends display current/previous, signed unit delta and relative percentage; unqualified comparison says Trend unavailable. |
+| ECL-AC-529 | UNAVAILABLE_NOT_ZERO | Null/missing/failed/unsupported remain Unavailable; accepted complete zero stays zero; unknown is never Normal. |
+| ECL-AC-530 | NO_CAUSAL_LANGUAGE | Labels and investigation text describe observed evidence without team overload, quality decline, root cause or employee judgment. |
+| ECL-AC-531 | NO_OVERALL_SCORE | No overall product/team/maturity score, combined number or combined traffic-light status. |
+| ECL-AC-532 | METHOD_DETAILS_PRESERVED | Capabilities, collection/mapping status, boundaries, sample sizes, exclusions and thresholds remain inspectable. |
+| ECL-AC-533 | EXACT_EVIDENCE_AVAILABLE | Every finding has its exact full support and rule/version/scope accessible; full source package retained. |
+| ECL-AC-534 | SYNTHETIC_LABEL | Explicit synthetic render displays SYNTHETIC MANAGER EXAMPLE; aliases never infer provenance. |
+| ECL-AC-535 | PRINT_ORDER | Print follows Executive Summary→Components→Engineering Details→Evidence & Methodology; disclosures opened for print and restored after. |
+| ECL-AC-536 | KEYBOARD_ACCESS | Semantic headings/tables, native keyboard disclosures/anchors and visible focus; real keyboard/screen-reader verification MANUAL. |
+| ECL-AC-537 | SAFE_DYNAMIC_TEXT | Dynamic labels and source text escaped, inert JSON cannot break out; no remote assets/telemetry; size limit retained. |
+| ECL-AC-538 | SMALL_SCREEN | Desktop and narrow screenshots inspected; cards stack and tables scroll without losing evidence; real mobile usability MANUAL. |
+| ECL-AC-539 | SOURCE_PARITY | Validated input equals embedded/downloaded reimport; Atlas medians10/5d, defect4/2/2/1/1, build2/1/1 and fractions unchanged; no core math/source changes. |
