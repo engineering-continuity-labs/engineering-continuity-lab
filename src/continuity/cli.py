@@ -36,11 +36,12 @@ def resolve_repository_input(explicit_source: str | None) -> str:
 def main(argv: list[str] | None = None) -> int:
     arguments = sys.argv[1:] if argv is None else argv
     azure_mode = bool(arguments and arguments[0] == "azure-acquire")
+    review_mode = bool(arguments and arguments[0] == "engineering-review")
     evidence_mode = bool(arguments and arguments[0] == "evidence-attach")
 
     class CommandParser(argparse.ArgumentParser):
         def error(self, message: str) -> NoReturn:
-            if azure_mode or evidence_mode:
+            if azure_mode or evidence_mode or review_mode:
                 raise ValueError("invalid command arguments")
             super().error(message)
 
@@ -67,6 +68,12 @@ def main(argv: list[str] | None = None) -> int:
     azure.add_argument("--config", type=Path, required=True, help="non-secret TOML connection file")
     azure.add_argument("--approve-publication", action="store_true", help="approve export of aliases, commit hashes and repository paths")
     azure.add_argument("--anonymous", action="store_true", help="do not prompt for a PAT")
+    review = commands.add_parser("engineering-review", help="read-only Azure Delivery/Defect/Build review")
+    review.add_argument("--config", type=Path, required=True, help="private review TOML")
+    review.add_argument("--approve-publication", action="store_true", help="approve normalized evidence publication")
+    review.add_argument("--anonymous", action="store_true", help="do not prompt for a PAT")
+    review.add_argument("--report", type=Path, help="existing genuine Git report JSON")
+    review.add_argument("--format", choices=("json", "html"), default="json")
     attach = commands.add_parser("evidence-attach", help="attach explicitly approved offline evidence to a report-v3 snapshot")
     attach.add_argument("--report", type=Path, required=True, help="existing report-v3 JSON")
     attach.add_argument("--manifest", type=Path, required=True, help="approved offline TOML manifest (or normalized JSON)")
@@ -76,6 +83,9 @@ def main(argv: list[str] | None = None) -> int:
     except ValueError:
         print("continuity: invalid offline evidence command arguments" if evidence_mode else "continuity: invalid Azure command arguments", file=sys.stderr)
         return 2
+    if args.command == "engineering-review":
+        from continuity.azure_engineering_review import run as review_run
+        return review_run(args)
     if args.command == "evidence-attach":
         from continuity.offline_evidence import run as attach_run
         return attach_run(args)

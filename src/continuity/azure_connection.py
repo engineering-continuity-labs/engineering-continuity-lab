@@ -9,6 +9,7 @@ import tomllib
 from typing import Any
 import warnings
 
+from continuity.private_input import read_private
 from continuity.analysis.traceability import derive
 from continuity.domain.models import DirectoryComponents
 from continuity.domain.reviews import CollectionStatus
@@ -54,10 +55,7 @@ def _aliases(value: Any) -> tuple[tuple[int, str], ...]:
 
 
 def load_connection(path: Path) -> Connection:
-    with path.open('rb') as stream:
-        contents = stream.read(1_048_577)
-    if len(contents) > 1_048_576:
-        raise ValueError("invalid connection configuration")
+    contents = read_private(path, 1_048_576)
     raw = _table(tomllib.loads(contents.decode('utf-8')), {'connection', 'publication', 'identities'}, {'limits'})
     c = _table(raw['connection'], {'deployment', 'api_profile', 'base_url', 'collection', 'project', 'repository', 'revision'},
                {'api_version', 'include_changes', 'include_artifact_relations'})

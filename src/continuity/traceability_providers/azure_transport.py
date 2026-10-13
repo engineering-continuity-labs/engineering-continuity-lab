@@ -83,7 +83,9 @@ class AzureHttpTransport:
     def request(self, endpoint: tuple[str, ...], query: dict[str, str],
                 body: dict[str, str] | None = None) -> AzureResponse:
         repo = ("git", "repositories", self.profile.repository)
-        valid = (endpoint in (("wit", "wiql"), ("wit", "workitems"), repo + ("pullrequests",), repo + ("commits",))
+        valid = (endpoint in (("wit", "wiql"), ("wit", "workitems"), ("build", "builds"), repo + ("pullrequests",), repo + ("commits",))
+                 or (len(endpoint) == 4 and endpoint[:2] == ("wit", "workitems") and endpoint[3] == "revisions"
+                     and re.fullmatch(r"[1-9][0-9]{0,9}", endpoint[2]) is not None)
                  or (endpoint[:3] == repo and len(endpoint) == 6 and endpoint[3] == "pullrequests"
                      and re.fullmatch(r"[1-9][0-9]{0,9}", endpoint[4]) is not None and endpoint[5] in ("commits", "workitems"))
                  or (endpoint[:3] == repo and len(endpoint) == 5 and endpoint[3] == "pullrequests"

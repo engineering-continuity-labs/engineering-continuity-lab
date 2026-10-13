@@ -82,3 +82,14 @@ The twelve accepted technical areas remain audit structure; normal navigation us
 | ECL-FR-519 | Canonical package remains unchanged normative machine artifact with clear download/helper and inert invisible embedding. |
 | ECL-FR-520 | Sources, completeness, periods, finding methods/support and independent dimension evidence remain readable, exact and scope-qualified. |
 | ECL-FR-521 | Print contains human evidence, excludes raw JSON; privacy, offline portability, validation and package parity remain intact. |
+
+## Azure acquisition increment
+
+| ID | Requirement |
+| --- | --- |
+| ECL-FR-522 | Acquire selected read-only Azure WI histories, repository PRs and definition-scoped builds into existing normative contracts. |
+| ECL-FR-523 | One-command validated JSON/offline HTML, optionally composing an existing genuine Git report. |
+| ECL-FR-524 | Explicit population/history/cutoff limitations and partial/failed/unsupported distinctions; approved alias privacy without inferred mapping/categories. |
+| ECL-FR-525 | Preserve connection/profile/transport/metric compatibility and bounded runtime-only credential handling. |
+
+Accepted handoffs: docs/v0.5-azure-engineering-review.md. Non-atomic live enumeration is deliberately PARTIAL.

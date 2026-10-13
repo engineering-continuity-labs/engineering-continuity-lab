@@ -63,3 +63,7 @@ FR514–517 / AC523–539 → docs/v0.5-manager-report-experience.md (PO then Ar
 ## Human evidence presentation increment
 
 FR518–521 / AC540–554 → docs/v0.5-evidence-presentation.md (PO then Architect then QA) → engineering_html.py / engineering_evidence_html.py →16 rendered HTML checks, package/download/digest parity, existing full regression and headless evidence screenshots. Independent HE-R01/02 corrected and closed; final APPROVE and296Python/45mypy/51Node/12JS/5generators/wheel/whitespace PASS recorded in docs/validation/v0.5-human-evidence-verification.md. Actual human comprehension/keyboard/screen reader/mobile/physical print MANUAL. Final-head CI required before merge. No canonical package, assessment, provider or metric change.
+
+## Azure acquisition increment
+
+FR522–525 / AC555–563 → docs/v0.5-azure-engineering-review.md (PO→Architect→QA before development; owner corrections AE-R01–04) → azure_engineering_review.py / private_input.py / CLI and explicit Azure transport routes → tests/test_azure_engineering_review.py plus existing Azure transport/connection and full assessment/render regression. Synthetic REST projection, temporal privacy, bounds and CLI roundtrip automation; live Server/Services/PAT permission validation MANUAL. Independent overall APPROVE, AE-R01–04 CLOSED;321Python/47mypy/51Node/12JS/5generators/wheel/whitespace PASS. Exact final-head remote CI required before merge. Verification record: docs/validation/v0.5-azure-engineering-verification.md. No metric/schema/version change.
