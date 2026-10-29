@@ -99,7 +99,7 @@ Defined before development; test plan: docs/v0.5-manager-report-experience.md. T
 | ECL-AC-531 | NO_OVERALL_SCORE | No overall product/team/maturity score, combined number or combined traffic-light status. |
 | ECL-AC-532 | METHOD_DETAILS_PRESERVED | Capabilities, collection/mapping status, boundaries, sample sizes, exclusions and thresholds remain inspectable. |
 | ECL-AC-533 | EXACT_EVIDENCE_AVAILABLE | Every finding has its exact full support and rule/version/scope accessible; full source package retained. |
-| ECL-AC-534 | SYNTHETIC_LABEL | Explicit synthetic render displays SYNTHETIC MANAGER EXAMPLE; aliases never infer provenance. |
+| ECL-AC-534 | SYNTHETIC_LABEL | Explicit synthetic render displays SYNTHETIC DEMO PROJECT; aliases never infer provenance. |
 | ECL-AC-535 | PRINT_ORDER | Print follows Executive Summary→Components→Engineering Details→Evidence & Methodology; disclosures opened for print and restored after. |
 | ECL-AC-536 | KEYBOARD_ACCESS | Semantic headings/tables, native keyboard disclosures/anchors and visible focus; real keyboard/screen-reader verification MANUAL. |
 | ECL-AC-537 | SAFE_DYNAMIC_TEXT | Dynamic labels and source text escaped, inert JSON cannot break out; no remote assets/telemetry; size limit retained. |

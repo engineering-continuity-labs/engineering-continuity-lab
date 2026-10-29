@@ -8,24 +8,23 @@ from continuity.reporting.engineering_review import import_package
 from continuity.reporting.portable import canonical
 
 SECTIONS = ('Executive Summary', 'Components', 'Engineering Details', 'Evidence & Methodology')
+NAVIGATION_LABELS = ('Review', 'Components', 'Engineering Details', 'Evidence')
 
 CSS = '''
-:root{color-scheme:light;--ink:#142f3a;--muted:#526871;--line:#d3e0e3;--accent:#147a74}
-*{box-sizing:border-box}body{margin:0;background:#eff4f4;color:var(--ink);font:16px/1.55 system-ui,sans-serif}
-.report-shell{display:grid;grid-template-columns:220px minmax(0,1160px);justify-content:center;gap:28px;padding:28px}.report-nav{align-self:start;position:sticky;top:18px;padding:18px;background:#fff;border:1px solid var(--line);border-radius:12px}.report-nav p{margin-top:0}.report-nav a{display:block;padding:7px 0;text-decoration:none}.report-nav a:hover{text-decoration:underline}main{max-width:1160px;padding:12px 0 40px}header{border-top:6px solid var(--accent);padding:24px 0}
-h1{font-size:clamp(2rem,5vw,3.6rem);line-height:1.05;margin:12px 0}h2{font-size:1.5rem}h3{font-size:1.1rem}
-.eyebrow{letter-spacing:.14em;font-size:.75rem;font-weight:700;color:var(--accent)}.muted{color:var(--muted)}
-nav{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0}nav a,button{background:white;border:1px solid var(--line);padding:8px 12px;border-radius:6px;color:var(--ink)}
-a{color:var(--accent)}a:focus-visible,summary:focus-visible,button:focus-visible{outline:3px solid #edaa42;outline-offset:3px}
-section{background:white;border:1px solid var(--line);border-radius:12px;margin:20px 0;padding:24px;scroll-margin-top:16px}
-.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.card{padding:18px;background:#f4f8f8;border-radius:8px}
-.value{font-size:2rem;font-weight:700}.label{color:var(--muted);font-size:.85rem}.badge{font-size:.75rem;padding:3px 8px;border:1px solid var(--line);border-radius:20px}
-details{border:1px solid var(--line);border-radius:8px;padding:12px;margin:12px 0}summary{cursor:pointer;font-weight:600}
-pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem;background:#f5f8f8;padding:14px}table{width:100%;border-collapse:collapse}.component-search{width:min(100%,420px);padding:9px 11px;border:1px solid var(--line);border-radius:6px;margin:0 0 12px;color:var(--ink);font:inherit}
-th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}.table{overflow-x:auto}
-.finding-list{padding:0;list-style:none}.finding-list li{margin:6px 0}.attention{border-left:4px solid #bd752b;padding:10px 16px;background:#fff8ed}footer{color:var(--muted);font-size:.85rem;margin:30px 0}
-@media(max-width:860px){.report-shell{display:block;padding:16px}.report-nav{position:static;margin-bottom:16px}.report-nav a{display:inline-block;margin-right:12px}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){main{padding:0 0 20px}section{padding:16px}h1{font-size:2.2rem}.cards{grid-template-columns:1fr}header,.card,h2{overflow-wrap:anywhere}}
-@media print{.technical{display:none!important}.report-nav{display:none!important}body{background:white}.report-shell{display:block;padding:0}main{max-width:none;padding:0}button,script{display:none!important}section{break-inside:avoid;border-radius:0}details{break-inside:avoid}details> :not(summary){display:block!important}a{color:inherit}h2{break-after:avoid}}
+:root{color-scheme:light;--navy:#10283d;--ink:#142f3a;--muted:#627586;--line:#dce5eb;--surface:#fff;--canvas:#f4f7fa;--teal:#15847e;--red:#b8344f;--amber:#a96813;--gray:#6c7782}
+*{box-sizing:border-box}body{margin:0;background:var(--canvas);color:var(--ink);font:16px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.report-shell{display:grid;grid-template-columns:238px minmax(0,1180px);max-width:1500px;margin:auto;min-height:100vh}.report-nav{background:var(--navy);color:#e8f0f6;padding:30px 22px;position:sticky;top:0;height:100vh}.report-nav .eyebrow{color:#75d2c8}.report-nav strong{display:block;font-size:1.1rem;margin:8px 0 26px;overflow-wrap:anywhere}.report-nav nav{display:grid;gap:4px}.report-nav a{color:#d7e3ed;padding:10px 12px;border-radius:7px;text-decoration:none}.report-nav a:hover,.report-nav a:focus-visible{background:#1d405d;color:#fff}main{max-width:1180px;background:var(--surface);padding:30px 48px 56px;box-shadow:0 0 40px #10283d12}header{border-bottom:1px solid var(--line);padding-bottom:18px}
+h1{font-size:clamp(2.15rem,3.5vw,3rem);line-height:1.06;letter-spacing:-.035em;margin:5px 0 6px}h2{font-size:1.55rem;letter-spacing:-.02em;margin-top:0}h3{font-size:.92rem;letter-spacing:.01em;margin-top:0;text-transform:uppercase}h4{font-size:.82rem;margin:16px 0 0;color:var(--muted)}
+.eyebrow{letter-spacing:.14em;font-size:.72rem;font-weight:800;color:var(--teal);margin:0}.muted{color:var(--muted)}.review-subtitle{font-size:1.08rem;margin:8px 0;max-width:760px}.system-name{font-size:1.12rem;font-weight:700;margin:0 0 6px}.actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:12px}.actions a,button{background:#fff;border:1px solid var(--line);padding:9px 12px;border-radius:7px;color:var(--ink);font:inherit}.actions a{color:var(--teal);font-weight:700}
+a{color:var(--teal)}a:focus-visible,summary:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #6dcfc5;outline-offset:3px}
+section{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin:22px 0;padding:28px;scroll-margin-top:16px}.executive-summary{border:0;padding:20px 0 28px;margin-top:0}.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.card{padding:18px;background:#f8fafc;border:1px solid var(--line);border-radius:10px;min-height:154px}.card h3{color:var(--muted)}.card p{margin:.45rem 0}.card p:first-of-type{font-size:1.05rem;font-weight:700;color:var(--ink)}
+.badge{display:inline-block;font-size:.72rem;letter-spacing:.05em;font-weight:800;padding:5px 8px;border-radius:5px;background:#e3f5f1;color:#076b65}.assessment-window{font-size:.9rem;color:var(--muted)}
+details{border:1px solid var(--line);border-radius:9px;padding:14px;margin:12px 0;background:#fff}summary{cursor:pointer;font-weight:700}.component-detail{border-left:4px solid var(--teal)}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem;background:#f5f8f8;padding:14px}table{width:100%;border-collapse:collapse}.component-search{width:min(100%,420px);padding:10px 12px;border:1px solid var(--line);border-radius:7px;margin:0 0 12px;color:var(--ink);font:inherit}
+th,td{text-align:left;padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:top}.table{overflow-x:auto}.table th{font-size:.78rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.finding-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:0;list-style:none;margin:12px 0}.finding-list li{margin:0}.attention{border-left:4px solid var(--amber);padding:13px 15px;background:#fff8ed;border-radius:0 8px 8px 0}.attention-high{border-left-color:var(--red);background:#fff4f6}.attention strong{display:block}.attention a{font-size:.85rem;font-weight:700}footer{color:var(--muted);font-size:.85rem;margin:30px 0}
+@media(max-width:960px){.report-shell{display:block}.report-nav{height:auto;position:static;padding:18px 20px}.report-nav strong{margin:4px 0 12px}.report-nav nav{display:flex;flex-wrap:wrap}.report-nav a{padding:7px 9px}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}main{max-width:none;padding:28px 26px}}@media(max-width:600px){main{padding:24px 16px 34px}section{padding:20px}.executive-summary{padding:20px 0}.cards,.finding-list{grid-template-columns:1fr}h1{font-size:2.25rem}.card{min-height:0}.assessment-window{overflow-wrap:anywhere}.actions{align-items:flex-start}.actions a,button{max-width:100%}}
+@media print{.technical{display:none!important}.report-nav{display:none!important}body{background:white}.report-shell{display:block}.executive-summary{padding:0}main{max-width:none;padding:0;box-shadow:none}.actions,button,script{display:none!important}section{break-inside:avoid;border-radius:0}details{break-inside:avoid}details> :not(summary){display:block!important}a{color:inherit}h2{break-after:avoid}}
 '''
 
 PRINT_SCRIPT = '''(()=>{let states=[];window.addEventListener('beforeprint',()=>{
@@ -128,15 +127,21 @@ def render(package: dict[str, Any], *, synthetic: bool = False) -> str:
                       ('Delivery', coverage('delivery')), ('Quality', coverage('quality')),
                       ('Builds', {'OBSERVED': 'Available', 'PARTIAL': 'Partial'}.get(builds.get('availability'), 'Unavailable')),
                       ('Deployment', 'Unavailable')]
-    provenance = 'SYNTHETIC MANAGER EXAMPLE' if synthetic else 'OFFLINE DECLARED · source owner assertions'
+    provenance = 'SYNTHETIC DEMO PROJECT · fictional Atlas Commerce example' if synthetic else 'OFFLINE DECLARED · source owner assertions'
     window = a['windows']['current']
-    snapshot = f'<p class="badge">{text(provenance)}</p><p>Assessment UTC: {text(window["start"])} to {text(window["end"])} (end excluded).</p>'
-    snapshot += '<p class="muted">Historical continuity, reviews, traceability and verification are from ' + text(legacy.get('as_of', 'Unavailable')) + '; they are not observations of the assessment period.</p>'
-    snapshot += '<h3>What needs attention?</h3><ul class="finding-list">'
+    snapshot = ''
     groups: dict[tuple[str, str], list[dict[str, Any]]] = {}
     for finding in findings:
         groups.setdefault((finding['severity'], finding['rule_id']), []).append(finding)
-    for (severity, rule), group in list(groups.items())[:8]:
+    continuity_count = len([f for f in findings if f['rule_id'] == 'ER01']) if 'components' in legacy else None
+    snapshot += '<h3>Executive indicators</h3><div class="cards">'
+    snapshot += card('Continuity', f'<p>{number(continuity_count)} attention areas · historical</p>')
+    snapshot += card('Delivery', trend(delivery, 'work_items', 'durations') + '<h4>PR flow</h4>' + trend(delivery, 'pull_requests', 'lead'))
+    snapshot += card('Defects', f'<p>Opened: {number(bugs.get("opened"))} · Resolved: {number(bugs.get("completed"))}<br>Open: {number(bugs.get("open_inventory"))} · Aged ≥30d: {number(bugs.get("aged"))} · Reopened: {number(bugs.get("reopened"))}</p>')
+    snapshot += card('Builds', f'<p>{number(builds.get("known_terminal"))} qualified terminal builds<br>Success: {percent(builds.get("success_fraction"))} · Failure: {percent(builds.get("failure_fraction"))}</p>')
+    snapshot += '</div><p class="muted">Historical continuity, reviews, traceability and verification are from ' + text(legacy.get('as_of', 'Unavailable')) + '; they are not observations of the assessment period.</p><h3>What needs attention?</h3><ul class="finding-list">'
+    attention_order = {'ER01': 0, 'ER06': 1, 'ER08': 2, 'ER03': 3, 'ER09': 4, 'ER05': 5, 'ER07': 6, 'ER02': 7, 'ER04': 8}
+    for (severity, rule), group in sorted(groups.items(), key=lambda item: (attention_order.get(item[0][1], 99), item[0][0]))[:6]:
         label = NAMES[rule]
         detail = f'{len(group)} component observations' if rule == 'ER01' else f'{len(group)} supported observation(s)'
         if rule == 'ER03':
@@ -157,17 +162,12 @@ def render(package: dict[str, Any], *, synthetic: bool = False) -> str:
             detail = f'{bugs.get("opened")} opened; {bugs.get("completed")} resolved'
         elif rule == 'ER09':
             detail = percent(group[0]['value']) + ' of qualified builds failed'
-        snapshot += f'<li class="attention"><strong>{text(severity)} · {text(label)}</strong> — {text(detail)} <a href="#finding-{text(group[0]["id"])}">Why?</a></li>'
+        severity_class = ' attention-high' if severity == 'HIGH' else ''
+        snapshot += f'<li class="attention{severity_class}"><strong>{text(severity)} · {text(label)}</strong>{text(detail)} <a href="#finding-{text(group[0]["id"])}">Inspect evidence</a></li>'
     snapshot += '</ul>'
     if not findings:
         snapshot += '<p>No eligible attention finding. Missing evidence does not establish absence of issues.</p>'
-    snapshot += f'<a href="#all-findings">View all findings ({len(findings)})</a><h3>Engineering snapshot</h3><div class="cards">'
-    continuity_count = len([f for f in findings if f['rule_id'] == 'ER01']) if 'components' in legacy else None
-    snapshot += card('Continuity', f'<p>{number(continuity_count)} attention areas · historical</p>')
-    snapshot += card('Delivery', trend(delivery, 'work_items', 'durations') + '<h4>PR flow</h4>' + trend(delivery, 'pull_requests', 'lead'))
-    snapshot += card('Defects', f'<p>Opened: {number(bugs.get("opened"))} · Resolved: {number(bugs.get("completed"))}<br>Open: {number(bugs.get("open_inventory"))} · Aged ≥30d: {number(bugs.get("aged"))} · Reopened: {number(bugs.get("reopened"))}</p>')
-    snapshot += card('Builds', f'<p>{number(builds.get("known_terminal"))} qualified terminal builds<br>Success: {percent(builds.get("success_fraction"))} · Failure: {percent(builds.get("failure_fraction"))}</p>')
-    snapshot += '</div><h3>Evidence coverage</h3><p>' + ' · '.join(text(k) + ': ' + text(v) for k, v in source_summary) + '</p>'
+    snapshot += f'<a href="#all-findings">View all findings ({len(findings)})</a><h3>Evidence coverage</h3><p>' + ' · '.join(text(k) + ': ' + text(v) for k, v in source_summary) + '</p>'
     snapshot += '<p>Major unavailable evidence: ' + text(', '.join(k for k, v in source_summary if v == 'Unavailable') or 'None at source level; field limits remain inspectable') + '.</p>'
 
     historical = {c['component']: c for c in legacy.get('components', [])}
@@ -198,8 +198,8 @@ def render(package: dict[str, Any], *, synthetic: bool = False) -> str:
         review_value = 'Unavailable' if review.get('coverage') is None else f'{review["coverage"] * 100:.1f}% · {text(review.get("coverage_status"))}'
         values = [old.get('risk', 'Unavailable'), review_value, 'Completed: ' + number(cd.get('completed')) if cd.get('availability') in ('OBSERVED', 'PARTIAL') else 'Unavailable', 'Open: ' + number(cq.get('open_inventory')) if cq.get('availability') in ('OBSERVED', 'PARTIAL') else 'Unavailable', 'Unavailable', 'Unavailable']
         components += f'<tr data-component-row><th scope="row"><a href="#component-{index}">{text(name)}</a></th>' + ''.join(f'<td>{text(v)}</td>' for v in values) + '</tr>'
-        component_details += f'<details id="component-{index}"><summary>{text(name)} · {len(scoped(name))} scoped attention observations</summary>'
-        component_details += table([('Continuity · historical', old.get('risk')), ('Review coverage · historical', review_value), ('Delivery completed', cd.get('completed')), ('Delivery median', median(cd.get('durations', {}))), ('Defects opened', cq.get('opened')), ('Defects resolved', cq.get('completed')), ('Defects open', cq.get('open_inventory')), ('Defects aged ≥30d', cq.get('aged')), ('Traceability component binding', None), ('Verification component binding', None)])
+        component_details += f'<details class="component-detail" id="component-{index}"><summary>{text(name)} · {len(scoped(name))} scoped attention observations</summary><h3>{text(name)}</h3><p class="muted">Independent evidence is shown only where this component has an exact accepted binding.</p>'
+        component_details += table([('Continuity · historical', old.get('risk')), ('Review coverage · historical', review_value), ('Delivery completed', cd.get('completed')), ('Delivery median', median(cd.get('durations', {}))), ('Defects opened', cq.get('opened')), ('Defects resolved', cq.get('completed')), ('Defects open', cq.get('open_inventory')), ('Defects aged ≥30d', cq.get('aged')), ('Component traceability evidence', 'Unavailable'), ('Verification', 'Unavailable')])
         component_details += f'<a href="#component-evidence-{index}">Inspect evidence</a></details>'
     components += '</tbody></table></div>' + component_details
     if not component_names:
@@ -218,10 +218,10 @@ def render(package: dict[str, Any], *, synthetic: bool = False) -> str:
     content = [snapshot, components, details, methodology]
     data = canonical(validated).replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026')
     download = b64encode(canonical(validated).encode('utf-8')).decode('ascii')
-    output = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Engineering System Review · ' + text(a['system']) + '</title><style>' + CSS + '</style></head><body><div class="report-shell"><aside class="report-nav"><p class="eyebrow">ENGINEERING REVIEW</p><strong>' + text(a['system']) + '</strong><nav aria-label="Manager report">' + ''.join(f'<a href="#section-{i}">{text(title)}</a>' for i, title in enumerate(SECTIONS)) + '</nav></aside><main>'
-    output += '<header><p class="eyebrow">ENGINEERING SYSTEM REVIEW</p><h1>' + text(a['system']) + '</h1><button type="button" onclick="window.print()">Print / Save as PDF</button> <a download="engineering-review.json" href="data:application/json;base64,' + download + '">Download evidence package (.json)</a><p class="muted">Machine-readable evidence used to reproduce and audit this review.</p></header>'
-    output += ''.join(f'<section id="section-{i}" aria-labelledby="title-{i}"><h2 id="title-{i}">{text(title)}</h2>{body}</section>' for i, (title, body) in enumerate(zip(SECTIONS, content)))
-    output += '<footer>Offline evidence. No network access or execution is performed by this document.</footer></main></div><script id="engineering-package" type="application/json">' + data + '</script><script>' + PRINT_SCRIPT + ''';(()=>{const input=document.querySelector('[data-component-search]');if(!input)return;input.addEventListener('input',()=>{const query=input.value.trim().toLocaleLowerCase();document.querySelectorAll('[data-component-row]').forEach(row=>{row.hidden=!row.textContent.toLocaleLowerCase().includes(query);});});})();''' + '</script></body></html>'
+    output = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Engineering System Review · ' + text(a['system']) + '</title><style>' + CSS + '</style></head><body><div class="report-shell"><aside class="report-nav"><p class="eyebrow">ENGINEERING CONTINUITY LAB</p><strong>' + text(a['system']) + '</strong><nav aria-label="Manager report">' + ''.join(f'<a href="#section-{i}">{text(label)}</a>' for i, label in enumerate(NAVIGATION_LABELS)) + '</nav></aside><main>'
+    output += '<header><p class="eyebrow">ENGINEERING CONTINUITY LAB</p><h1>Engineering System Review</h1><p class="system-name">' + text(a['system']) + '</p><p class="badge">' + text(provenance) + '</p><p class="assessment-window">Assessment UTC: ' + text(window['start']) + ' to ' + text(window['end']) + ' (end excluded).</p><p class="review-subtitle">Understand engineering continuity, delivery flow, quality and traceability in one review.</p><div class="actions"><button type="button" onclick="window.print()">Print / Save as PDF</button> <a download="engineering-review.json" href="data:application/json;base64,' + download + '">Download evidence package (.json)</a></div><p class="muted">Machine-readable evidence used to reproduce and audit this review.</p></header>'
+    output += ''.join(f'<section class="executive-summary" id="section-{i}" aria-labelledby="title-{i}"><h2 id="title-{i}">{text(title)}</h2>{body}</section>' if i == 0 else f'<section id="section-{i}" aria-labelledby="title-{i}"><h2 id="title-{i}">{text(title)}</h2>{body}</section>' for i, (title, body) in enumerate(zip(SECTIONS, content)))
+    output += '<footer>Offline evidence. No network access or execution is performed by this document.</footer></main></div><script id="engineering-package" type="application/json">' + data + '</script><script>' + PRINT_SCRIPT + ''';(()=>{const input=document.querySelector('[data-component-search]');const reveal=()=>{if(!location.hash)return;const detail=document.querySelector(location.hash);if(detail&&detail.tagName==='DETAILS'){detail.open=true;detail.scrollIntoView({block:'start'});}};if(input)input.addEventListener('input',()=>{const query=input.value.trim().toLocaleLowerCase();document.querySelectorAll('[data-component-row]').forEach(row=>{row.hidden=!row.textContent.toLocaleLowerCase().includes(query);});});window.addEventListener('hashchange',reveal);reveal();})();''' + '</script></body></html>'
     if len(output.encode('utf-8')) > 32 * 1024 * 1024:
         raise ValueError('invalid engineering HTML size')
     return output

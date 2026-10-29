@@ -63,7 +63,7 @@ class EngineeringHTMLTests(unittest.TestCase):
         package = compose(assessment_id='review', system='atlas', windows=windows, delivery=delivery)
         self.assertIn('OFFLINE DECLARED · source owner assertions', render(package))
         self.assertNotIn('explicitly declared demo evidence', render(package))
-        self.assertIn('SYNTHETIC MANAGER EXAMPLE', render(package, synthetic=True))
+        self.assertIn('SYNTHETIC DEMO PROJECT', render(package, synthetic=True))
     def test_sections_numeric_parity_and_offline_reopen(self):
         windows, delivery, quality = sources()
         package = compose(assessment_id='synthetic', system='atlas', windows=windows, delivery=delivery, quality=quality)
@@ -99,15 +99,15 @@ class EngineeringHTMLTests(unittest.TestCase):
         for value in ('10.0 days', '5.0 days', '+5.0 days / +100.0%', '50.0%', '25.0%', 'Opened: 4', 'Resolved: 2', 'Open: 2', 'Reopened: 1'):
             self.assertIn(value, document.snapshot)
         self.assertIn('Trend unavailable', html)
-        self.assertIn('SYNTHETIC MANAGER EXAMPLE', document.snapshot)
+        self.assertIn('SYNTHETIC DEMO PROJECT', html)
         self.assertIn('Delivery duration increased', document.snapshot)
         for finding in package['assessment']['findings']:
             self.assertIn('id="finding-' + finding['id'] + '"', html)
         self.assertIn('View exact supporting evidence references', html)
         self.assertNotIn('Health =', html)
         self.assertIn('Quality / Defect Evidence', html)
-        self.assertIn('Traceability component binding', html)
-        self.assertIn('Verification component binding', html)
+        self.assertIn('Component traceability evidence', html)
+        self.assertIn('Verification', html)
 
     def test_executive_shell_has_four_kpis_sidebar_and_component_search(self):
         package = json.loads((Path(__file__).resolve().parents[1] / 'examples/v0.5-engineering-review.json').read_text())
@@ -116,6 +116,9 @@ class EngineeringHTMLTests(unittest.TestCase):
         self.assertIn('class="report-nav"', html)
         self.assertIn('data-component-search', html)
         self.assertIn('data-component-row', html)
+        for label in ('>Review<', '>Components<', '>Engineering Details<', '>Evidence<'):
+            self.assertIn(label, html)
+        self.assertLess(snapshot.index('Executive indicators'), snapshot.index('Historical continuity'))
         for label in ('Continuity', 'Delivery', 'Defects', 'Builds'):
             self.assertIn('<h3>' + label + '</h3>', snapshot)
         self.assertNotIn('<h3>PR Flow</h3>', snapshot)
@@ -204,9 +207,9 @@ class EngineeringHTMLTests(unittest.TestCase):
         current = Window(previous.end, datetime(2026, 9, 1, 18, tzinfo=timezone.utc))
         windows = Windows(current, previous, current.end)
         package = compose(assessment_id='review', system='atlas', windows=windows)
-        document = Document(); document.feed(render(package))
-        self.assertIn('2026-09-01T12:00:00Z', document.snapshot)
-        self.assertIn('2026-09-01T18:00:00Z', document.snapshot)
+        html = render(package)
+        self.assertIn('2026-09-01T12:00:00Z', html)
+        self.assertIn('2026-09-01T18:00:00Z', html)
 
     def test_absent_mapping_never_receives_global_counts(self):
         windows, delivery, quality = sources()
