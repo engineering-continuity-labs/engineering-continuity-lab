@@ -88,7 +88,7 @@ Defined before development; test plan: docs/v0.5-manager-report-experience.md. T
 
 | ID | Named criterion | Expected observation |
 | --- | --- | --- |
-| ECL-AC-523 | MANAGER_TWO_MINUTE_SUMMARY | Executive Summary comes first: system/period/provenance, ≤8 finding groups, 6–9 cards, ≤10 attention components and compact coverage; two-minute human comprehension MANUAL. |
+| ECL-AC-523 | MANAGER_TWO_MINUTE_SUMMARY | Executive Summary comes first: system/period/provenance, exactly four executive cards (Continuity, Delivery, Defects and Builds), ≤8 finding groups, ≤10 attention components and compact coverage; two-minute human comprehension MANUAL. |
 | ECL-AC-524 | HUMAN_FINDING_LABELS | All ER01–09 findings use fixed observation labels in normal UI; original rule IDs preserved in audit. |
 | ECL-AC-525 | NO_RULE_ID_PRIMARY_VIEW | Primary summary contains no rule ID/version, raw ref, schema or fingerprint. |
 | ECL-AC-526 | COMPONENT_ATTENTION_TABLE | Semantic component table separates six dimensions, sorts explicit severity first, and leaves unbound evidence Unavailable. |

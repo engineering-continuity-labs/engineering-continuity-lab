@@ -119,6 +119,7 @@ class EngineeringHTMLTests(unittest.TestCase):
         for label in ('>Review<', '>Components<', '>Engineering Details<', '>Evidence<'):
             self.assertIn(label, html)
         self.assertLess(snapshot.index('Executive indicators'), snapshot.index('Historical continuity'))
+        self.assertEqual(snapshot.count('<div class="card">'), 4)
         for label in ('Continuity', 'Delivery', 'Defects', 'Builds'):
             self.assertIn('<h3>' + label + '</h3>', snapshot)
         self.assertNotIn('<h3>PR Flow</h3>', snapshot)
