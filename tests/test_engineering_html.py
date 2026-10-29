@@ -62,6 +62,7 @@ class EngineeringHTMLTests(unittest.TestCase):
         delivery['alias'] = 'synthetic-export'
         package = compose(assessment_id='review', system='atlas', windows=windows, delivery=delivery)
         self.assertIn('OFFLINE DECLARED · source owner assertions', render(package))
+        self.assertIn('Data source:</strong> Locally generated validated evidence package', render(package))
         self.assertNotIn('explicitly declared demo evidence', render(package))
         self.assertIn('SYNTHETIC DEMO PROJECT', render(package, synthetic=True))
     def test_sections_numeric_parity_and_offline_reopen(self):
