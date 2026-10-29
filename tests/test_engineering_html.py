@@ -100,6 +100,8 @@ class EngineeringHTMLTests(unittest.TestCase):
             self.assertIn(value, document.snapshot)
         self.assertIn('Trend unavailable', html)
         self.assertIn('SYNTHETIC DEMO PROJECT', html)
+        self.assertIn('Data source:', html)
+        self.assertIn('Synthetic demo data — Atlas Commerce (fictional)', html)
         self.assertIn('Delivery duration increased', document.snapshot)
         for finding in package['assessment']['findings']:
             self.assertIn('id="finding-' + finding['id'] + '"', html)

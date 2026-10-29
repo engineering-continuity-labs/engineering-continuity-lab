@@ -5,7 +5,7 @@
 | ID | Criterion |
 | --- | --- |
 | ECL-AC-565 | END_TO_END_JOURNEY: landing exposes the five-step evidence-to-investigation journey and primary synthetic review path. |
-| ECL-AC-566 | MANAGER_FIRST_LANDING / HONEST_SOURCE_SETUP / NO_FAKE_CONNECTION: public page labels Atlas as SYNTHETIC DEMO PROJECT and describes local CLI Azure acquisition without a browser PAT or connection claim. |
+| ECL-AC-566 | MANAGER_FIRST_LANDING / HONEST_SOURCE_SETUP / VISIBLE_DATA_SOURCE / NO_FAKE_CONNECTION: public page distinguishes synthetic demo data, local CLI Azure DevOps acquisition and an already generated local review; the review header names its source class. The public page labels Atlas as SYNTHETIC DEMO PROJECT and does not claim a browser PAT or connection. |
 | ECL-AC-567 | EXECUTIVE_FOUR_KPIS / ATTENTION_FINDINGS / NO_COMBINED_SCORE: report shows exactly four derived executive dimensions and accepted findings without a health score. |
 | ECL-AC-568 | COMPONENT_ATTENTION_TABLE / EXACT_COMPONENT_DRILLDOWN / TRACEABILITY_EXACT_BINDING_ONLY / COMPONENT_SEARCH: component views preserve unavailable semantics and only accepted exact bindings create chains. |
 | ECL-AC-569 | HUMAN_EVIDENCE_PANEL / JSON_SOURCE_OF_TRUTH / REAL_REPORT_SAME_UX / PRINT_REPORT: the same validated package drives synthetic and genuine offline HTML; print excludes navigation and JSON remains downloadable. |
