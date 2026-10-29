@@ -109,6 +109,20 @@ class EngineeringHTMLTests(unittest.TestCase):
         self.assertIn('Traceability component binding', html)
         self.assertIn('Verification component binding', html)
 
+    def test_executive_shell_has_four_kpis_sidebar_and_component_search(self):
+        package = json.loads((Path(__file__).resolve().parents[1] / 'examples/v0.5-engineering-review.json').read_text())
+        html = render(package, synthetic=True)
+        snapshot = html.split('id="section-0"', 1)[1].split('id="section-1"', 1)[0]
+        self.assertIn('class="report-nav"', html)
+        self.assertIn('data-component-search', html)
+        self.assertIn('data-component-row', html)
+        for label in ('Continuity', 'Delivery', 'Defects', 'Builds'):
+            self.assertIn('<h3>' + label + '</h3>', snapshot)
+        self.assertNotIn('<h3>PR Flow</h3>', snapshot)
+        self.assertNotIn('<h3>Traceability</h3>', snapshot)
+        self.assertNotIn('<h3>Reviews</h3>', snapshot)
+        self.assertNotIn('<h3>Verification</h3>', snapshot)
+
     def test_pr_only_duration_finding_explains_triggering_population(self):
         from datetime import datetime, timedelta
         windows, delivery, quality = sources()

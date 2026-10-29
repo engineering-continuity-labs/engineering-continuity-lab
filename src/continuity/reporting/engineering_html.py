@@ -12,20 +12,20 @@ SECTIONS = ('Executive Summary', 'Components', 'Engineering Details', 'Evidence 
 CSS = '''
 :root{color-scheme:light;--ink:#142f3a;--muted:#526871;--line:#d3e0e3;--accent:#147a74}
 *{box-sizing:border-box}body{margin:0;background:#eff4f4;color:var(--ink);font:16px/1.55 system-ui,sans-serif}
-main{max-width:1160px;margin:auto;padding:40px 28px}header{border-top:6px solid var(--accent);padding:24px 0}
+.report-shell{display:grid;grid-template-columns:220px minmax(0,1160px);justify-content:center;gap:28px;padding:28px}.report-nav{align-self:start;position:sticky;top:18px;padding:18px;background:#fff;border:1px solid var(--line);border-radius:12px}.report-nav p{margin-top:0}.report-nav a{display:block;padding:7px 0;text-decoration:none}.report-nav a:hover{text-decoration:underline}main{max-width:1160px;padding:12px 0 40px}header{border-top:6px solid var(--accent);padding:24px 0}
 h1{font-size:clamp(2rem,5vw,3.6rem);line-height:1.05;margin:12px 0}h2{font-size:1.5rem}h3{font-size:1.1rem}
 .eyebrow{letter-spacing:.14em;font-size:.75rem;font-weight:700;color:var(--accent)}.muted{color:var(--muted)}
 nav{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0}nav a,button{background:white;border:1px solid var(--line);padding:8px 12px;border-radius:6px;color:var(--ink)}
 a{color:var(--accent)}a:focus-visible,summary:focus-visible,button:focus-visible{outline:3px solid #edaa42;outline-offset:3px}
 section{background:white;border:1px solid var(--line);border-radius:12px;margin:20px 0;padding:24px;scroll-margin-top:16px}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}.card{padding:18px;background:#f4f8f8;border-radius:8px}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.card{padding:18px;background:#f4f8f8;border-radius:8px}
 .value{font-size:2rem;font-weight:700}.label{color:var(--muted);font-size:.85rem}.badge{font-size:.75rem;padding:3px 8px;border:1px solid var(--line);border-radius:20px}
 details{border:1px solid var(--line);border-radius:8px;padding:12px;margin:12px 0}summary{cursor:pointer;font-weight:600}
-pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem;background:#f5f8f8;padding:14px}table{width:100%;border-collapse:collapse}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem;background:#f5f8f8;padding:14px}table{width:100%;border-collapse:collapse}.component-search{width:min(100%,420px);padding:9px 11px;border:1px solid var(--line);border-radius:6px;margin:0 0 12px;color:var(--ink);font:inherit}
 th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}.table{overflow-x:auto}
 .finding-list{padding:0;list-style:none}.finding-list li{margin:6px 0}.attention{border-left:4px solid #bd752b;padding:10px 16px;background:#fff8ed}footer{color:var(--muted);font-size:.85rem;margin:30px 0}
-@media(max-width:600px){main{padding:16px}section{padding:16px}h1{font-size:2.2rem}.cards{grid-template-columns:1fr}header,.card,h2{overflow-wrap:anywhere}}
-@media print{.technical{display:none!important}body{background:white}main{max-width:none;padding:0}nav,button,script{display:none!important}section{break-inside:avoid;border-radius:0}details{break-inside:avoid}details> :not(summary){display:block!important}a{color:inherit}h2{break-after:avoid}}
+@media(max-width:860px){.report-shell{display:block;padding:16px}.report-nav{position:static;margin-bottom:16px}.report-nav a{display:inline-block;margin-right:12px}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){main{padding:0 0 20px}section{padding:16px}h1{font-size:2.2rem}.cards{grid-template-columns:1fr}header,.card,h2{overflow-wrap:anywhere}}
+@media print{.technical{display:none!important}.report-nav{display:none!important}body{background:white}.report-shell{display:block;padding:0}main{max-width:none;padding:0}button,script{display:none!important}section{break-inside:avoid;border-radius:0}details{break-inside:avoid}details> :not(summary){display:block!important}a{color:inherit}h2{break-after:avoid}}
 '''
 
 PRINT_SCRIPT = '''(()=>{let states=[];window.addEventListener('beforeprint',()=>{
@@ -164,14 +164,9 @@ def render(package: dict[str, Any], *, synthetic: bool = False) -> str:
     snapshot += f'<a href="#all-findings">View all findings ({len(findings)})</a><h3>Engineering snapshot</h3><div class="cards">'
     continuity_count = len([f for f in findings if f['rule_id'] == 'ER01']) if 'components' in legacy else None
     snapshot += card('Continuity', f'<p>{number(continuity_count)} attention areas · historical</p>')
-    snapshot += card('Delivery', trend(delivery, 'work_items', 'durations'))
-    snapshot += card('PR Flow', trend(delivery, 'pull_requests', 'lead'))
-    snapshot += card('Quality / Defect Evidence', f'<p>Opened: {number(bugs.get("opened"))} · Resolved: {number(bugs.get("completed"))}<br>Open: {number(bugs.get("open_inventory"))} · Aged ≥30d: {number(bugs.get("aged"))} · Reopened: {number(bugs.get("reopened"))}</p>')
-    snapshot += card('Build Evidence', f'<p>{number(builds.get("known_terminal"))} qualified terminal builds<br>Success: {percent(builds.get("success_fraction"))} · Failure: {percent(builds.get("failure_fraction"))}</p>')
-    trace_findings = [f for f in findings if f['rule_id'] == 'ER03']
-    snapshot += card('Traceability', '<p>' + (number(trace_findings[0]['value']) + ' explicit evidence gaps · historical' if trace_findings else 'No eligible gap finding · inspect evidence' if 'traceability_evidence' in legacy else 'Unavailable') + '</p>')
-    snapshot += card('Reviews', '<p>' + text(coverage('review_evidence')) + '</p>')
-    snapshot += card('Verification', '<p>' + text(coverage('verification_evidence')) + '</p>')
+    snapshot += card('Delivery', trend(delivery, 'work_items', 'durations') + '<h4>PR flow</h4>' + trend(delivery, 'pull_requests', 'lead'))
+    snapshot += card('Defects', f'<p>Opened: {number(bugs.get("opened"))} · Resolved: {number(bugs.get("completed"))}<br>Open: {number(bugs.get("open_inventory"))} · Aged ≥30d: {number(bugs.get("aged"))} · Reopened: {number(bugs.get("reopened"))}</p>')
+    snapshot += card('Builds', f'<p>{number(builds.get("known_terminal"))} qualified terminal builds<br>Success: {percent(builds.get("success_fraction"))} · Failure: {percent(builds.get("failure_fraction"))}</p>')
     snapshot += '</div><h3>Evidence coverage</h3><p>' + ' · '.join(text(k) + ': ' + text(v) for k, v in source_summary) + '</p>'
     snapshot += '<p>Major unavailable evidence: ' + text(', '.join(k for k, v in source_summary if v == 'Unavailable') or 'None at source level; field limits remain inspectable') + '.</p>'
 
@@ -192,7 +187,7 @@ def render(package: dict[str, Any], *, synthetic: bool = False) -> str:
     snapshot += '<h3>Components requiring attention</h3><ul>' + ''.join(f'<li><a href="#component-{component_names.index(name)}">{text(name)}</a> · ' + ' / '.join(text(NAMES[f['rule_id']]) for f in scoped(name)) + '</li>' for name in [n for n in component_names if scoped(n)][:10]) + '</ul>'
     snapshot += '<p class="muted">Global delivery, defect and build findings stay global. Component observations require explicit scope. No finding does not mean Normal.</p>'
 
-    components = '<p>Historical measures keep their source date. Unbound or mismatched component strategies are Unavailable; component counts overlap and must not be summed.</p><div class="table"><table><thead><tr><th>Component</th><th>Continuity</th><th>Review</th><th>Delivery</th><th>Quality</th><th>Traceability</th><th>Verification</th></tr></thead><tbody>'
+    components = '<p>Historical measures keep their source date. Unbound or mismatched component strategies are Unavailable; component counts overlap and must not be summed.</p><label for="component-search">Find a component</label><input id="component-search" class="component-search" type="search" placeholder="Search components" data-component-search><div class="table"><table><thead><tr><th>Component</th><th>Continuity</th><th>Review</th><th>Delivery</th><th>Quality</th><th>Traceability</th><th>Verification</th></tr></thead><tbody>'
     component_details = ''
     for index, name in enumerate(component_names):
         old = historical.get(name, {})
@@ -202,7 +197,7 @@ def render(package: dict[str, Any], *, synthetic: bool = False) -> str:
         cq = row.get('dimensions', {}).get('quality', {}).get('current', {}).get('work_items', {})
         review_value = 'Unavailable' if review.get('coverage') is None else f'{review["coverage"] * 100:.1f}% · {text(review.get("coverage_status"))}'
         values = [old.get('risk', 'Unavailable'), review_value, 'Completed: ' + number(cd.get('completed')) if cd.get('availability') in ('OBSERVED', 'PARTIAL') else 'Unavailable', 'Open: ' + number(cq.get('open_inventory')) if cq.get('availability') in ('OBSERVED', 'PARTIAL') else 'Unavailable', 'Unavailable', 'Unavailable']
-        components += f'<tr><th scope="row"><a href="#component-{index}">{text(name)}</a></th>' + ''.join(f'<td>{text(v)}</td>' for v in values) + '</tr>'
+        components += f'<tr data-component-row><th scope="row"><a href="#component-{index}">{text(name)}</a></th>' + ''.join(f'<td>{text(v)}</td>' for v in values) + '</tr>'
         component_details += f'<details id="component-{index}"><summary>{text(name)} · {len(scoped(name))} scoped attention observations</summary>'
         component_details += table([('Continuity · historical', old.get('risk')), ('Review coverage · historical', review_value), ('Delivery completed', cd.get('completed')), ('Delivery median', median(cd.get('durations', {}))), ('Defects opened', cq.get('opened')), ('Defects resolved', cq.get('completed')), ('Defects open', cq.get('open_inventory')), ('Defects aged ≥30d', cq.get('aged')), ('Traceability component binding', None), ('Verification component binding', None)])
         component_details += f'<a href="#component-evidence-{index}">Inspect evidence</a></details>'
@@ -223,11 +218,10 @@ def render(package: dict[str, Any], *, synthetic: bool = False) -> str:
     content = [snapshot, components, details, methodology]
     data = canonical(validated).replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026')
     download = b64encode(canonical(validated).encode('utf-8')).decode('ascii')
-    output = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Engineering System Review · ' + text(a['system']) + '</title><style>' + CSS + '</style></head><body><main>'
+    output = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Engineering System Review · ' + text(a['system']) + '</title><style>' + CSS + '</style></head><body><div class="report-shell"><aside class="report-nav"><p class="eyebrow">ENGINEERING REVIEW</p><strong>' + text(a['system']) + '</strong><nav aria-label="Manager report">' + ''.join(f'<a href="#section-{i}">{text(title)}</a>' for i, title in enumerate(SECTIONS)) + '</nav></aside><main>'
     output += '<header><p class="eyebrow">ENGINEERING SYSTEM REVIEW</p><h1>' + text(a['system']) + '</h1><button type="button" onclick="window.print()">Print / Save as PDF</button> <a download="engineering-review.json" href="data:application/json;base64,' + download + '">Download evidence package (.json)</a><p class="muted">Machine-readable evidence used to reproduce and audit this review.</p></header>'
-    output += '<nav aria-label="Manager report">' + ''.join(f'<a href="#section-{i}">{text(title)}</a>' for i, title in enumerate(SECTIONS)) + '</nav>'
     output += ''.join(f'<section id="section-{i}" aria-labelledby="title-{i}"><h2 id="title-{i}">{text(title)}</h2>{body}</section>' for i, (title, body) in enumerate(zip(SECTIONS, content)))
-    output += '<footer>Offline evidence. No network access or execution is performed by this document.</footer></main><script id="engineering-package" type="application/json">' + data + '</script><script>' + PRINT_SCRIPT + '</script></body></html>'
+    output += '<footer>Offline evidence. No network access or execution is performed by this document.</footer></main></div><script id="engineering-package" type="application/json">' + data + '</script><script>' + PRINT_SCRIPT + ''';(()=>{const input=document.querySelector('[data-component-search]');if(!input)return;input.addEventListener('input',()=>{const query=input.value.trim().toLocaleLowerCase();document.querySelectorAll('[data-component-row]').forEach(row=>{row.hidden=!row.textContent.toLocaleLowerCase().includes(query);});});})();''' + '</script></body></html>'
     if len(output.encode('utf-8')) > 32 * 1024 * 1024:
         raise ValueError('invalid engineering HTML size')
     return output

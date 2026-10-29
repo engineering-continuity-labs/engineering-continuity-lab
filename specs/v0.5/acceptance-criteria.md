@@ -1,6 +1,17 @@
 # v0.5 acceptance and pre-development QA plan
 
-Status: PLANNED runtime verification. This PR verifies only specification/design consistency, independent review and unchanged baseline CI. Synthetic numbers below are reproducible hand-worked planned oracles, not executed/generated fixtures; live profiles/publication/actual rendering remain MANUAL.
+## Executive-review UX acceptance criteria
+
+| ID | Criterion |
+| --- | --- |
+| ECL-AC-565 | END_TO_END_JOURNEY: landing exposes the five-step evidence-to-investigation journey and primary synthetic review path. |
+| ECL-AC-566 | MANAGER_FIRST_LANDING / HONEST_SOURCE_SETUP / NO_FAKE_CONNECTION: public page labels Atlas as SYNTHETIC DEMO PROJECT and describes local CLI Azure acquisition without a browser PAT or connection claim. |
+| ECL-AC-567 | EXECUTIVE_FOUR_KPIS / ATTENTION_FINDINGS / NO_COMBINED_SCORE: report shows exactly four derived executive dimensions and accepted findings without a health score. |
+| ECL-AC-568 | COMPONENT_ATTENTION_TABLE / EXACT_COMPONENT_DRILLDOWN / TRACEABILITY_EXACT_BINDING_ONLY / COMPONENT_SEARCH: component views preserve unavailable semantics and only accepted exact bindings create chains. |
+| ECL-AC-569 | HUMAN_EVIDENCE_PANEL / JSON_SOURCE_OF_TRUTH / REAL_REPORT_SAME_UX / PRINT_REPORT: the same validated package drives synthetic and genuine offline HTML; print excludes navigation and JSON remains downloadable. |
+| ECL-AC-570 | TECHNICAL_EXPLORER_SECONDARY / RESPONSIVE_DESKTOP / RESPONSIVE_MOBILE / SAFE_DYNAMIC_CONTENT: technical details remain secondary, responsive and escaped. |
+
+Status: staged implementation and verification. Historical planned-language below is retained as provenance; current requirement status is tracked in `traceability.md`. Live provider operation, observed accessibility and physical-print verification remain MANUAL.
 
 | ID | Observable criterion / planned evidence |
 | --- | --- |

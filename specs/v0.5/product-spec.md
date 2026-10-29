@@ -1,6 +1,6 @@
 # v0.5 Engineering System Review — Product Owner contract
 
-Status: independently APPROVED intended design/specification only; no delivery, defect, build, assessment or UI runtime implemented by this PR. Starting green main: `24165b279bb17dbb8b8e5ec0ddaf9a9c52798718`.
+Status: IMPLEMENTED in staged increments through Azure acquisition and executive-review presentation. Verification status remains requirement-specific in `traceability.md`; live provider access, accessibility observation and physical-print evidence remain MANUAL. The historical design wording below is retained as provenance.
 
 ## Problem, persona and value
 
@@ -91,5 +91,15 @@ The twelve accepted technical areas remain audit structure; normal navigation us
 | ECL-FR-523 | One-command validated JSON/offline HTML, optionally composing an existing genuine Git report. |
 | ECL-FR-524 | Explicit population/history/cutoff limitations and partial/failed/unsupported distinctions; approved alias privacy without inferred mapping/categories. |
 | ECL-FR-525 | Preserve connection/profile/transport/metric compatibility and bounded runtime-only credential handling. |
+
+## Executive-review UX increment
+
+| ID | Requirement |
+| --- | --- |
+| ECL-FR-526 | Present the public landing page around the manager journey: evidence acquisition, normalization, independent analysis, review generation and component investigation. The technical explorer remains available as a secondary route. |
+| ECL-FR-527 | Offer only honest review entry points: a clearly synthetic demonstration, local CLI guidance for real Azure DevOps acquisition, and a locally generated existing review. The browser does not claim to connect to Azure DevOps or GitHub and does not request a PAT. |
+| ECL-FR-528 | Present an Engineering System Review with a manager-facing sidebar, exactly four executive KPI cards (Continuity, Delivery, Defects and Builds), attention findings, component investigation and methodology/evidence. KPI presentation does not introduce a combined score or alter assessment semantics. |
+| ECL-FR-529 | Allow component search and show cross-dimension values only where the accepted package provides an exact component binding. Unbound traceability/verification values remain Unavailable; no relationship may be inferred for presentation. |
+| ECL-FR-530 | Keep the HTML review offline, printable and auditable through its unchanged canonical evidence package and visible JSON download. The same generated-report presentation serves synthetic and genuine packages with provenance retained. |
 
 Accepted handoffs: docs/v0.5-azure-engineering-review.md. Non-atomic live enumeration is deliberately PARTIAL.
