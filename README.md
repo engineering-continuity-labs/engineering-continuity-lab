@@ -10,6 +10,15 @@ Engineering Continuity Lab analyzes local Git history. It makes evidence, assump
 
 Start a review from one ECL application shell: **Explore Atlas Commerce** opens the fictional **SYNTHETIC DEMO PROJECT** and **Use your engineering evidence** leads to the local Git/JSON workflow. Atlas uses the same Executive Review, Components, Engineering Details, and Evidence & Methodology navigation as generated offline reports; it is not a separate product. The **Public eShop Validation Sample** remains separately available at its documented revision with explicitly PARTIAL review collection. Bundled samples do not clone or contact external services. Compatible local JSON remains only in browser memory and is never uploaded or persisted. Maintainers can find deployment details in [GitHub Pages demo](docs/github-pages.md).
 
+### Two-minute Atlas Commerce walkthrough
+
+1. Open **Explore Atlas Commerce** from the live demo, then read the three bounded **Start here** findings before treating them as actions.
+2. Open **Components** and select an attention area. Continuity, qualified PR review and other dimensions remain separate.
+3. Choose **Inspect evidence** to see the exact retained Work Item → PR → Commit → Path → Component chain only where the canonical evidence has that exact component binding. `Unavailable` means ECL has no accepted component-bound evidence; it never means zero.
+4. Use **Evidence & Methodology** for collection scope, qualification limits and the downloadable canonical JSON audit package.
+
+Atlas Commerce is fictional and visibly labelled synthetic. The local Git Explorer produces only Git-history continuity evidence. The optional Azure Engineering Review CLI supports explicitly configured read-only acquisition, but real Azure Server/Services operation remains **NOT VERIFIED** until tested against a dedicated non-sensitive environment.
+
 ```mermaid
 flowchart LR
     A[Problem] --> B[Git Evidence]

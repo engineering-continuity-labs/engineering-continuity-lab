@@ -247,6 +247,50 @@ class EngineeringHTMLTests(unittest.TestCase):
         self.assertIn('Unavailable', components)
         self.assertIn('75.0%', render(compose(assessment_id='review', system='atlas', windows=windows, ecl_report=json.loads((Path(__file__).resolve().parents[1] / 'examples/v0.4-traceability-v3.json').read_text()))).split('id="section-1"', 1)[1].split('id="section-2"', 1)[0])
 
+    def test_component_drilldown_shows_only_exact_traceability_and_verification_paths(self):
+        package = json.loads((Path(__file__).resolve().parents[1] / 'examples/v0.5-engineering-review.json').read_text())
+        html = render(package, synthetic=True)
+        component = html.split('<details class="component-detail" id="component-', 1)[1]
+        self.assertIn('Partial · ', component)
+        self.assertIn('exact bound path(s)', component)
+        self.assertIn('Traceability chains', component)
+        self.assertIn('Verification chains', component)
+        self.assertIn('Work Item 1001', component)
+        self.assertIn('Pull Request 51', component)
+        self.assertIn('Exact accepted path and support', component)
+        payments = html.split('<h3>src/payments</h3>', 1)[1].split('</details>', 1)[0]
+        catalog = html.split('<h3>src/catalog</h3>', 1)[1].split('</details>', 1)[0]
+        self.assertIn('Work Item 1001', payments)
+        self.assertNotIn('Work Item 1001', catalog)
+
+    def test_component_drilldown_explains_missing_or_mismatched_bindings(self):
+        windows, _, _ = sources()
+        report = json.loads((Path(__file__).resolve().parents[1] / 'examples/v0.4-traceability-v3.json').read_text())
+        report['configuration']['component_depth'] = 1
+        html = render(compose(assessment_id='review', system='atlas', windows=windows, ecl_report=report))
+        components = html.split('id="section-1"', 1)[1].split('id="section-2"', 1)[0]
+        self.assertIn('Unavailable — no exact accepted component binding.', components)
+        self.assertNotIn('Traceability chains', components)
+
+        from continuity.reporting.engineering_evidence_html import component_binding_label
+        self.assertEqual(component_binding_label({'identifier': 'src/payments'}, [], 'Traceability'),
+                         'Unavailable — traceability source has no exact path for this component.')
+
+    def test_component_binding_rejects_same_name_different_reference_and_ambiguity(self):
+        from continuity.reporting.engineering_evidence_html import component_bound_paths
+        from continuity.reporting.engineering_html import exact_component_rows
+        target = {'kind': 'COMPONENT', 'provider': 'source', 'repository': 'demo', 'identifier': 'src/payments', 'configuration': 'depth-2'}
+        impostor = {**target, 'repository': 'other-demo'}
+        legacy = {'traceability_evidence': {'result': {'paths': [
+            {'status': 'VERIFIED', 'nodes': [{'kind': 'WORK_ITEM', 'identifier': '1001'}, target]},
+            {'status': 'VERIFIED', 'nodes': [{'kind': 'WORK_ITEM', 'identifier': '1002'}, impostor]},
+        ]}}}
+        paths = component_bound_paths(legacy, target, 'traceability_evidence')
+        self.assertEqual(len(paths), 1)
+        self.assertEqual(paths[0]['nodes'][0]['identifier'], '1001')
+        row = {'component_ref': target, 'dimensions': {}}
+        self.assertEqual(exact_component_rows([row, {**row, 'dimensions': {'delivery': {}}}], 2), {})
+
     def test_nonmidnight_window_keeps_exact_utc_bounds(self):
         from datetime import datetime, timezone
         from continuity.domain.engineering_review import Window, Windows

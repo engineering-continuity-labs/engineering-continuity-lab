@@ -64,6 +64,17 @@ def display_fraction(value: Any, divisor: int = 1, suffix: str = '', signed: boo
     return formatted + suffix
 
 
+def exact_component_rows(component_results: list[dict[str, Any]], depth: Any) -> dict[str, dict[str, Any]]:
+    """Keep one exact configured component result; ambiguity intentionally stays unbound."""
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for row in component_results:
+        component_ref = row.get('component_ref', {})
+        if isinstance(component_ref, dict) and isinstance(component_ref.get('identifier'), str):
+            groups.setdefault(component_ref['identifier'], []).append(row)
+    return {name: rows[0] for name, rows in groups.items()
+            if len(rows) == 1 and type(depth) is int and rows[0]['component_ref'].get('configuration') == f'depth-{depth}'}
+
+
 def render(package: dict[str, Any], *, synthetic: bool = False,
            source_label_override: str | None = None, provenance_override: str | None = None) -> str:
     """Present the accepted assessment; conversions never replace normative values."""
@@ -188,7 +199,7 @@ def render(package: dict[str, Any], *, synthetic: bool = False,
     for row in a['component_results']:
         mapped_groups.setdefault(row['component_ref']['identifier'], []).append(row)
     # Ambiguous short identifiers cannot merge distinct typed component scopes.
-    mapped = {name: rows[0] for name, rows in mapped_groups.items() if len(rows) == 1 and type(depth) is int and rows[0]['component_ref'].get('configuration') == f'depth-{depth}'}
+    mapped = exact_component_rows(a['component_results'], depth)
     component_names = sorted(set(historical) | set(reviews) | set(mapped_groups))
     def scoped(name: str) -> list[dict[str, Any]]:
         return [f for f in findings if (f['rule_id'] == 'ER01' or f['rule_id'] == 'ER02' and name in reviews) and f['scope'].get('legacy') == name]
@@ -199,19 +210,26 @@ def render(package: dict[str, Any], *, synthetic: bool = False,
     else:
         snapshot += '<p class="section-link"><a href="#section-1">Inspect component evidence</a>. No finding does not mean Normal.</p>'
 
+    from continuity.reporting.engineering_evidence_html import component_binding_label, component_bound_paths, component_path_view, render_evidence
     components = '<p>Historical measures keep their source date. Unbound or mismatched component strategies are Unavailable; component counts overlap and must not be summed.</p><label for="component-search">Find a component</label><input id="component-search" class="component-search" type="search" placeholder="Search components" data-component-search><div class="table"><table><thead><tr><th>Component</th><th>Continuity</th><th>Review</th><th>Delivery</th><th>Quality</th><th>Traceability</th><th>Verification</th></tr></thead><tbody>'
     component_details = ''
     for index, name in enumerate(component_names):
         old = historical.get(name, {})
         review = reviews.get(name, {})
         row = mapped.get(name, {})
+        component_ref = row.get('component_ref') if isinstance(row.get('component_ref'), dict) else None
+        trace_paths = component_bound_paths(legacy, component_ref, 'traceability_evidence')
+        verification_paths = component_bound_paths(legacy, component_ref, 'verification_evidence')
         cd = row.get('dimensions', {}).get('delivery', {}).get('current', {}).get('work_items', {})
         cq = row.get('dimensions', {}).get('quality', {}).get('current', {}).get('work_items', {})
         review_value = 'Unavailable' if review.get('coverage') is None else f'{review["coverage"] * 100:.1f}% · {text(review.get("coverage_status"))}'
-        values = [old.get('risk', 'Unavailable'), review_value, 'Completed: ' + number(cd.get('completed')) if cd.get('availability') in ('OBSERVED', 'PARTIAL') else 'Unavailable', 'Open: ' + number(cq.get('open_inventory')) if cq.get('availability') in ('OBSERVED', 'PARTIAL') else 'Unavailable', 'Unavailable', 'Unavailable']
+        traceability_value = component_binding_label(component_ref, trace_paths, 'Traceability')
+        verification_value = component_binding_label(component_ref, verification_paths, 'Verification')
+        values = [old.get('risk', 'Unavailable'), review_value, 'Completed: ' + number(cd.get('completed')) if cd.get('availability') in ('OBSERVED', 'PARTIAL') else 'Unavailable', 'Open: ' + number(cq.get('open_inventory')) if cq.get('availability') in ('OBSERVED', 'PARTIAL') else 'Unavailable', traceability_value, verification_value]
         components += f'<tr data-component-row><th scope="row"><a href="#component-{index}">{text(name)}</a></th>' + ''.join(f'<td>{text(v)}</td>' for v in values) + '</tr>'
         component_details += f'<details class="component-detail" id="component-{index}"><summary>{text(name)} · {len(scoped(name))} scoped attention observations</summary><h3>{text(name)}</h3><p class="muted">Independent evidence is shown only where this component has an exact accepted binding.</p>'
-        component_details += table([('Continuity · historical', old.get('risk')), ('Review coverage · historical', review_value), ('Delivery completed', cd.get('completed')), ('Delivery median', median(cd.get('durations', {}))), ('Defects opened', cq.get('opened')), ('Defects resolved', cq.get('completed')), ('Defects open', cq.get('open_inventory')), ('Defects aged ≥30d', cq.get('aged')), ('Component traceability evidence', 'Unavailable'), ('Verification', 'Unavailable')])
+        component_details += table([('Continuity · historical', old.get('risk')), ('Review coverage · historical', review_value), ('Delivery completed', cd.get('completed')), ('Delivery median', median(cd.get('durations', {}))), ('Defects opened', cq.get('opened')), ('Defects resolved', cq.get('completed')), ('Defects open', cq.get('open_inventory')), ('Defects aged ≥30d', cq.get('aged')), ('Component traceability evidence', traceability_value), ('Verification', verification_value)])
+        component_details += component_path_view(trace_paths, 'Traceability chains') + component_path_view(verification_paths, 'Verification chains')
         component_details += f'<a href="#component-evidence-{index}">Inspect evidence</a></details>'
     components += '</tbody></table></div>' + component_details
     if not component_names:
@@ -225,7 +243,6 @@ def render(package: dict[str, Any], *, synthetic: bool = False,
     details += '<details><summary>Reviews</summary>' + table([(name, 'Unavailable' if c.get('coverage') is None else f'{c["coverage"] * 100:.1f}% · {c.get("coverage_status")}') for name, c in review_rows.items()]) + '<p>Independent review source; original component depth: ' + number(review_depth) + '. Qualifying review interaction, not review quality. Concentration, unreviewed PRs and exclusions remain inspectable.</p></details>'
     details += '<details><summary>Traceability &amp; Verification</summary><p>' + text(coverage('traceability_evidence')) + ' / ' + text(coverage('verification_evidence')) + '</p>' + table([(m['dimension'], 'Unavailable' if m['value'] is None else str(m['value']) + ' · ' + m['status']) for m in legacy.get('verification_evidence', {}).get('result', {}).get('metrics', [])]) + '<a href="#legacy-evidence">Inspect paths, linkage, gaps and qualified verification observations</a></details>'
 
-    from continuity.reporting.engineering_evidence_html import render_evidence
     methodology = render_evidence(validated, NAMES, findings, investigations, source_summary, component_names, historical, review_rows, reviews, mapped_groups)
     content = [snapshot, components, details, methodology]
     data = canonical(validated).replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026')

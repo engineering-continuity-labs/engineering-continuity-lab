@@ -55,6 +55,46 @@ def reviews(component: dict[str, Any]) -> str:
                   ('Reviewer concentration', component.get('concentration')), ('Concentration band', component.get('risk'))]) + '<h4>Unreviewed PRs</h4><p>' + text(', '.join(component.get('unreviewed_pull_requests', [])) or 'None listed; inspect completeness') + '</p><h4>Excluded interactions</h4>' + table([(k.replace('_', ' ').title(), v) for k, v in component.get('excluded_reasons', {}).items()])
 
 
+def component_bound_paths(legacy: dict[str, Any], component_ref: dict[str, Any] | None, evidence_key: str) -> list[dict[str, Any]]:
+    """Return only paths whose canonical terminal component is exactly this component."""
+    if component_ref is None:
+        return []
+    result = legacy.get(evidence_key, {}).get('result', {})
+    paths = result.get('paths', []) if isinstance(result, dict) else []
+    bound: list[dict[str, Any]] = []
+    for path in paths:
+        if not isinstance(path, dict):
+            continue
+        code_path = path.get('code_path', path)
+        nodes = code_path.get('nodes', []) if isinstance(code_path, dict) else []
+        if any(node == component_ref for node in nodes):
+            bound.append(path)
+    return bound
+
+
+def component_binding_label(component_ref: dict[str, Any] | None, paths: list[dict[str, Any]], label: str) -> str:
+    if component_ref is None:
+        return 'Unavailable — no exact accepted component binding.'
+    if not paths:
+        return f'Unavailable — {label.lower()} source has no exact path for this component.'
+    statuses = {str(path.get('code_path', path).get('status', 'PARTIAL')) for path in paths if isinstance(path.get('code_path', path), dict)}
+    status = 'VERIFIED' if statuses == {'VERIFIED'} else 'PARTIAL'
+    return f'{status.title()} · {len(paths)} exact bound path(s)'
+
+
+def component_path_view(paths: list[dict[str, Any]], label: str) -> str:
+    if not paths:
+        return ''
+    body = '<h4>' + text(label) + '</h4>'
+    for path in paths:
+        code_path = path.get('code_path', path)
+        nodes = code_path.get('nodes', []) if isinstance(code_path, dict) else []
+        status = code_path.get('status', 'Unavailable') if isinstance(code_path, dict) else 'Unavailable'
+        body += '<p>' + ' → '.join(reference(node) for node in nodes) + ' · ' + text(status) + '</p>'
+        body += disclosure('Exact accepted path and support', table(fields(path)), technical=True)
+    return body
+
+
 def trace_view(legacy: dict[str, Any]) -> str:
     result = legacy.get('traceability_evidence', {}).get('result')
     if result is None:
