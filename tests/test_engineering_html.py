@@ -69,6 +69,16 @@ class EngineeringHTMLTests(unittest.TestCase):
         self.assertIn('Data source:</strong> Locally generated validated evidence package', render(package))
         self.assertNotIn('explicitly declared demo evidence', render(package))
         self.assertIn('SYNTHETIC DEMO PROJECT', render(package, synthetic=True))
+
+    def test_safe_local_source_overrides_are_escaped_presentation_only(self):
+        windows, _, _ = sources()
+        package = compose(assessment_id='review', system='local-git', windows=windows)
+        html = render(package, source_label_override='Local Git history — repo&lt;safe&gt;',
+                      provenance_override='LOCAL GIT ANALYSIS · Git history only')
+        self.assertIn('Local Git history — repo&amp;lt;safe&amp;gt;', html)
+        self.assertIn('LOCAL GIT ANALYSIS · Git history only', html)
+        from continuity.reporting.portable import canonical
+        self.assertEqual(import_package(canonical(package)), package)
     def test_sections_numeric_parity_and_offline_reopen(self):
         windows, delivery, quality = sources()
         package = compose(assessment_id='synthetic', system='atlas', windows=windows, delivery=delivery, quality=quality)

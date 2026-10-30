@@ -10,7 +10,7 @@ import unittest
 from unittest.mock import patch
 
 from continuity.cli import main
-from continuity.explorer import analysis_output, make_server
+from continuity.explorer import analysis_output, local_executive_review, make_server
 from continuity.domain.reviews import CollectionStatus, ProviderProvenance, PullRequestEvidence, ReviewEvidenceCollection, ReviewIdentity, ReviewEvent, ReviewState
 
 
@@ -76,6 +76,30 @@ class ExplorerTests(unittest.TestCase):
         self.assertEqual(report["model"], "experimental-v0.1")
         self.assertNotIn("traceability_evidence", report)
         self.assertTrue(report["components"])
+
+    def test_local_git_analysis_opens_a_report_specific_executive_review(self) -> None:
+        port = self.start_server()
+        status, report, _ = self.request(port, "POST", "/api/analyze", {"repository": str(self.repository)})
+        self.assertEqual(status, 200)
+        connection = HTTPConnection("127.0.0.1", port, timeout=5)
+        connection.request("GET", "/api/executive-review")
+        response = connection.getresponse()
+        html = response.read().decode()
+        connection.close()
+        self.assertEqual(response.status, 200)
+        self.assertEqual(response.getheader("Content-Type"), "text/html; charset=utf-8")
+        self.assertIn("Local Git history — local repository", html)
+        self.assertIn("module.py", html)
+        self.assertIn("Delivery</th><td>Unavailable", html)
+        self.assertNotIn("Atlas Commerce", html)
+        self.assertEqual(report["components"][0]["component"], "(root)")
+
+    def test_local_executive_review_uses_a_safe_clone_alias_not_the_source_url(self) -> None:
+        report = analysis_output(str(self.repository))
+        report["source"] = "https://github.com/psf/requests.git"
+        html = local_executive_review(report)
+        self.assertIn("Local Git history — psf/requests", html)
+        self.assertNotIn("https://github.com/psf/requests.git", html)
 
     def test_explorer_rejects_empty_and_invalid_requests(self) -> None:
         port = self.start_server()

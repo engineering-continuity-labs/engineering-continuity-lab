@@ -64,9 +64,11 @@ def display_fraction(value: Any, divisor: int = 1, suffix: str = '', signed: boo
     return formatted + suffix
 
 
-def render(package: dict[str, Any], *, synthetic: bool = False) -> str:
+def render(package: dict[str, Any], *, synthetic: bool = False,
+           source_label_override: str | None = None, provenance_override: str | None = None) -> str:
     """Present the accepted assessment; conversions never replace normative values."""
-    if type(synthetic) is not bool:
+    if (type(synthetic) is not bool or (source_label_override is not None and not isinstance(source_label_override, str))
+            or (provenance_override is not None and not isinstance(provenance_override, str))):
         raise ValueError('invalid presentation provenance')
     validated = import_package(canonical(package))
     a, evidence = validated['assessment'], validated['evidence']
@@ -127,8 +129,8 @@ def render(package: dict[str, Any], *, synthetic: bool = False) -> str:
                       ('Delivery', coverage('delivery')), ('Quality', coverage('quality')),
                       ('Builds', {'OBSERVED': 'Available', 'PARTIAL': 'Partial'}.get(builds.get('availability'), 'Unavailable')),
                       ('Deployment', 'Unavailable')]
-    provenance = 'SYNTHETIC DEMO PROJECT · fictional Atlas Commerce example' if synthetic else 'OFFLINE DECLARED · source owner assertions'
-    source_label = 'Synthetic demo data — Atlas Commerce (fictional)' if synthetic else 'Locally generated validated evidence package'
+    provenance = provenance_override or ('SYNTHETIC DEMO PROJECT · fictional Atlas Commerce example' if synthetic else 'OFFLINE DECLARED · source owner assertions')
+    source_label = source_label_override or ('Synthetic demo data — Atlas Commerce (fictional)' if synthetic else 'Locally generated validated evidence package')
     window = a['windows']['current']
     groups: dict[tuple[str, str], list[dict[str, Any]]] = {}
     for finding in findings:
