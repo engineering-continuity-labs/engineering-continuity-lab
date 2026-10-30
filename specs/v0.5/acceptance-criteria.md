@@ -4,7 +4,7 @@
 
 | ID | Criterion |
 | --- | --- |
-| ECL-AC-565 | END_TO_END_JOURNEY: landing exposes the five-step evidence-to-investigation journey and primary synthetic review path. |
+| ECL-AC-565 | END_TO_END_JOURNEY / SHARED_APPLICATION_SHELL: landing exposes the five-step evidence-to-investigation journey and primary synthetic review path; landing and Atlas review visibly share the dark navigation rail, Executive Review / Components / Engineering Details / Evidence & Methodology vocabulary, visual system and responsive shell. |
 | ECL-AC-566 | MANAGER_FIRST_LANDING / HONEST_SOURCE_SETUP / VISIBLE_DATA_SOURCE / NO_FAKE_CONNECTION: the loopback explorer visibly offers a local repository path and an HTTPS Git clone URL, explicitly including Azure DevOps Server/on-prem Git URLs; the static page directs users to launch that local explorer. The public page distinguishes synthetic demo data from Git-history collection and an already generated local review; the review header names its source class. The Git URL path is Git-only; no browser PAT, Azure work-item/build connection, or URL credential transmission is claimed, while an already configured local Git credential manager may be used by Git. |
 | ECL-AC-567 | EXECUTIVE_FOUR_KPIS / ATTENTION_FINDINGS / NO_COMBINED_SCORE: report shows exactly four derived executive dimensions and accepted findings without a health score. |
 | ECL-AC-568 | COMPONENT_ATTENTION_TABLE / EXACT_COMPONENT_DRILLDOWN / TRACEABILITY_EXACT_BINDING_ONLY / COMPONENT_SEARCH: component views preserve unavailable semantics and only accepted exact bindings create chains. |

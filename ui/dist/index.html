@@ -8,7 +8,14 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="pages.css">
 </head>
-<body>
+<body class="app-body">
+  <div class="app-shell">
+  <aside class="app-nav" aria-label="Engineering Continuity Lab navigation">
+    <a class="app-brand" href="#top"><span>ENGINEERING CONTINUITY LAB</span><strong>Start a Review</strong></a>
+    <nav><a class="active" href="#top">Start a Review</a><a href="engineering-review.html">Executive Review</a><a href="engineering-review.html#section-1">Components</a><a href="engineering-review.html#section-2">Engineering Details</a><a href="engineering-review.html#section-3">Evidence &amp; Methodology</a></nav>
+    <p class="app-nav-note">Local evidence. Clear limits. No hidden score.</p>
+  </aside>
+  <div class="app-content">
   <header class="site-header">
     <a class="brand" href="#top" aria-label="Engineering Continuity Lab home"><span class="mark" aria-hidden="true">≋</span><span>CONTINUITY<span class="brand-sub">ENGINEERING LAB</span></span></a>
     <span class="version">EXPERIMENTAL</span>
@@ -71,6 +78,8 @@
     <details class="method"><summary>Report scope, export and filters</summary><p id="report-format-help"></p><div id="scope"></div><p>Git activity is only a proxy for knowledge. Scores and risk thresholds are experimental; review findings alongside team context.</p></details>
   </main>
   <footer><span class="warning-icon">!</span><p><strong>Evidence before assumptions.</strong> Source and methodology are available on GitHub.</p></footer>
+  </div>
+  </div>
   <script type="module" src="app.js"></script>
 </body>
 </html>
