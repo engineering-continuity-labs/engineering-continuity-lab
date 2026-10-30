@@ -50,12 +50,15 @@ class EngineeringHTMLTests(unittest.TestCase):
                           delivery=delivery, quality=quality, ecl_report=report)
         document = Document()
         document.feed(render(package))
-        for label in ('Continuity', 'Reviews', 'Traceability', 'Verification',
-                      'Evidence coverage', 'Components requiring attention'):
+        for label in ('Continuity', 'Evidence status',
+                      'Inspect 5 components with scoped attention evidence'):
             self.assertIn(label, document.snapshot)
+        rendered = render(package)
+        for label in ('Reviews', 'Traceability', 'Verification'):
+            self.assertIn(label, rendered)
         self.assertIn('Aging delivery items detected', render(package))
         self.assertNotIn('ER05', document.snapshot)
-        self.assertIn('Unavailable', document.snapshot)
+        self.assertIn('Major unavailable evidence: Deployment', document.snapshot)
         download = next(a['href'] for tag, a in document.tags if tag == 'a' and 'download' in a)
         self.assertEqual(import_package(b64decode(download.split(',', 1)[1])), package)
     def test_provenance_is_explicit_not_alias_inference(self):
@@ -122,7 +125,9 @@ class EngineeringHTMLTests(unittest.TestCase):
         self.assertIn('data-component-row', html)
         for label in ('>Executive Review<', '>Components<', '>Engineering Details<', '>Evidence &amp; Methodology<'):
             self.assertIn(label, html)
-        self.assertLess(snapshot.index('Executive indicators'), snapshot.index('Historical continuity'))
+        self.assertLess(snapshot.index('Start here'), snapshot.index('Historical continuity'))
+        self.assertLess(snapshot.index('Historical continuity'), snapshot.index('At a glance'))
+        self.assertLess(snapshot.index('At a glance'), snapshot.index('Executive indicators'))
         self.assertEqual(snapshot.count('<div class="card">'), 4)
         for label in ('Continuity', 'Delivery', 'Defects', 'Builds'):
             self.assertIn('<h3>' + label + '</h3>', snapshot)
@@ -144,6 +149,17 @@ class EngineeringHTMLTests(unittest.TestCase):
         self.assertIn('unavailable evidence remains unavailable', snapshot)
         self.assertNotIn('Health =', snapshot)
 
+    def test_executive_first_layer_defers_component_inventory_and_coverage_detail(self):
+        package = json.loads((Path(__file__).resolve().parents[1] / 'examples/v0.5-engineering-review.json').read_text())
+        html = render(package, synthetic=True)
+        snapshot = html.split('id="section-0"', 1)[1].split('id="section-1"', 1)[0]
+        self.assertLess(snapshot.index('Evidence status:'), snapshot.index('At a glance'))
+        self.assertNotIn('Evidence coverage', snapshot)
+        self.assertNotIn('Components requiring attention', snapshot)
+        self.assertIn('href="#section-1">Inspect 5 components with scoped attention evidence</a>', snapshot)
+        evidence = html.split('id="all-findings"', 1)[1]
+        self.assertIn('href="#section-0">Return to Executive Review</a>', evidence)
+
     def test_pr_only_duration_finding_explains_triggering_population(self):
         from datetime import datetime, timedelta
         windows, delivery, quality = sources()
@@ -162,14 +178,16 @@ class EngineeringHTMLTests(unittest.TestCase):
         windows, delivery, _ = sources()
         delivery['builds'] = []
         package = compose(assessment_id='review', system='atlas', windows=windows, delivery=delivery)
-        document = Document(); document.feed(render(package))
+        rendered = render(package)
+        document = Document(); document.feed(rendered)
         self.assertIn('0 qualified terminal builds', document.snapshot)
         delivery['populations']['builds']['status'] = 'FAILED'
         package = compose(assessment_id='review', system='atlas', windows=windows, delivery=delivery)
-        document = Document(); document.feed(render(package))
+        rendered = render(package)
+        document = Document(); document.feed(rendered)
         self.assertIn('Unavailable qualified terminal builds', document.snapshot)
         self.assertNotIn('0 qualified terminal builds', document.snapshot)
-        self.assertIn('Delivery: Partial', document.snapshot)
+        self.assertIn('<th scope="row">Delivery</th><td>Partial</td>', rendered)
 
     def test_display_precision_never_turns_nonzero_into_zero(self):
         self.assertEqual(display_fraction({'numerator': 60000000, 'denominator': 1}, 86400000000, ' days'), '<0.1 days')
@@ -183,8 +201,9 @@ class EngineeringHTMLTests(unittest.TestCase):
             population['capability'] = 'UNSUPPORTED'
         delivery['work_items'] = []; delivery['pull_requests'] = []; delivery['builds'] = []
         package = compose(assessment_id='review', system='atlas', windows=windows, delivery=delivery)
-        document = Document(); document.feed(render(package))
-        self.assertIn('Delivery: Unavailable', document.snapshot)
+        rendered = render(package)
+        document = Document(); document.feed(rendered)
+        self.assertIn('<th scope="row">Delivery</th><td>Unavailable</td>', rendered)
         self.assertIn('Major unavailable evidence: ', document.snapshot)
 
     def test_global_namespace_cannot_become_component_attention(self):
@@ -193,8 +212,8 @@ class EngineeringHTMLTests(unittest.TestCase):
         report['components'][0]['component'] = 'traceability'
         package = compose(assessment_id='review', system='atlas', windows=windows, ecl_report=report)
         document = Document(); document.feed(render(package))
-        attention = document.snapshot.split('Components requiring attention', 1)[1]
-        self.assertNotIn('Traceability gaps detected', attention)
+        components = render(package).split('id="section-1"', 1)[1].split('id="section-2"', 1)[0]
+        self.assertNotIn('Traceability gaps detected', components)
         self.assertIn('Traceability gaps detected', document.snapshot)
 
     def test_mismatched_component_depth_cannot_join_independent_dimensions(self):

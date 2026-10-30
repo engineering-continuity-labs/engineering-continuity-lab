@@ -158,7 +158,7 @@ def render_evidence(package: dict[str, Any], names: dict[str, str], findings: li
             body += table([('Selected work-item observations · all supplied windows', len(source['work_items'])), ('Selected PR observations · all supplied windows', len(source['pull_requests'])), ('Selected build observations · all supplied windows', len(source['builds']))])
             body += disclosure('Technical source and completeness', table(fields({k: source.get(k) for k in ('alias', 'retrieved_at', 'capability', 'status', 'populations', 'categories', 'selected_types', 'mapping_complete', 'mapping_revision', 'mappings', 'policy_fingerprint', 'selection_fingerprint')})), technical=True)
     body += disclosure('Technical completeness and source boundaries', table(fields({'sources': a['evidence_sources'], 'completeness': a['completeness'], 'policy': a['policy']})), technical=True)
-    body += '<div id="all-findings"><h3>Finding evidence and suggested investigation</h3>'
+    body += '<div id="all-findings"><h3>Finding evidence and suggested investigation</h3><p><a href="#section-0">Return to Executive Review</a></p>'
     for finding in findings:
         rule = finding['rule_id']
         body += f'<article id="finding-{text(finding["id"])}"><h4>{text(finding["severity"])} · {text(names[rule])}</h4>'
