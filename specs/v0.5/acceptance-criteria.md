@@ -10,6 +10,7 @@
 | ECL-AC-568 | COMPONENT_ATTENTION_TABLE / EXACT_COMPONENT_DRILLDOWN / TRACEABILITY_EXACT_BINDING_ONLY / COMPONENT_SEARCH: component views preserve unavailable semantics and only accepted exact bindings create chains. |
 | ECL-AC-569 | HUMAN_EVIDENCE_PANEL / JSON_SOURCE_OF_TRUTH / REAL_REPORT_SAME_UX / PRINT_REPORT: the same validated package drives synthetic and genuine offline HTML; print excludes navigation and JSON remains downloadable. |
 | ECL-AC-570 | TECHNICAL_EXPLORER_SECONDARY / RESPONSIVE_DESKTOP / RESPONSIVE_MOBILE / SAFE_DYNAMIC_CONTENT: technical details remain secondary, responsive and escaped. |
+| ECL-AC-571 | PROGRESSIVE_EXECUTIVE_DISCLOSURE / NO_SEMANTIC_DRIFT: immediately after the report identity and evidence provenance, Executive Review shows a `Start here` layer with no more than three deterministically ordered accepted finding groups, each retaining an anchor to its exact inspection evidence. `At a glance` then retains exactly four independent executive cards; all remaining accepted findings remain reachable through the full inventory. Empty, unavailable or unsupported evidence is explicitly labelled and never transformed into a priority, zero or favourable conclusion. |
 
 Status: staged implementation and verification. Historical planned-language below is retained as provenance; current requirement status is tracked in `traceability.md`. Live provider operation, observed accessibility and physical-print verification remain MANUAL.
 

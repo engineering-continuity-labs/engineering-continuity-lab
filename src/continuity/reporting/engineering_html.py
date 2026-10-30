@@ -22,7 +22,7 @@ section{background:var(--surface);border:1px solid var(--line);border-radius:12p
 details{border:1px solid var(--line);border-radius:9px;padding:14px;margin:12px 0;background:#fff}summary{cursor:pointer;font-weight:700}.component-detail{border-left:4px solid var(--teal)}
 pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem;background:#f5f8f8;padding:14px}table{width:100%;border-collapse:collapse}.component-search{width:min(100%,420px);padding:10px 12px;border:1px solid var(--line);border-radius:7px;margin:0 0 12px;color:var(--ink);font:inherit}
 th,td{text-align:left;padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:top}.table{overflow-x:auto}.table th{font-size:.78rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
-.finding-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:0;list-style:none;margin:12px 0}.finding-list li{margin:0}.attention{border-left:4px solid var(--amber);padding:13px 15px;background:#fff8ed;border-radius:0 8px 8px 0}.attention-high{border-left-color:var(--red);background:#fff4f6}.attention strong{display:block}.attention a{font-size:.85rem;font-weight:700}footer{color:var(--muted);font-size:.85rem;margin:30px 0}
+.finding-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:0;list-style:none;margin:12px 0}.finding-list li{margin:0}.priority-findings{grid-template-columns:1fr;max-width:800px}.executive-intro{margin:0 0 10px;max-width:760px;color:var(--muted)}.at-a-glance{margin-top:28px}.attention{border-left:4px solid var(--amber);padding:13px 15px;background:#fff8ed;border-radius:0 8px 8px 0}.attention-high{border-left-color:var(--red);background:#fff4f6}.attention strong{display:block}.attention a{font-size:.85rem;font-weight:700}.finding-overflow{font-size:.9rem}footer{color:var(--muted);font-size:.85rem;margin:30px 0}
 @media(max-width:960px){.report-shell{display:block}.report-nav{height:auto;position:static;padding:18px 20px}.report-nav strong{margin:4px 0 12px}.report-nav nav{display:flex;flex-wrap:wrap}.report-nav a{padding:7px 9px}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}main{max-width:none;padding:28px 26px}}@media(max-width:600px){main{padding:24px 16px 34px}section{padding:20px}.executive-summary{padding:20px 0}.cards,.finding-list{grid-template-columns:1fr}h1{font-size:2.25rem}.card{min-height:0}.assessment-window{overflow-wrap:anywhere}.actions{align-items:flex-start}.actions a,button{max-width:100%}}
 @media print{.technical{display:none!important}.report-nav{display:none!important}body{background:white}.report-shell{display:block}.executive-summary{padding:0}main{max-width:none;padding:0;box-shadow:none}.actions,button,script{display:none!important}section{break-inside:avoid;border-radius:0}details{break-inside:avoid}details> :not(summary){display:block!important}a{color:inherit}h2{break-after:avoid}}
 '''
@@ -130,19 +130,14 @@ def render(package: dict[str, Any], *, synthetic: bool = False) -> str:
     provenance = 'SYNTHETIC DEMO PROJECT · fictional Atlas Commerce example' if synthetic else 'OFFLINE DECLARED · source owner assertions'
     source_label = 'Synthetic demo data — Atlas Commerce (fictional)' if synthetic else 'Locally generated validated evidence package'
     window = a['windows']['current']
-    snapshot = ''
     groups: dict[tuple[str, str], list[dict[str, Any]]] = {}
     for finding in findings:
         groups.setdefault((finding['severity'], finding['rule_id']), []).append(finding)
     continuity_count = len([f for f in findings if f['rule_id'] == 'ER01']) if 'components' in legacy else None
-    snapshot += '<h3>Executive indicators</h3><div class="cards">'
-    snapshot += card('Continuity', f'<p>{number(continuity_count)} attention areas · historical</p>')
-    snapshot += card('Delivery', trend(delivery, 'work_items', 'durations') + '<h4>PR flow</h4>' + trend(delivery, 'pull_requests', 'lead'))
-    snapshot += card('Defects', f'<p>Opened: {number(bugs.get("opened"))} · Resolved: {number(bugs.get("completed"))}<br>Open: {number(bugs.get("open_inventory"))} · Aged ≥30d: {number(bugs.get("aged"))} · Reopened: {number(bugs.get("reopened"))}</p>')
-    snapshot += card('Builds', f'<p>{number(builds.get("known_terminal"))} qualified terminal builds<br>Success: {percent(builds.get("success_fraction"))} · Failure: {percent(builds.get("failure_fraction"))}</p>')
-    snapshot += '</div><p class="muted">Historical continuity, reviews, traceability and verification are from ' + text(legacy.get('as_of', 'Unavailable')) + '; they are not observations of the assessment period.</p><h3>What needs attention?</h3><ul class="finding-list">'
     attention_order = {'ER01': 0, 'ER06': 1, 'ER08': 2, 'ER03': 3, 'ER09': 4, 'ER05': 5, 'ER07': 6, 'ER02': 7, 'ER04': 8}
-    for (severity, rule), group in sorted(groups.items(), key=lambda item: (attention_order.get(item[0][1], 99), item[0][0]))[:6]:
+    attention_groups = sorted(groups.items(), key=lambda item: (attention_order.get(item[0][1], 99), item[0][0]))
+    attention_items: list[str] = []
+    for (severity, rule), group in attention_groups:
         label = NAMES[rule]
         detail = f'{len(group)} component observations' if rule == 'ER01' else f'{len(group)} supported observation(s)'
         if rule == 'ER03':
@@ -164,11 +159,21 @@ def render(package: dict[str, Any], *, synthetic: bool = False) -> str:
         elif rule == 'ER09':
             detail = percent(group[0]['value']) + ' of qualified builds failed'
         severity_class = ' attention-high' if severity == 'HIGH' else ''
-        snapshot += f'<li class="attention{severity_class}"><strong>{text(severity)} · {text(label)}</strong>{text(detail)} <a href="#finding-{text(group[0]["id"])}">Inspect evidence</a></li>'
+        attention_items.append(f'<li class="attention{severity_class}"><strong>{text(severity)} · {text(label)}</strong>{text(detail)} <a href="#finding-{text(group[0]["id"])}">Inspect evidence</a></li>')
+
+    snapshot = '<h2>Start here</h2><p class="executive-intro">The first findings to investigate, ordered from accepted evidence. This is not a combined health score or a recommendation.</p><ul class="finding-list priority-findings">'
+    snapshot += ''.join(attention_items[:3])
     snapshot += '</ul>'
-    if not findings:
+    if not attention_items:
         snapshot += '<p>No eligible attention finding. Missing evidence does not establish absence of issues.</p>'
-    snapshot += f'<a href="#all-findings">View all findings ({len(findings)})</a><h3>Evidence coverage</h3><p>' + ' · '.join(text(k) + ': ' + text(v) for k, v in source_summary) + '</p>'
+    elif len(attention_items) > 3:
+        snapshot += f'<p class="finding-overflow"><a href="#all-findings">View all findings ({len(findings)})</a> for the remaining accepted evidence.</p>'
+    snapshot += '<h2 class="at-a-glance">At a glance</h2><p class="executive-intro">Four independent dimensions are shown separately; unavailable evidence remains unavailable.</p><h3>Executive indicators</h3><div class="cards">'
+    snapshot += card('Continuity', f'<p>{number(continuity_count)} attention areas · historical</p>')
+    snapshot += card('Delivery', trend(delivery, 'work_items', 'durations') + '<h4>PR flow</h4>' + trend(delivery, 'pull_requests', 'lead'))
+    snapshot += card('Defects', f'<p>Opened: {number(bugs.get("opened"))} · Resolved: {number(bugs.get("completed"))}<br>Open: {number(bugs.get("open_inventory"))} · Aged ≥30d: {number(bugs.get("aged"))} · Reopened: {number(bugs.get("reopened"))}</p>')
+    snapshot += card('Builds', f'<p>{number(builds.get("known_terminal"))} qualified terminal builds<br>Success: {percent(builds.get("success_fraction"))} · Failure: {percent(builds.get("failure_fraction"))}</p>')
+    snapshot += '</div><p class="muted">Historical continuity, reviews, traceability and verification are from ' + text(legacy.get('as_of', 'Unavailable')) + '; they are not observations of the assessment period.</p><h3>Evidence coverage</h3><p>' + ' · '.join(text(k) + ': ' + text(v) for k, v in source_summary) + '</p>'
     snapshot += '<p>Major unavailable evidence: ' + text(', '.join(k for k, v in source_summary if v == 'Unavailable') or 'None at source level; field limits remain inspectable') + '.</p>'
 
     historical = {c['component']: c for c in legacy.get('components', [])}

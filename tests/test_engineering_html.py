@@ -51,8 +51,9 @@ class EngineeringHTMLTests(unittest.TestCase):
         document = Document()
         document.feed(render(package))
         for label in ('Continuity', 'Reviews', 'Traceability', 'Verification',
-                      'Aging delivery items detected', 'Evidence coverage', 'Components requiring attention'):
+                      'Evidence coverage', 'Components requiring attention'):
             self.assertIn(label, document.snapshot)
+        self.assertIn('Aging delivery items detected', render(package))
         self.assertNotIn('ER05', document.snapshot)
         self.assertIn('Unavailable', document.snapshot)
         download = next(a['href'] for tag, a in document.tags if tag == 'a' and 'download' in a)
@@ -129,6 +130,19 @@ class EngineeringHTMLTests(unittest.TestCase):
         self.assertNotIn('<h3>Traceability</h3>', snapshot)
         self.assertNotIn('<h3>Reviews</h3>', snapshot)
         self.assertNotIn('<h3>Verification</h3>', snapshot)
+
+    def test_executive_start_here_is_bounded_and_links_to_retained_evidence(self):
+        package = json.loads((Path(__file__).resolve().parents[1] / 'examples/v0.5-engineering-review.json').read_text())
+        html = render(package, synthetic=True)
+        snapshot = html.split('id="section-0"', 1)[1].split('id="section-1"', 1)[0]
+        priority = snapshot.split('<ul class="finding-list priority-findings">', 1)[1].split('</ul>', 1)[0]
+        self.assertLess(snapshot.index('Start here'), snapshot.index('At a glance'))
+        self.assertLessEqual(priority.count('<li class="attention'), 3)
+        self.assertEqual(priority.count('Inspect evidence'), priority.count('href="#finding-'))
+        self.assertIn('View all findings', snapshot)
+        self.assertIn('id="all-findings"', html)
+        self.assertIn('unavailable evidence remains unavailable', snapshot)
+        self.assertNotIn('Health =', snapshot)
 
     def test_pr_only_duration_finding_explains_triggering_population(self):
         from datetime import datetime, timedelta
