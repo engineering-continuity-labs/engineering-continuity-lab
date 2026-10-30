@@ -8,7 +8,7 @@ Engineering Continuity Lab analyzes local Git history. It makes evidence, assump
 
 <https://engineering-continuity-labs.github.io/engineering-continuity-lab/>
 
-The public demo starts with **Atlas Commerce · SYNTHETIC**, a fictional software system with derived component, review, implementation and declared requirement/test evidence. Four areas—Overview, Continuity, Traceability, and Reviews & Verification—follow the engineering questions. The **Public eShop Validation Sample** remains separately available at its documented revision with explicitly PARTIAL review collection. Both are bundled; the site does not clone or contact eShop. You can load a compatible local JSON report, which remains only in browser memory and is never uploaded or persisted. The source and methodology are available in this repository. Maintainers can find deployment details in [GitHub Pages demo](docs/github-pages.md).
+Start a review from one ECL application shell: **Explore Atlas Commerce** opens the fictional **SYNTHETIC DEMO PROJECT** and **Use your engineering evidence** leads to the local Git/JSON workflow. Atlas uses the same Executive Review, Components, Engineering Details, and Evidence & Methodology navigation as generated offline reports; it is not a separate product. The **Public eShop Validation Sample** remains separately available at its documented revision with explicitly PARTIAL review collection. Bundled samples do not clone or contact external services. Compatible local JSON remains only in browser memory and is never uploaded or persisted. Maintainers can find deployment details in [GitHub Pages demo](docs/github-pages.md).
 
 ```mermaid
 flowchart LR
@@ -41,7 +41,7 @@ continuity analyze --repo https://github.com/psf/requests.git
 
 `analyze` emits the complete report. `person` returns contributor evidence by component. The backward-compatible `simulate-departure` command returns Continuity Stress Test evidence for a contributor scenario.
 
-Public HTTPS Git clone URLs are also supported. The tool performs a full temporary clone, analyzes its complete history, and removes the clone after the command completes. Private repository authentication, URL credentials, SSH URLs, and persistent repository caching are not supported yet.
+HTTPS Git clone URLs are also supported, including an Azure DevOps Server/on-prem Git URL. The tool never accepts credentials embedded in a URL; an already configured local Git credential manager may be used by Git. It performs a full temporary clone, analyzes its complete history, and removes the clone after the command completes. Browser credential entry, URL credentials, SSH URLs, and persistent repository caching are not supported yet.
 
 ```text
 continuity analyze
@@ -67,7 +67,7 @@ Start with the local explorer for the normal workflow:
 continuity explorer
 ```
 
-It opens a loopback-only browser interface where you can analyze either a local Git repository path or a public HTTPS clone URL. The report appears immediately in the browser; exporting JSON is optional for sharing or reopening later. A public URL is cloned temporarily with full history and removed when analysis completes. You can also start with a source already selected:
+It opens a loopback-only browser interface where you can analyze either a local Git repository path or an HTTPS clone URL, including an Azure DevOps Server/on-prem Git URL. Do not embed credentials in the URL; an already configured local Git credential manager may be used by Git. The report appears immediately in the browser; exporting JSON is optional for sharing or reopening later. The URL is cloned temporarily with full history and removed when analysis completes. You can also start with a source already selected:
 
 ```sh
 continuity explorer --repo /path/to/repository

@@ -119,7 +119,7 @@ class EngineeringHTMLTests(unittest.TestCase):
         self.assertIn('class="report-nav"', html)
         self.assertIn('data-component-search', html)
         self.assertIn('data-component-row', html)
-        for label in ('>Review<', '>Components<', '>Engineering Details<', '>Evidence<'):
+        for label in ('>Executive Review<', '>Components<', '>Engineering Details<', '>Evidence &amp; Methodology<'):
             self.assertIn(label, html)
         self.assertLess(snapshot.index('Executive indicators'), snapshot.index('Historical continuity'))
         self.assertEqual(snapshot.count('<div class="card">'), 4)

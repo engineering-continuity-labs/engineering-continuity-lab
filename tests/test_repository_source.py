@@ -47,9 +47,9 @@ class RepositorySourceTests(unittest.TestCase):
 
     def test_remote_workspace_uses_full_clone_and_cleans_up(self) -> None:
         with patch("continuity.git.source.subprocess.run", side_effect=self.clone_as_local_origin):
-            with resolve_repository("https://example.test/project.git") as workspace:
+            with resolve_repository("https://azure.example.test/tfs/collection/project/_git/repository") as workspace:
                 clone_path = workspace.path
-                self.assertEqual(workspace.source, "https://example.test/project.git")
+                self.assertEqual(workspace.source, "https://azure.example.test/tfs/collection/project/_git/repository")
                 self.assertEqual(len(GitHistory(clone_path).read().commits), 2)
                 self.assertTrue(clone_path.exists())
         self.assertFalse(clone_path.exists())

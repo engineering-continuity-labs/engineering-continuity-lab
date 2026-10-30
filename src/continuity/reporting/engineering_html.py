@@ -8,7 +8,7 @@ from continuity.reporting.engineering_review import import_package
 from continuity.reporting.portable import canonical
 
 SECTIONS = ('Executive Summary', 'Components', 'Engineering Details', 'Evidence & Methodology')
-NAVIGATION_LABELS = ('Review', 'Components', 'Engineering Details', 'Evidence')
+NAVIGATION_LABELS = ('Executive Review', 'Components', 'Engineering Details', 'Evidence & Methodology')
 
 CSS = '''
 :root{color-scheme:light;--navy:#10283d;--ink:#142f3a;--muted:#627586;--line:#dce5eb;--surface:#fff;--canvas:#f4f7fa;--teal:#15847e;--red:#b8344f;--amber:#a96813;--gray:#6c7782}
