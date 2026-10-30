@@ -59,5 +59,5 @@ def clone_https(url: str, progress: Progress | None = None) -> RepositoryWorkspa
     )
     if result.returncode:
         temporary.cleanup()
-        raise ValueError("unable to clone repository; confirm the public HTTPS clone URL is valid")
+        raise ValueError("unable to clone repository; confirm the HTTPS clone URL and local Git access are valid")
     return RepositoryWorkspace(destination, url, temporary)

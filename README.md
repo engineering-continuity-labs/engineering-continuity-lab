@@ -155,7 +155,7 @@ Licensed under the [Apache License 2.0](LICENSE).
 
 ## v0.2 PR and review evidence
 
-The local explorer optionally collects public GitHub review evidence, separately from unchanged Git contribution scoring. It follows actual REST next links for closed PRs, changed files, and reviews, retaining merged PRs only. The boundary is all reachable public pages, with a 1000-page safety limit per endpoint and GitHub's changed-file ceiling handled conservatively. No token or authentication is needed or supported. API failures/rate limits retain usable evidence as PARTIAL; an interruption without usable PR evidence is FAILED. Missing review evidence means unavailable, not zero reviews.
+Public GitHub review evidence is a separate optional collection, distinct from unchanged Git contribution scoring. The Git-only Local Explorer does not invoke this collection. When review evidence is explicitly collected, the public adapter follows actual REST next links for closed PRs, changed files, and reviews, retaining merged PRs only. The boundary is all reachable public pages, with a 1000-page safety limit per endpoint and GitHub's changed-file ceiling handled conservatively. No token or authentication is needed or supported. API failures/rate limits retain usable evidence as PARTIAL; an interruption without usable PR evidence is FAILED. Missing review evidence means unavailable, not zero reviews.
 
 Review-capable reports add `report_version: "2.0"`; `model: "experimental-v0.1"` continues to identify unchanged Git scoring. Existing Git-only JSON remains valid. Export Analysis Report downloads the entire validated report; reopening it retains review provenance, completeness, events, coverage and concentration. Invalid review structures are rejected.
 

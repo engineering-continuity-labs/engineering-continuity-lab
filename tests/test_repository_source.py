@@ -72,7 +72,7 @@ class RepositorySourceTests(unittest.TestCase):
     def test_clone_failure_is_clear_and_does_not_leak_workspace(self) -> None:
         result = subprocess.CompletedProcess(["git", "clone"], 128, "", "fatal: /tmp/continuity-secret/repository")
         with patch("continuity.git.source.subprocess.run", return_value=result):
-            with self.assertRaisesRegex(ValueError, "unable to clone repository") as error:
+            with self.assertRaisesRegex(ValueError, "HTTPS clone URL and local Git access") as error:
                 resolve_repository("https://example.test/project.git")
         self.assertNotIn("continuity-secret", str(error.exception))
 
