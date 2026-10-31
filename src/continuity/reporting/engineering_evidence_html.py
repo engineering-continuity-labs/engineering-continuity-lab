@@ -67,7 +67,8 @@ def component_bound_paths(legacy: dict[str, Any], component_ref: dict[str, Any] 
             continue
         code_path = path.get('code_path', path)
         nodes = code_path.get('nodes', []) if isinstance(code_path, dict) else []
-        if any(node == component_ref for node in nodes):
+        terminal = nodes[-1] if nodes else None
+        if isinstance(terminal, dict) and terminal.get('kind') == 'COMPONENT' and terminal == component_ref:
             bound.append(path)
     return bound
 
@@ -77,9 +78,17 @@ def component_binding_label(component_ref: dict[str, Any] | None, paths: list[di
         return 'Unavailable — no exact accepted component binding.'
     if not paths:
         return f'Unavailable — {label.lower()} source has no exact path for this component.'
-    statuses = {str(path.get('code_path', path).get('status', 'PARTIAL')) for path in paths if isinstance(path.get('code_path', path), dict)}
-    status = 'VERIFIED' if statuses == {'VERIFIED'} else 'PARTIAL'
-    return f'{status.title()} · {len(paths)} exact bound path(s)'
+    statuses = {str(path.get('code_path', path).get('status', 'UNAVAILABLE')) for path in paths if isinstance(path.get('code_path', path), dict)}
+    if statuses == {'VERIFIED'}:
+        status = 'Verified'
+    elif statuses == {'MISSING'}:
+        status = 'Missing'
+    elif statuses == {'UNAVAILABLE'}:
+        status = 'Unavailable'
+    else:
+        status = 'Partial'
+    qualifier = ', including missing evidence' if 'MISSING' in statuses and status != 'Missing' else ''
+    return f'{status} · {len(paths)} exact bound path(s){qualifier}'
 
 
 def component_path_view(paths: list[dict[str, Any]], label: str) -> str:

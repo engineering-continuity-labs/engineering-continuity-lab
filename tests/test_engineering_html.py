@@ -275,6 +275,11 @@ class EngineeringHTMLTests(unittest.TestCase):
         from continuity.reporting.engineering_evidence_html import component_binding_label
         self.assertEqual(component_binding_label({'identifier': 'src/payments'}, [], 'Traceability'),
                          'Unavailable — traceability source has no exact path for this component.')
+        target = {'identifier': 'src/payments'}
+        self.assertEqual(component_binding_label(target, [{'status': 'MISSING'}], 'Traceability'),
+                         'Missing · 1 exact bound path(s)')
+        self.assertEqual(component_binding_label(target, [{'status': 'VERIFIED'}, {'status': 'MISSING'}], 'Traceability'),
+                         'Partial · 2 exact bound path(s), including missing evidence')
 
     def test_component_binding_rejects_same_name_different_reference_and_ambiguity(self):
         from continuity.reporting.engineering_evidence_html import component_bound_paths
@@ -284,6 +289,7 @@ class EngineeringHTMLTests(unittest.TestCase):
         legacy = {'traceability_evidence': {'result': {'paths': [
             {'status': 'VERIFIED', 'nodes': [{'kind': 'WORK_ITEM', 'identifier': '1001'}, target]},
             {'status': 'VERIFIED', 'nodes': [{'kind': 'WORK_ITEM', 'identifier': '1002'}, impostor]},
+            {'status': 'VERIFIED', 'nodes': [{'kind': 'WORK_ITEM', 'identifier': '1003'}, target, {'kind': 'CHANGED_PATH', 'identifier': 'later.py'}]},
         ]}}}
         paths = component_bound_paths(legacy, target, 'traceability_evidence')
         self.assertEqual(len(paths), 1)
