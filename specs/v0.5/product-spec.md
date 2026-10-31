@@ -1,6 +1,6 @@
 # v0.5 Engineering System Review — Product Owner contract
 
-Status: independently APPROVED intended design/specification only; no delivery, defect, build, assessment or UI runtime implemented by this PR. Starting green main: `24165b279bb17dbb8b8e5ec0ddaf9a9c52798718`.
+Status: IMPLEMENTED in staged increments through Azure acquisition and executive-review presentation. Verification status remains requirement-specific in `traceability.md`; live provider access, accessibility observation and physical-print evidence remain MANUAL. The historical design wording below is retained as provenance.
 
 ## Problem, persona and value
 
@@ -91,5 +91,19 @@ The twelve accepted technical areas remain audit structure; normal navigation us
 | ECL-FR-523 | One-command validated JSON/offline HTML, optionally composing an existing genuine Git report. |
 | ECL-FR-524 | Explicit population/history/cutoff limitations and partial/failed/unsupported distinctions; approved alias privacy without inferred mapping/categories. |
 | ECL-FR-525 | Preserve connection/profile/transport/metric compatibility and bounded runtime-only credential handling. |
+
+## Executive-review UX increment
+
+| ID | Requirement |
+| --- | --- |
+| ECL-FR-526 | Present the public landing page around the manager journey: evidence acquisition, normalization, independent analysis, review generation and component investigation. The landing and Engineering System Review SHALL use the same ECL application shell: dark navigation rail, navigation vocabulary, typography, spacing and responsive behavior. The technical explorer remains available as a secondary route. |
+| ECL-FR-527 | Offer only honest review entry points: a clearly synthetic demonstration, a loopback Local Explorer for a local path or HTTPS Git clone URL (including Azure DevOps Server/on-prem), and a locally generated existing review. The browser SHALL not request, persist or transmit a PAT or accept URL credentials; an already configured local Git credential manager may be used by Git. The landing SHALL name what data each path uses; the generated review header SHALL identify its synthetic or locally generated evidence source. The Git URL path analyzes Git history only and does not claim Azure work-item/build acquisition. |
+| ECL-FR-528 | Present an Engineering System Review with a manager-facing sidebar, exactly four executive KPI cards (Continuity, Delivery, Defects and Builds), attention findings, component investigation and methodology/evidence. KPI presentation does not introduce a combined score or alter assessment semantics. |
+| ECL-FR-529 | Allow component search and show cross-dimension values only where the accepted package provides an exact component binding. Unbound traceability/verification values remain Unavailable; no relationship may be inferred for presentation. |
+| ECL-FR-530 | Keep the HTML review offline, printable and auditable through its unchanged canonical evidence package and visible JSON download. The same generated-report presentation serves synthetic and genuine packages with provenance retained. |
+| ECL-FR-531 | Reduce executive cognitive load through progressive disclosure: the Executive Review SHALL begin with a compact, deterministic selection of at most three accepted attention-finding groups and direct evidence-inspection anchors. The four independent executive dimensions, full finding inventory, component drill-down and methodology SHALL remain available as subsequent layers. This presentation SHALL not invent priorities, actions, causal explanations, health scores or favourable conclusions from unavailable evidence. |
+| ECL-FR-532 | Keep the Executive Review's first reading layer decision-focused: after the bounded attention-finding groups it SHALL show a concise evidence-availability caveat and the four independent dimensions. Component inventories and the detailed evidence-coverage breakdown SHALL be reached through the existing Components and Evidence & Methodology routes, rather than competing for attention in the first layer. |
+| ECL-FR-533 | When the loopback Local Explorer successfully analyzes a local path or HTTPS Git clone URL, it SHALL open an Executive Review generated from that exact in-memory Git report. The review SHALL identify the local Git source, retain continuity evidence, and mark uncollected review, traceability, delivery, quality and build evidence Unavailable rather than substituting Atlas Commerce data. |
+| ECL-FR-534 | Component drill-down SHALL present traceability and verification chains only when a path in accepted canonical evidence terminates in the identical canonical `COMPONENT` reference. It SHALL surface the accepted path and qualification status, and otherwise show Unavailable with a reason. It SHALL not infer a component link from names, paths, dates or titles. |
 
 Accepted handoffs: docs/v0.5-azure-engineering-review.md. Non-atomic live enumeration is deliberately PARTIAL.

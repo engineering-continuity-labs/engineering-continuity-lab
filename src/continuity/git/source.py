@@ -27,26 +27,26 @@ class RepositoryWorkspace:
 
 
 def resolve_repository(source: str, progress: Progress | None = None) -> RepositoryWorkspace:
-    """Return a local workspace for a path or supported public HTTPS clone URL."""
+    """Return a local workspace for a path or HTTPS clone URL without embedded credentials."""
     value = source.strip()
     if not value:
         raise ValueError("repository path or clone URL cannot be empty")
     parsed = urlsplit(value)
     if parsed.scheme:
         if parsed.scheme != "https":
-            raise ValueError("only public HTTPS Git clone URLs are supported")
+            raise ValueError("only HTTPS Git clone URLs without embedded credentials are supported")
         if not parsed.netloc or parsed.username or parsed.password:
-            raise ValueError("authenticated repository URLs are not yet supported")
+            raise ValueError("repository URLs with embedded credentials are not supported")
         if parsed.query or parsed.fragment:
             raise ValueError("clone URL must not include a query or fragment")
         return clone_https(value, progress)
     if value.startswith("git@"):
-        raise ValueError("SSH Git URLs are not yet supported; use a public HTTPS clone URL")
+        raise ValueError("SSH Git URLs are not yet supported; use an HTTPS clone URL without embedded credentials")
     return RepositoryWorkspace(Path(value), None)
 
 
 def clone_https(url: str, progress: Progress | None = None) -> RepositoryWorkspace:
-    """Clone a public HTTPS repository with complete history into a unique workspace."""
+    """Clone an HTTPS repository without embedded URL credentials into a unique workspace."""
     temporary = TemporaryDirectory(prefix="continuity-")
     destination = Path(temporary.name) / "repository"
     if progress is not None:
@@ -59,5 +59,5 @@ def clone_https(url: str, progress: Progress | None = None) -> RepositoryWorkspa
     )
     if result.returncode:
         temporary.cleanup()
-        raise ValueError("unable to clone repository; confirm the public HTTPS clone URL is valid")
+        raise ValueError("unable to clone repository; confirm the HTTPS clone URL and local Git access are valid")
     return RepositoryWorkspace(destination, url, temporary)

@@ -10,6 +10,7 @@ import subprocess
 import webbrowser
 from socketserver import BaseServer
 from typing import Any, cast
+from urllib.parse import urlsplit
 
 from continuity.analysis.filtering import FilterConfig, filter_history
 from continuity.analysis.service import analyze
@@ -20,9 +21,64 @@ from continuity.scoring.model import ScoringConfig
 from continuity.analysis.reviews import analyze_reviews
 from continuity.domain.reviews import ReviewEvidenceRequest
 from continuity.review_providers.github import BOUNDARY, GitHubPublicReviewEvidence, github_repository
+from continuity.domain.engineering_review import Windows
+from continuity.reporting.engineering_html import render as render_engineering_html
+from continuity.reporting.engineering_review import compose
+from continuity.reporting.portable import canonical, loads
+from continuity.reporting.traceability import _PRIVATE
 
 STATIC_DIRECTORY = Path(__file__).resolve().parents[2] / "ui" / "dist"
 MAX_REQUEST_BYTES = 64 * 1024
+
+
+def _repository_alias(source: str | None) -> tuple[str, str]:
+    """Return a display-safe system alias without exporting a local path or URL."""
+    if source is None:
+        return "local-git-repository", "local repository"
+    path = urlsplit(source).path.strip("/")
+    parts = [part.removesuffix(".git") for part in path.split("/") if part]
+    display = "/".join(parts[-2:]) if len(parts) >= 2 else (parts[-1] if parts else "repository")
+    alias = "".join(character if character.isalnum() or character in "-_" else "-" for character in display.lower()).strip("-")
+    return alias or "git-repository", display
+
+
+def local_executive_review(report: dict[str, Any]) -> str:
+    """Compose a truthful Git-only manager review from an explorer report."""
+    raw_as_of = report.get("as_of")
+    if not isinstance(raw_as_of, str):
+        raise ValueError("analysis report has no assessment time")
+    as_of = datetime.fromisoformat(raw_as_of.replace("Z", "+00:00"))
+    if as_of.tzinfo is None:
+        raise ValueError("analysis report has no timezone-aware assessment time")
+    source = report.get("source")
+    source_value = source if isinstance(source, str) else None
+    system, display = _repository_alias(source_value)
+    legacy = {key: value for key, value in report.items() if key != "source"}
+    # The explorer has richer local filtering diagnostics than the portable
+    # Git envelope. Keep only the public envelope's established fields here.
+    filter_evidence = legacy.get("filter_evidence")
+    if isinstance(filter_evidence, dict):
+        legacy["filter_evidence"] = {
+            key: filter_evidence[key]
+            for key in ("input_file_changes", "excluded_file_changes")
+            if key in filter_evidence
+        }
+    legacy = loads(canonical(legacy))
+    # The manager package is public-safe by construction. A Git display name
+    # can coincidentally resemble a credential marker (for example "Pat").
+    # Preserve the contributor identifier and every measured value, but omit
+    # that display-only name from the exported manager package.
+    for component in legacy.get("components", []):
+        for contributor in component.get("contributors", []):
+            if isinstance(contributor.get("name"), str) and _PRIVATE.search(contributor["name"]):
+                contributor["name"] = "redacted-contributor"
+    package = compose(assessment_id="local-git-continuity-review", system=system,
+                      windows=Windows.default(as_of), ecl_report=legacy)
+    return render_engineering_html(
+        package,
+        source_label_override="Local Git history — " + display,
+        provenance_override="LOCAL GIT ANALYSIS · Git history only; Azure Boards, delivery, quality and build evidence were not collected",
+    )
 
 
 def _github_reference(repository: str, local_path: Path) -> str | None:
@@ -92,9 +148,28 @@ class ExplorerHandler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(encoded)
 
+    def send_html(self, status: HTTPStatus, payload: str) -> None:
+        encoded = payload.encode()
+        self.send_response(status)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(encoded)))
+        self.end_headers()
+        self.wfile.write(encoded)
+
     def do_GET(self) -> None:
+        path = urlsplit(self.path).path
         if self.path == "/api/health":
             self.send_json(HTTPStatus.OK, {"local": True})
+            return
+        if path == "/api/executive-review":
+            report = cast(dict[str, Any] | None, getattr(self.server, "latest_report", None))
+            if report is None:
+                self.send_json(HTTPStatus.NOT_FOUND, {"error": "no local analysis report available"})
+            else:
+                try:
+                    self.send_html(HTTPStatus.OK, local_executive_review(report))
+                except ValueError:
+                    self.send_json(HTTPStatus.BAD_REQUEST, {"error": "local analysis cannot produce an executive review"})
             return
         if self.path == "/api/report":
             report = cast(dict[str, Any] | None, getattr(self.server, "initial_report", None))
@@ -122,7 +197,9 @@ class ExplorerHandler(SimpleHTTPRequestHandler):
             repository_path = payload["repository"].strip()
             if not repository_path:
                 raise ValueError("repository path cannot be empty")
-            self.send_json(HTTPStatus.OK, analysis_output(repository_path, bool(payload.get("review_evidence", False))))
+            report = analysis_output(repository_path, bool(payload.get("review_evidence", False)))
+            self.server.latest_report = report  # type: ignore[attr-defined]
+            self.send_json(HTTPStatus.OK, report)
         except (ValueError, OSError, TypeError, OverflowError, json.JSONDecodeError) as error:
             self.send_json(HTTPStatus.BAD_REQUEST, {"error": str(error)})
 
@@ -135,6 +212,7 @@ def make_server(port: int = 8765, initial_report: dict[str, Any] | None = None) 
         raise ValueError("port must be between 0 and 65535")
     server = ThreadingHTTPServer(("127.0.0.1", port), ExplorerHandler)
     server.initial_report = initial_report  # type: ignore[attr-defined]
+    server.latest_report = initial_report  # type: ignore[attr-defined]
     return server
 
 

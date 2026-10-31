@@ -40,7 +40,7 @@ test('static Reviews render, export and reopen retain the exact rows and provena
   // Absence is rendered unavailable and does not invent a zero-review population.
   const v1=exportReport(demoReport());
   await element('upload').onchange({target:{files:[{size:v1.length,name:'v1.json',text:async()=>v1}],value:'v1.json'}});
-  assert.equal(element('review-rows').innerHTML,'');assert.match(element('review-summary').textContent,/Run an analysis/);
+  assert.equal(element('review-rows').innerHTML,'');assert.match(element('review-summary').textContent,/separately collected review evidence/);
   // Malformed input cannot replace the valid report currently rendered.
   const bad=JSON.stringify({...demoReport(),report_version:'2.0',review_evidence:{components:[]}});
   await element('upload').onchange({target:{files:[{size:bad.length,name:'bad.json',text:async()=>bad}],value:'bad.json'}});

@@ -55,6 +55,55 @@ def reviews(component: dict[str, Any]) -> str:
                   ('Reviewer concentration', component.get('concentration')), ('Concentration band', component.get('risk'))]) + '<h4>Unreviewed PRs</h4><p>' + text(', '.join(component.get('unreviewed_pull_requests', [])) or 'None listed; inspect completeness') + '</p><h4>Excluded interactions</h4>' + table([(k.replace('_', ' ').title(), v) for k, v in component.get('excluded_reasons', {}).items()])
 
 
+def component_bound_paths(legacy: dict[str, Any], component_ref: dict[str, Any] | None, evidence_key: str) -> list[dict[str, Any]]:
+    """Return only paths whose canonical terminal component is exactly this component."""
+    if component_ref is None:
+        return []
+    result = legacy.get(evidence_key, {}).get('result', {})
+    paths = result.get('paths', []) if isinstance(result, dict) else []
+    bound: list[dict[str, Any]] = []
+    for path in paths:
+        if not isinstance(path, dict):
+            continue
+        code_path = path.get('code_path', path)
+        nodes = code_path.get('nodes', []) if isinstance(code_path, dict) else []
+        terminal = nodes[-1] if nodes else None
+        if isinstance(terminal, dict) and terminal.get('kind') == 'COMPONENT' and terminal == component_ref:
+            bound.append(path)
+    return bound
+
+
+def component_binding_label(component_ref: dict[str, Any] | None, paths: list[dict[str, Any]], label: str) -> str:
+    if component_ref is None:
+        return 'Unavailable — no exact accepted component binding.'
+    if not paths:
+        return f'Unavailable — {label.lower()} source has no exact path for this component.'
+    statuses = {str(path.get('code_path', path).get('status', 'UNAVAILABLE')) for path in paths if isinstance(path.get('code_path', path), dict)}
+    if statuses == {'VERIFIED'}:
+        status = 'Verified'
+    elif statuses == {'MISSING'}:
+        status = 'Missing'
+    elif statuses == {'UNAVAILABLE'}:
+        status = 'Unavailable'
+    else:
+        status = 'Partial'
+    qualifier = ', including missing evidence' if 'MISSING' in statuses and status != 'Missing' else ''
+    return f'{status} · {len(paths)} exact bound path(s){qualifier}'
+
+
+def component_path_view(paths: list[dict[str, Any]], label: str) -> str:
+    if not paths:
+        return ''
+    body = '<h4>' + text(label) + '</h4>'
+    for path in paths:
+        code_path = path.get('code_path', path)
+        nodes = code_path.get('nodes', []) if isinstance(code_path, dict) else []
+        status = code_path.get('status', 'Unavailable') if isinstance(code_path, dict) else 'Unavailable'
+        body += '<p>' + ' → '.join(reference(node) for node in nodes) + ' · ' + text(status) + '</p>'
+        body += disclosure('Exact accepted path and support', table(fields(path)), technical=True)
+    return body
+
+
 def trace_view(legacy: dict[str, Any]) -> str:
     result = legacy.get('traceability_evidence', {}).get('result')
     if result is None:
@@ -158,7 +207,7 @@ def render_evidence(package: dict[str, Any], names: dict[str, str], findings: li
             body += table([('Selected work-item observations · all supplied windows', len(source['work_items'])), ('Selected PR observations · all supplied windows', len(source['pull_requests'])), ('Selected build observations · all supplied windows', len(source['builds']))])
             body += disclosure('Technical source and completeness', table(fields({k: source.get(k) for k in ('alias', 'retrieved_at', 'capability', 'status', 'populations', 'categories', 'selected_types', 'mapping_complete', 'mapping_revision', 'mappings', 'policy_fingerprint', 'selection_fingerprint')})), technical=True)
     body += disclosure('Technical completeness and source boundaries', table(fields({'sources': a['evidence_sources'], 'completeness': a['completeness'], 'policy': a['policy']})), technical=True)
-    body += '<div id="all-findings"><h3>Finding evidence and suggested investigation</h3>'
+    body += '<div id="all-findings"><h3>Finding evidence and suggested investigation</h3><p><a href="#section-0">Return to Executive Review</a></p>'
     for finding in findings:
         rule = finding['rule_id']
         body += f'<article id="finding-{text(finding["id"])}"><h4>{text(finding["severity"])} · {text(names[rule])}</h4>'

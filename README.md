@@ -8,7 +8,16 @@ Engineering Continuity Lab analyzes local Git history. It makes evidence, assump
 
 <https://engineering-continuity-labs.github.io/engineering-continuity-lab/>
 
-The public demo starts with **Atlas Commerce · SYNTHETIC**, a fictional software system with derived component, review, implementation and declared requirement/test evidence. Four areas—Overview, Continuity, Traceability, and Reviews & Verification—follow the engineering questions. The **Public eShop Validation Sample** remains separately available at its documented revision with explicitly PARTIAL review collection. Both are bundled; the site does not clone or contact eShop. You can load a compatible local JSON report, which remains only in browser memory and is never uploaded or persisted. The source and methodology are available in this repository. Maintainers can find deployment details in [GitHub Pages demo](docs/github-pages.md).
+Start a review from one ECL application shell: **Explore Atlas Commerce** opens the fictional **SYNTHETIC DEMO PROJECT** and **Use your engineering evidence** leads to the local Git/JSON workflow. Atlas uses the same Executive Review, Components, Engineering Details, and Evidence & Methodology navigation as generated offline reports; it is not a separate product. The **Public eShop Validation Sample** remains separately available at its documented revision with explicitly PARTIAL review collection. Bundled samples do not clone or contact external services. Compatible local JSON remains only in browser memory and is never uploaded or persisted. Maintainers can find deployment details in [GitHub Pages demo](docs/github-pages.md).
+
+### Two-minute Atlas Commerce walkthrough
+
+1. Open **Explore Atlas Commerce** from the live demo, then read the three bounded **Start here** findings before treating them as actions.
+2. Open **Components** and select an attention area. Continuity, qualified PR review and other dimensions remain separate.
+3. Choose **Inspect evidence** to see the exact retained Work Item → PR → Commit → Path → Component chain only where the canonical evidence has that exact component binding. `Unavailable` means ECL has no accepted component-bound evidence; it never means zero.
+4. Use **Evidence & Methodology** for collection scope, qualification limits and the downloadable canonical JSON audit package.
+
+Atlas Commerce is fictional and visibly labelled synthetic. The local Git Explorer produces only Git-history continuity evidence. The optional Azure Engineering Review CLI supports explicitly configured read-only acquisition, but real Azure Server/Services operation remains **NOT VERIFIED** until tested against a dedicated non-sensitive environment.
 
 ```mermaid
 flowchart LR
@@ -41,7 +50,7 @@ continuity analyze --repo https://github.com/psf/requests.git
 
 `analyze` emits the complete report. `person` returns contributor evidence by component. The backward-compatible `simulate-departure` command returns Continuity Stress Test evidence for a contributor scenario.
 
-Public HTTPS Git clone URLs are also supported. The tool performs a full temporary clone, analyzes its complete history, and removes the clone after the command completes. Private repository authentication, URL credentials, SSH URLs, and persistent repository caching are not supported yet.
+HTTPS Git clone URLs are also supported, including an Azure DevOps Server/on-prem Git URL. The tool never accepts credentials embedded in a URL; an already configured local Git credential manager may be used by Git. It performs a full temporary clone, analyzes its complete history, and removes the clone after the command completes. Browser credential entry, URL credentials, SSH URLs, and persistent repository caching are not supported yet.
 
 ```text
 continuity analyze
@@ -67,7 +76,7 @@ Start with the local explorer for the normal workflow:
 continuity explorer
 ```
 
-It opens a loopback-only browser interface where you can analyze either a local Git repository path or a public HTTPS clone URL. The report appears immediately in the browser; exporting JSON is optional for sharing or reopening later. A public URL is cloned temporarily with full history and removed when analysis completes. You can also start with a source already selected:
+It opens a loopback-only browser interface where you can analyze either a local Git repository path or an HTTPS clone URL, including an Azure DevOps Server/on-prem Git URL. Do not embed credentials in the URL; an already configured local Git credential manager may be used by Git. The report appears immediately in the browser; exporting JSON is optional for sharing or reopening later. The URL is cloned temporarily with full history and removed when analysis completes. You can also start with a source already selected:
 
 ```sh
 continuity explorer --repo /path/to/repository
@@ -155,7 +164,7 @@ Licensed under the [Apache License 2.0](LICENSE).
 
 ## v0.2 PR and review evidence
 
-The local explorer optionally collects public GitHub review evidence, separately from unchanged Git contribution scoring. It follows actual REST next links for closed PRs, changed files, and reviews, retaining merged PRs only. The boundary is all reachable public pages, with a 1000-page safety limit per endpoint and GitHub's changed-file ceiling handled conservatively. No token or authentication is needed or supported. API failures/rate limits retain usable evidence as PARTIAL; an interruption without usable PR evidence is FAILED. Missing review evidence means unavailable, not zero reviews.
+Public GitHub review evidence is a separate optional collection, distinct from unchanged Git contribution scoring. The Git-only Local Explorer does not invoke this collection. When review evidence is explicitly collected, the public adapter follows actual REST next links for closed PRs, changed files, and reviews, retaining merged PRs only. The boundary is all reachable public pages, with a 1000-page safety limit per endpoint and GitHub's changed-file ceiling handled conservatively. No token or authentication is needed or supported. API failures/rate limits retain usable evidence as PARTIAL; an interruption without usable PR evidence is FAILED. Missing review evidence means unavailable, not zero reviews.
 
 Review-capable reports add `report_version: "2.0"`; `model: "experimental-v0.1"` continues to identify unchanged Git scoring. Existing Git-only JSON remains valid. Export Analysis Report downloads the entire validated report; reopening it retains review provenance, completeness, events, coverage and concentration. Invalid review structures are rejected.
 

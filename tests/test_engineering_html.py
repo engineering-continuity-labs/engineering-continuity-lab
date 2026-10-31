@@ -50,11 +50,15 @@ class EngineeringHTMLTests(unittest.TestCase):
                           delivery=delivery, quality=quality, ecl_report=report)
         document = Document()
         document.feed(render(package))
-        for label in ('Continuity', 'Reviews', 'Traceability', 'Verification',
-                      'Aging delivery items detected', 'Evidence coverage', 'Components requiring attention'):
+        for label in ('Continuity', 'Evidence status',
+                      'Inspect 5 components with scoped attention evidence'):
             self.assertIn(label, document.snapshot)
+        rendered = render(package)
+        for label in ('Reviews', 'Traceability', 'Verification'):
+            self.assertIn(label, rendered)
+        self.assertIn('Aging delivery items detected', render(package))
         self.assertNotIn('ER05', document.snapshot)
-        self.assertIn('Unavailable', document.snapshot)
+        self.assertIn('Major unavailable evidence: Deployment', document.snapshot)
         download = next(a['href'] for tag, a in document.tags if tag == 'a' and 'download' in a)
         self.assertEqual(import_package(b64decode(download.split(',', 1)[1])), package)
     def test_provenance_is_explicit_not_alias_inference(self):
@@ -62,8 +66,19 @@ class EngineeringHTMLTests(unittest.TestCase):
         delivery['alias'] = 'synthetic-export'
         package = compose(assessment_id='review', system='atlas', windows=windows, delivery=delivery)
         self.assertIn('OFFLINE DECLARED · source owner assertions', render(package))
+        self.assertIn('Data source:</strong> Locally generated validated evidence package', render(package))
         self.assertNotIn('explicitly declared demo evidence', render(package))
-        self.assertIn('SYNTHETIC MANAGER EXAMPLE', render(package, synthetic=True))
+        self.assertIn('SYNTHETIC DEMO PROJECT', render(package, synthetic=True))
+
+    def test_safe_local_source_overrides_are_escaped_presentation_only(self):
+        windows, _, _ = sources()
+        package = compose(assessment_id='review', system='local-git', windows=windows)
+        html = render(package, source_label_override='Local Git history — repo&lt;safe&gt;',
+                      provenance_override='LOCAL GIT ANALYSIS · Git history only')
+        self.assertIn('Local Git history — repo&amp;lt;safe&amp;gt;', html)
+        self.assertIn('LOCAL GIT ANALYSIS · Git history only', html)
+        from continuity.reporting.portable import canonical
+        self.assertEqual(import_package(canonical(package)), package)
     def test_sections_numeric_parity_and_offline_reopen(self):
         windows, delivery, quality = sources()
         package = compose(assessment_id='synthetic', system='atlas', windows=windows, delivery=delivery, quality=quality)
@@ -99,15 +114,61 @@ class EngineeringHTMLTests(unittest.TestCase):
         for value in ('10.0 days', '5.0 days', '+5.0 days / +100.0%', '50.0%', '25.0%', 'Opened: 4', 'Resolved: 2', 'Open: 2', 'Reopened: 1'):
             self.assertIn(value, document.snapshot)
         self.assertIn('Trend unavailable', html)
-        self.assertIn('SYNTHETIC MANAGER EXAMPLE', document.snapshot)
+        self.assertIn('SYNTHETIC DEMO PROJECT', html)
+        self.assertIn('Data source:', html)
+        self.assertIn('Synthetic demo data — Atlas Commerce (fictional)', html)
         self.assertIn('Delivery duration increased', document.snapshot)
         for finding in package['assessment']['findings']:
             self.assertIn('id="finding-' + finding['id'] + '"', html)
         self.assertIn('View exact supporting evidence references', html)
         self.assertNotIn('Health =', html)
         self.assertIn('Quality / Defect Evidence', html)
-        self.assertIn('Traceability component binding', html)
-        self.assertIn('Verification component binding', html)
+        self.assertIn('Component traceability evidence', html)
+        self.assertIn('Verification', html)
+
+    def test_executive_shell_has_four_kpis_sidebar_and_component_search(self):
+        package = json.loads((Path(__file__).resolve().parents[1] / 'examples/v0.5-engineering-review.json').read_text())
+        html = render(package, synthetic=True)
+        snapshot = html.split('id="section-0"', 1)[1].split('id="section-1"', 1)[0]
+        self.assertIn('class="report-nav"', html)
+        self.assertIn('data-component-search', html)
+        self.assertIn('data-component-row', html)
+        for label in ('>Executive Review<', '>Components<', '>Engineering Details<', '>Evidence &amp; Methodology<'):
+            self.assertIn(label, html)
+        self.assertLess(snapshot.index('Start here'), snapshot.index('Historical continuity'))
+        self.assertLess(snapshot.index('Historical continuity'), snapshot.index('At a glance'))
+        self.assertLess(snapshot.index('At a glance'), snapshot.index('Executive indicators'))
+        self.assertEqual(snapshot.count('<div class="card">'), 4)
+        for label in ('Continuity', 'Delivery', 'Defects', 'Builds'):
+            self.assertIn('<h3>' + label + '</h3>', snapshot)
+        self.assertNotIn('<h3>PR Flow</h3>', snapshot)
+        self.assertNotIn('<h3>Traceability</h3>', snapshot)
+        self.assertNotIn('<h3>Reviews</h3>', snapshot)
+        self.assertNotIn('<h3>Verification</h3>', snapshot)
+
+    def test_executive_start_here_is_bounded_and_links_to_retained_evidence(self):
+        package = json.loads((Path(__file__).resolve().parents[1] / 'examples/v0.5-engineering-review.json').read_text())
+        html = render(package, synthetic=True)
+        snapshot = html.split('id="section-0"', 1)[1].split('id="section-1"', 1)[0]
+        priority = snapshot.split('<ul class="finding-list priority-findings">', 1)[1].split('</ul>', 1)[0]
+        self.assertLess(snapshot.index('Start here'), snapshot.index('At a glance'))
+        self.assertLessEqual(priority.count('<li class="attention'), 3)
+        self.assertEqual(priority.count('Inspect evidence'), priority.count('href="#finding-'))
+        self.assertIn('View all findings', snapshot)
+        self.assertIn('id="all-findings"', html)
+        self.assertIn('unavailable evidence remains unavailable', snapshot)
+        self.assertNotIn('Health =', snapshot)
+
+    def test_executive_first_layer_defers_component_inventory_and_coverage_detail(self):
+        package = json.loads((Path(__file__).resolve().parents[1] / 'examples/v0.5-engineering-review.json').read_text())
+        html = render(package, synthetic=True)
+        snapshot = html.split('id="section-0"', 1)[1].split('id="section-1"', 1)[0]
+        self.assertLess(snapshot.index('Evidence status:'), snapshot.index('At a glance'))
+        self.assertNotIn('Evidence coverage', snapshot)
+        self.assertNotIn('Components requiring attention', snapshot)
+        self.assertIn('href="#section-1">Inspect 5 components with scoped attention evidence</a>', snapshot)
+        evidence = html.split('id="all-findings"', 1)[1]
+        self.assertIn('href="#section-0">Return to Executive Review</a>', evidence)
 
     def test_pr_only_duration_finding_explains_triggering_population(self):
         from datetime import datetime, timedelta
@@ -127,14 +188,16 @@ class EngineeringHTMLTests(unittest.TestCase):
         windows, delivery, _ = sources()
         delivery['builds'] = []
         package = compose(assessment_id='review', system='atlas', windows=windows, delivery=delivery)
-        document = Document(); document.feed(render(package))
+        rendered = render(package)
+        document = Document(); document.feed(rendered)
         self.assertIn('0 qualified terminal builds', document.snapshot)
         delivery['populations']['builds']['status'] = 'FAILED'
         package = compose(assessment_id='review', system='atlas', windows=windows, delivery=delivery)
-        document = Document(); document.feed(render(package))
+        rendered = render(package)
+        document = Document(); document.feed(rendered)
         self.assertIn('Unavailable qualified terminal builds', document.snapshot)
         self.assertNotIn('0 qualified terminal builds', document.snapshot)
-        self.assertIn('Delivery: Partial', document.snapshot)
+        self.assertIn('<th scope="row">Delivery</th><td>Partial</td>', rendered)
 
     def test_display_precision_never_turns_nonzero_into_zero(self):
         self.assertEqual(display_fraction({'numerator': 60000000, 'denominator': 1}, 86400000000, ' days'), '<0.1 days')
@@ -148,8 +211,9 @@ class EngineeringHTMLTests(unittest.TestCase):
             population['capability'] = 'UNSUPPORTED'
         delivery['work_items'] = []; delivery['pull_requests'] = []; delivery['builds'] = []
         package = compose(assessment_id='review', system='atlas', windows=windows, delivery=delivery)
-        document = Document(); document.feed(render(package))
-        self.assertIn('Delivery: Unavailable', document.snapshot)
+        rendered = render(package)
+        document = Document(); document.feed(rendered)
+        self.assertIn('<th scope="row">Delivery</th><td>Unavailable</td>', rendered)
         self.assertIn('Major unavailable evidence: ', document.snapshot)
 
     def test_global_namespace_cannot_become_component_attention(self):
@@ -158,8 +222,8 @@ class EngineeringHTMLTests(unittest.TestCase):
         report['components'][0]['component'] = 'traceability'
         package = compose(assessment_id='review', system='atlas', windows=windows, ecl_report=report)
         document = Document(); document.feed(render(package))
-        attention = document.snapshot.split('Components requiring attention', 1)[1]
-        self.assertNotIn('Traceability gaps detected', attention)
+        components = render(package).split('id="section-1"', 1)[1].split('id="section-2"', 1)[0]
+        self.assertNotIn('Traceability gaps detected', components)
         self.assertIn('Traceability gaps detected', document.snapshot)
 
     def test_mismatched_component_depth_cannot_join_independent_dimensions(self):
@@ -183,6 +247,56 @@ class EngineeringHTMLTests(unittest.TestCase):
         self.assertIn('Unavailable', components)
         self.assertIn('75.0%', render(compose(assessment_id='review', system='atlas', windows=windows, ecl_report=json.loads((Path(__file__).resolve().parents[1] / 'examples/v0.4-traceability-v3.json').read_text()))).split('id="section-1"', 1)[1].split('id="section-2"', 1)[0])
 
+    def test_component_drilldown_shows_only_exact_traceability_and_verification_paths(self):
+        package = json.loads((Path(__file__).resolve().parents[1] / 'examples/v0.5-engineering-review.json').read_text())
+        html = render(package, synthetic=True)
+        component = html.split('<details class="component-detail" id="component-', 1)[1]
+        self.assertIn('Partial · ', component)
+        self.assertIn('exact bound path(s)', component)
+        self.assertIn('Traceability chains', component)
+        self.assertIn('Verification chains', component)
+        self.assertIn('Work Item 1001', component)
+        self.assertIn('Pull Request 51', component)
+        self.assertIn('Exact accepted path and support', component)
+        payments = html.split('<h3>src/payments</h3>', 1)[1].split('</details>', 1)[0]
+        catalog = html.split('<h3>src/catalog</h3>', 1)[1].split('</details>', 1)[0]
+        self.assertIn('Work Item 1001', payments)
+        self.assertNotIn('Work Item 1001', catalog)
+
+    def test_component_drilldown_explains_missing_or_mismatched_bindings(self):
+        windows, _, _ = sources()
+        report = json.loads((Path(__file__).resolve().parents[1] / 'examples/v0.4-traceability-v3.json').read_text())
+        report['configuration']['component_depth'] = 1
+        html = render(compose(assessment_id='review', system='atlas', windows=windows, ecl_report=report))
+        components = html.split('id="section-1"', 1)[1].split('id="section-2"', 1)[0]
+        self.assertIn('Unavailable — no exact accepted component binding.', components)
+        self.assertNotIn('Traceability chains', components)
+
+        from continuity.reporting.engineering_evidence_html import component_binding_label
+        self.assertEqual(component_binding_label({'identifier': 'src/payments'}, [], 'Traceability'),
+                         'Unavailable — traceability source has no exact path for this component.')
+        target = {'identifier': 'src/payments'}
+        self.assertEqual(component_binding_label(target, [{'status': 'MISSING'}], 'Traceability'),
+                         'Missing · 1 exact bound path(s)')
+        self.assertEqual(component_binding_label(target, [{'status': 'VERIFIED'}, {'status': 'MISSING'}], 'Traceability'),
+                         'Partial · 2 exact bound path(s), including missing evidence')
+
+    def test_component_binding_rejects_same_name_different_reference_and_ambiguity(self):
+        from continuity.reporting.engineering_evidence_html import component_bound_paths
+        from continuity.reporting.engineering_html import exact_component_rows
+        target = {'kind': 'COMPONENT', 'provider': 'source', 'repository': 'demo', 'identifier': 'src/payments', 'configuration': 'depth-2'}
+        impostor = {**target, 'repository': 'other-demo'}
+        legacy = {'traceability_evidence': {'result': {'paths': [
+            {'status': 'VERIFIED', 'nodes': [{'kind': 'WORK_ITEM', 'identifier': '1001'}, target]},
+            {'status': 'VERIFIED', 'nodes': [{'kind': 'WORK_ITEM', 'identifier': '1002'}, impostor]},
+            {'status': 'VERIFIED', 'nodes': [{'kind': 'WORK_ITEM', 'identifier': '1003'}, target, {'kind': 'CHANGED_PATH', 'identifier': 'later.py'}]},
+        ]}}}
+        paths = component_bound_paths(legacy, target, 'traceability_evidence')
+        self.assertEqual(len(paths), 1)
+        self.assertEqual(paths[0]['nodes'][0]['identifier'], '1001')
+        row = {'component_ref': target, 'dimensions': {}}
+        self.assertEqual(exact_component_rows([row, {**row, 'dimensions': {'delivery': {}}}], 2), {})
+
     def test_nonmidnight_window_keeps_exact_utc_bounds(self):
         from datetime import datetime, timezone
         from continuity.domain.engineering_review import Window, Windows
@@ -190,9 +304,9 @@ class EngineeringHTMLTests(unittest.TestCase):
         current = Window(previous.end, datetime(2026, 9, 1, 18, tzinfo=timezone.utc))
         windows = Windows(current, previous, current.end)
         package = compose(assessment_id='review', system='atlas', windows=windows)
-        document = Document(); document.feed(render(package))
-        self.assertIn('2026-09-01T12:00:00Z', document.snapshot)
-        self.assertIn('2026-09-01T18:00:00Z', document.snapshot)
+        html = render(package)
+        self.assertIn('2026-09-01T12:00:00Z', html)
+        self.assertIn('2026-09-01T18:00:00Z', html)
 
     def test_absent_mapping_never_receives_global_counts(self):
         windows, delivery, quality = sources()

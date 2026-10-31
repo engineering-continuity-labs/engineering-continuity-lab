@@ -1,6 +1,21 @@
 # v0.5 acceptance and pre-development QA plan
 
-Status: PLANNED runtime verification. This PR verifies only specification/design consistency, independent review and unchanged baseline CI. Synthetic numbers below are reproducible hand-worked planned oracles, not executed/generated fixtures; live profiles/publication/actual rendering remain MANUAL.
+## Executive-review UX acceptance criteria
+
+| ID | Criterion |
+| --- | --- |
+| ECL-AC-565 | END_TO_END_JOURNEY / SHARED_APPLICATION_SHELL: landing exposes the five-step evidence-to-investigation journey and primary synthetic review path; landing and Atlas review visibly share the dark navigation rail, Executive Review / Components / Engineering Details / Evidence & Methodology vocabulary, visual system and responsive shell. |
+| ECL-AC-566 | MANAGER_FIRST_LANDING / HONEST_SOURCE_SETUP / VISIBLE_DATA_SOURCE / NO_FAKE_CONNECTION: the loopback explorer visibly offers a local repository path and an HTTPS Git clone URL, explicitly including Azure DevOps Server/on-prem Git URLs; the static page directs users to launch that local explorer. The public page distinguishes synthetic demo data from Git-history collection and an already generated local review; the review header names its source class. The Git URL path is Git-only; no browser PAT, Azure work-item/build connection, or URL credential transmission is claimed, while an already configured local Git credential manager may be used by Git. |
+| ECL-AC-567 | EXECUTIVE_FOUR_KPIS / ATTENTION_FINDINGS / NO_COMBINED_SCORE: report shows exactly four derived executive dimensions and accepted findings without a health score. |
+| ECL-AC-568 | COMPONENT_ATTENTION_TABLE / EXACT_COMPONENT_DRILLDOWN / TRACEABILITY_EXACT_BINDING_ONLY / COMPONENT_SEARCH: component views preserve unavailable semantics and only accepted exact bindings create chains. |
+| ECL-AC-569 | HUMAN_EVIDENCE_PANEL / JSON_SOURCE_OF_TRUTH / REAL_REPORT_SAME_UX / PRINT_REPORT: the same validated package drives synthetic and genuine offline HTML; print excludes navigation and JSON remains downloadable. |
+| ECL-AC-570 | TECHNICAL_EXPLORER_SECONDARY / RESPONSIVE_DESKTOP / RESPONSIVE_MOBILE / SAFE_DYNAMIC_CONTENT: technical details remain secondary, responsive and escaped. |
+| ECL-AC-571 | PROGRESSIVE_EXECUTIVE_DISCLOSURE / NO_SEMANTIC_DRIFT: immediately after the report identity and evidence provenance, Executive Review shows a `Start here` layer with no more than three deterministically ordered accepted finding groups, each retaining an anchor to its exact inspection evidence. `At a glance` then retains exactly four independent executive cards; all remaining accepted findings remain reachable through the full inventory. Empty, unavailable or unsupported evidence is explicitly labelled and never transformed into a priority, zero or favourable conclusion. |
+| ECL-AC-572 | EXECUTIVE_FIRST_LAYER / EVIDENCE_CAVEAT / DEFERRED_DETAIL: the Executive Summary shows the bounded finding layer, a concise unavailable-evidence caveat with a route to Evidence & Methodology, and exactly four independent cards before any component inventory or detailed coverage breakdown. It links to Components rather than duplicating component rows. The full finding evidence view includes a return route to Executive Review. |
+| ECL-AC-573 | LOCAL_GIT_EXECUTIVE_REVIEW / NO_ATLAS_FALLBACK: after successful loopback path or HTTPS clone analysis, the browser opens a same-origin Executive Review derived from the returned Git report. It identifies a safe local Git source alias, retains the exact Git continuity findings/components, and labels non-collected review, traceability, verification, delivery, quality and build dimensions Unavailable. Atlas Commerce remains available only through its explicit synthetic-demo entry point. Failed analysis does not navigate away from the source form. |
+| ECL-AC-574 | COMPONENT_EVIDENCE_EXACT_BINDING: a component with an identical canonical terminal `COMPONENT` node in accepted traceability or verification paths shows its exact chain and status; partial chains remain PARTIAL. A missing, intermediate, ambiguous or configuration-mismatched component binding remains Unavailable with a human-readable reason, and global evidence is never attributed to that component. |
+
+Status: staged implementation and verification. Historical planned-language below is retained as provenance; current requirement status is tracked in `traceability.md`. Live provider operation, observed accessibility and physical-print verification remain MANUAL.
 
 | ID | Observable criterion / planned evidence |
 | --- | --- |
@@ -77,7 +92,7 @@ Defined before development; test plan: docs/v0.5-manager-report-experience.md. T
 
 | ID | Named criterion | Expected observation |
 | --- | --- | --- |
-| ECL-AC-523 | MANAGER_TWO_MINUTE_SUMMARY | Executive Summary comes first: system/period/provenance, ≤8 finding groups, 6–9 cards, ≤10 attention components and compact coverage; two-minute human comprehension MANUAL. |
+| ECL-AC-523 | MANAGER_TWO_MINUTE_SUMMARY | Executive Summary comes first: system/period/provenance, exactly four executive cards (Continuity, Delivery, Defects and Builds), ≤8 finding groups, ≤10 attention components and compact coverage; two-minute human comprehension MANUAL. |
 | ECL-AC-524 | HUMAN_FINDING_LABELS | All ER01–09 findings use fixed observation labels in normal UI; original rule IDs preserved in audit. |
 | ECL-AC-525 | NO_RULE_ID_PRIMARY_VIEW | Primary summary contains no rule ID/version, raw ref, schema or fingerprint. |
 | ECL-AC-526 | COMPONENT_ATTENTION_TABLE | Semantic component table separates six dimensions, sorts explicit severity first, and leaves unbound evidence Unavailable. |
@@ -88,7 +103,7 @@ Defined before development; test plan: docs/v0.5-manager-report-experience.md. T
 | ECL-AC-531 | NO_OVERALL_SCORE | No overall product/team/maturity score, combined number or combined traffic-light status. |
 | ECL-AC-532 | METHOD_DETAILS_PRESERVED | Capabilities, collection/mapping status, boundaries, sample sizes, exclusions and thresholds remain inspectable. |
 | ECL-AC-533 | EXACT_EVIDENCE_AVAILABLE | Every finding has its exact full support and rule/version/scope accessible; full source package retained. |
-| ECL-AC-534 | SYNTHETIC_LABEL | Explicit synthetic render displays SYNTHETIC MANAGER EXAMPLE; aliases never infer provenance. |
+| ECL-AC-534 | SYNTHETIC_LABEL | Explicit synthetic render displays SYNTHETIC DEMO PROJECT; aliases never infer provenance. |
 | ECL-AC-535 | PRINT_ORDER | Print follows Executive Summary→Components→Engineering Details→Evidence & Methodology; disclosures opened for print and restored after. |
 | ECL-AC-536 | KEYBOARD_ACCESS | Semantic headings/tables, native keyboard disclosures/anchors and visible focus; real keyboard/screen-reader verification MANUAL. |
 | ECL-AC-537 | SAFE_DYNAMIC_TEXT | Dynamic labels and source text escaped, inert JSON cannot break out; no remote assets/telemetry; size limit retained. |
